@@ -9,6 +9,7 @@ import Tkinter as tk
 class OligoDatabase(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
+        
         container = tk.Frame(self)
 
         container.pack(side="top", fill="both", expand=True)
@@ -26,41 +27,46 @@ class OligoDatabase(tk.Tk):
         self.show_frame(StartPage)
 
     def show_frame(self, cont):
+        self.title("PathoFinder Oligo DB") #not the usual titlenaming
         frame = self.frames[cont]
         frame.tkraise()
 
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        #self.master.title("PathoFinder Oligo DB")
+        tk.Frame.__init__(self, parent)        
+
         
         label = tk.Label(self, text="Home")
-        label.grid(pady=10, padx=10)
+        label.grid(columnspan=6)
 
         button1 = tk.Button(self, text="Oligos",
                          command=lambda:controller.show_frame(OligosPage))
-        button1.grid()
+        button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
 
         button2 = tk.Button(self, text="Projects",
                          command=lambda:controller.show_frame(ProjectsPage))
-        button2.grid()
+        button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
         button3 = tk.Button(self, text="Employees")
                              # go to Employees page
-        button3.grid()
+        button3.grid(row=6, column=2, pady=5, padx=10, sticky="WE")
 
         button4 = tk.Button(self, text="Batches")
                             # go to batches page
-        button4.grid()
+        button4.grid(row=2, column=4, pady=5, padx=10, sticky="EW")
 
         button5 = tk.Button(self, text="Suppliers")
                             # go to Suppliers page
-        button5.grid()
+        button5.grid(row=4, column=4, pady=5, padx=10, sticky="EW")
 
         button6 = tk.Button(self, text="Experiments",
                         command=lambda:controller.show_frame(ExperimentsPage))
                             # go to Experiments page
-        button6.grid()
+        button6.grid(row=6, column=4, pady=5, padx=10, sticky="EW")
+
+        button7 = tk.Button(self, text="Quit")
+                            # Close the program
+        button7.grid(row=8, column=8, pady=5, padx=10)
 
 class OligosPage(tk.Frame):
     def __init__(self, parent, controller):
