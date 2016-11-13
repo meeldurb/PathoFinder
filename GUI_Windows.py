@@ -18,7 +18,7 @@ class OligoDatabase(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, OligosPage):
+        for F in (StartPage, OligosPage, ProjectsPage):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="NSEW")
@@ -34,24 +34,39 @@ class StartPage(tk.Frame):
         tk.Frame.__init__(self, parent)
         #self.master.title("PathoFinder Oligo DB")
         
-        label = tk.Label(self, text="Start Page")
+        label = tk.Label(self, text="Home")
         label.grid(pady=10, padx=10)
 
         button1 = tk.Button(self, text="Oligos",
                          command=lambda:controller.show_frame(OligosPage))
         button1.grid()
 
+        button1 = tk.Button(self, text="Projects",
+                         command=lambda:controller.show_frame(ProjectsPage))
+        button1.grid()
+        
+
 class OligosPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
-        label = tk.Label(self, text="Start Page")
+        label = tk.Label(self, text="Oligo Menu")
         label.grid(pady=10, padx=10)
 
-        button1 = tk.Button(self, text="Back to Start Page",
+        button1 = tk.Button(self, text="Back to Home",
                          command=lambda:controller.show_frame(StartPage))
         button1.grid()
 
+class ProjectsPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        label = tk.Label(self, text="Project menu")
+        label.grid(pady=10, padx=10)
+
+        button1 = tk.Button(self, text="Back to Home",
+                         command=lambda:controller.show_frame(StartPage))
+        button1.grid()
 
 
 if __name__ == "__main__":
