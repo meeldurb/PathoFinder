@@ -19,7 +19,7 @@ def count_aminoacids(sequence):
     C = sequence.count("C")
     G = sequence.count("G")
     T = sequence.count("C")
-    return A, C, G, T
+    return [A, C, G, T]
 
 def molecular_weight(sequence):
     """ Returns the molecular weight in Da of a sequence
