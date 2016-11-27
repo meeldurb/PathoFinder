@@ -1,7 +1,12 @@
 """Author: Melanie van den Bosch
 Jorn van der Ent
-Script for having multiple windows frames in a GUI"""
+Script for having multiple windows frames in a GUI
+"""
 
+
+## When you want to add a page, simply create a new class
+## put the page its classname inside the Frames for-loop
+## and add the page in the Startpage class under commands
 from __future__ import division
 import math
 import sys
@@ -34,7 +39,8 @@ class OligoDatabase(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, OligosPage, ProjectsPage, ExperimentsPage):
+        for F in (StartPage, OligosPage, ProjectsPage, EmployeesPage,
+                  BatchesPage, SuppliersPage, ExperimentsPage):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -84,16 +90,17 @@ class StartPage(tk.Frame):
                          command=lambda:controller.show_frame("ProjectsPage"))
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
-        button3 = tk.Button(self, text="Employees")
+        button3 = tk.Button(self, text="Employees",
+                        command=lambda:controller.show_frame("EmployeesPage"))
                              # go to Employees page
         button3.grid(row=6, column=2, pady=5, padx=10, sticky="WE")
 
-        button4 = tk.Button(self, text="Batches")
-                            # go to batches page
+        button4 = tk.Button(self, text="Batches",
+                        command=lambda:controller.show_frame("BatchesPage"))
         button4.grid(row=2, column=4, pady=5, padx=10, sticky="EW")
 
-        button5 = tk.Button(self, text="Suppliers")
-                            # go to Suppliers page
+        button5 = tk.Button(self, text="Suppliers",
+                        command=lambda:controller.show_frame("SuppliersPage"))
         button5.grid(row=4, column=4, pady=5, padx=10, sticky="EW")
 
         button6 = tk.Button(self, text="Experiments",
@@ -153,6 +160,55 @@ class ProjectsPage(tk.Frame):
                          command=lambda:controller.show_frame("StartPage"))
         button1.grid(row=8, column=8, pady=5, padx=10)
 
+
+
+class EmployeesPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+
+        
+        label = tk.Label(self, text="Employees menu")
+        label.grid(columnspan=8, pady=10)
+
+        button1 = tk.Button(self, text="Back to Home",
+                         command=lambda:controller.show_frame("StartPage"))
+        button1.grid(row=8, column=8, pady=5, padx=10)
+
+
+class BatchesPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+
+        
+        label = tk.Label(self, text="Batches menu")
+        label.grid(columnspan=8, pady=10)
+
+        button1 = tk.Button(self, text="Back to Home",
+                         command=lambda:controller.show_frame("StartPage"))
+        button1.grid(row=8, column=8, pady=5, padx=10)
+
+class SuppliersPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+
+        
+        label = tk.Label(self, text="Suppliers menu")
+        label.grid(columnspan=8, pady=10)
+
+        button1 = tk.Button(self, text="Back to Home",
+                         command=lambda:controller.show_frame("StartPage"))
+        button1.grid(row=8, column=8, pady=5, padx=10)
+
+
 class ExperimentsPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -183,6 +239,8 @@ class ExperimentsPage(tk.Frame):
         button5 = tk.Button(self, text="Lookup")
                              #show text fields where you can lookup
         button5.grid(row=6, column=4, pady=5, padx=10, sticky="WE")
+
+
 
 
 if __name__ == "__main__":
