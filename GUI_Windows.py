@@ -11,7 +11,9 @@ from __future__ import division
 import math
 import sys
 import Tkinter as tk
-import tkFont 
+import tkFont
+from tkFileDialog import askopenfilename
+
 
 
 mycolor = '#%02x%02x%02x' % (0, 182, 195)
@@ -40,7 +42,8 @@ class OligoDatabase(tk.Tk):
         self.frames = {}
 
         for F in (StartPage, OligosPage, ProjectsPage, EmployeesPage,
-                  BatchesPage, SuppliersPage, ExperimentsPage):
+                  BatchesPage, SuppliersPage, ExperimentsPage,
+                  ViewAllOligos, NewOligo):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -128,11 +131,13 @@ class OligosPage(tk.Frame):
                          command=lambda:controller.show_frame("StartPage"))
         button1.grid(row=8, column=8, pady=5, padx=10)
 
-        button2 = tk.Button(self, text="View All Oligos")
-                            #goes to table view of all oligos
+        button2 = tk.Button(self, text="View All Oligos",
+                        command=lambda:controller.show_frame("ViewAllOligos"))
+                            #Put here the table view that Jorn made
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
-        button3 = tk.Button(self, text="New Oligo")
+        button3 = tk.Button(self, text="New Oligo",
+                            command=lambda:controller.show_frame("NewOligo"))
                             #goes to new screen with textfields
         button3.grid(row=6, column=2, pady=5, padx=10, sticky="WE")
 
@@ -143,8 +148,64 @@ class OligosPage(tk.Frame):
         button5 = tk.Button(self, text="Modify Oligo")
                             #gos to table view with textfields
         button5.grid(row=6, column=4, pady=5, padx=10, sticky="EW")
+        
+class ViewAllOligos(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
 
         
+        label = tk.Label(self, text="View All Oligos")
+        label.grid(columnspan=8, pady=10)
+
+        button1 = tk.Button(self, text="Back to Oligo Menu",
+                         command=lambda:controller.show_frame("OligosPage"))
+        button1.grid(row=8, column=8, pady=5, padx=10)
+
+class NewOligo(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+
+        
+        label = tk.Label(self, text="Entry of New Oligos")
+        label.grid(row=1, columnspan=8, pady=10)
+
+        button1 = tk.Button(self, text="Back to Oligo Menu",
+                         command=lambda:controller.show_frame("OligosPage"))
+        button1.grid(row=9, column=9, pady=5, padx=10, sticky="EW")
+
+        button2 = tk.Button(self, text="Back to Home",
+                         command=lambda:controller.show_frame("StartPage"))
+        button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
+
+        label1 = tk.Label(self, text="Order number:")
+        label1.grid (row=2, column=1)
+        
+        label2 = tk.Label(self, text="Import from file at location:")
+        label2.grid(row=8, column=1, pady=5, padx=10)
+
+        entry_text = tk.Entry(self, width=40)
+        entry_text.grid(row=8, column=3, columnspan=4, rowspan=1, sticky="NS")
+
+        button3 = tk.Button(self, text="Browse",
+                            command=self.browse2file)
+        button3.grid(row=8, column=7)
+
+        button4 = tk.Button(self, text="Upload")
+                            #command = Uploads the file in the path into the
+                            # specified columns of the db
+        button4.grid(row=8, column=8)
+
+    def browse2file(self):
+        filename = askopenfilename()
+
+        
+
 class ProjectsPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -153,14 +214,14 @@ class ProjectsPage(tk.Frame):
         self.controller = controller
 
         
-        label = tk.Label(self, text="Project menu")
+        label = tk.Label(self, text="Projects menu")
         label.grid(columnspan=8, pady=10)
 
         button1 = tk.Button(self, text="Back to Home",
                          command=lambda:controller.show_frame("StartPage"))
         button1.grid(row=8, column=8, pady=5, padx=10)
 
-
+        
 
 class EmployeesPage(tk.Frame):
     def __init__(self, parent, controller):
