@@ -5,7 +5,7 @@ Script for having multiple windows frames in a GUI"""
 from __future__ import division
 import math 
 import Tkinter as tk
-import tkFont
+import tkFont 
 
 #helv36 = tkFont.Font(family="Helvetica",size=36,weight="bold")
 
@@ -16,10 +16,16 @@ class OligoDatabase(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
 
+        # setting a default font for complete GUI
+        default_font = tkFont.nametofont("TkDefaultFont")
+        default_font.configure(family="Verdana", size=24)
         
         container = tk.Frame(self, width=300, height=200, bg=mycolor)
         #not working bg color
 
+        # the container is where a bunch of frames will be stacked on top
+        # of eachother, then the one we want visible will be raised
+        # above the others
         container.pack(side="top", fill="both", expand=True)
         
         container.grid_rowconfigure(0, weight=1)
@@ -29,25 +35,41 @@ class OligoDatabase(tk.Tk):
 
         for F in (StartPage, OligosPage, ProjectsPage, ExperimentsPage):
             page_name = F.__name__
+            # the classes (.. Page) require a widget that will be parent of
+            # the class and object that will serve as a controller
+            # it creates an instance of the class (subclass of Frame widget),
+            # and assigns it (temporarily) in frame
             frame = F(container, self)#parent=container, controller=self
+            # passing self as second controller parameter, the new class
+            # instances will be able to call methods in the OligoDB class object
+            # key to dict is the page name
             self.frames[page_name] = frame
+
+            # put all the pages in the same location;
+            # the one on the top of the stacking order is the one visible
             frame.grid(row=0, column=0,  sticky="NSEW")
 
         self.title("PathoFinder Oligo DB")
         self.show_frame("StartPage")
 
     def show_frame(self, page_name):
-        #self.title("PathoFinder Oligo DB")#not the usual titlenaming
+        """ Raises the frame of the given page name to the top
+        """
         frame = self.frames[page_name]
-        frame.tkraise() # raises the frame to the top
+        frame.tkraise() 
 
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
+        # each page is a subblass of tk.Frame class, this calls
+        # constructor of parent class
+        # necessary to initialize internal structures that make up frame widget
+        # send in a ref to another widget which is to act as the parent
+        # of this new widget
         tk.Frame.__init__(self, parent)        
-        #self.customFont = tkFont.Font(family="Helvetica", size=20)
+       
 
         #save a reference to controller in each page:
-        #self.controller = controller
+        self.controller = controller
         
 
         label = tk.Label(self, text="Home")
@@ -86,7 +108,10 @@ class OligosPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
+        #save a reference to controller in each page:
+        self.controller = controller
 
+        
         label = tk.Label(self, text="Oligo Menu")
         label.grid(columnspan=8, pady=10)
 
@@ -115,7 +140,10 @@ class ProjectsPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
+        #save a reference to controller in each page:
+        self.controller = controller
 
+        
         label = tk.Label(self, text="Project menu")
         label.grid(columnspan=8, pady=10)
 
@@ -127,6 +155,9 @@ class ExperimentsPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
+        #save a reference to controller in each page:
+        self.controller = controller
+        
         
         label = tk.Label(self, text="Experiments menu")
         label.grid(columnspan=8, pady=10)
