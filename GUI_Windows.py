@@ -10,6 +10,7 @@ Script for having multiple windows frames in a GUI
 from __future__ import division
 import math
 import sys
+import os
 import Tkinter as tk
 import tkFont
 from tkFileDialog import askopenfilename
@@ -168,6 +169,7 @@ class NewOligo(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
+        path_var = tk.StringVar()
         #save a reference to controller in each page:
         self.controller = controller
 
@@ -189,11 +191,12 @@ class NewOligo(tk.Frame):
         label2 = tk.Label(self, text="Import from file at location:")
         label2.grid(row=8, column=1, pady=5, padx=10)
 
-        entry_text = tk.Entry(self, width=40)
-        entry_text.grid(row=8, column=3, columnspan=4, rowspan=1, sticky="NS")
+        text_path = tk.Entry(self, width=30, textvariable=path_var)
+                                # command = shows the path of the file
+        text_path.grid(row=8, column=3, columnspan=4)
 
         button3 = tk.Button(self, text="Browse",
-                            command=self.browse2file)
+                            command=lambda:path_var.set(askopenfilename()))
         button3.grid(row=8, column=7)
 
         button4 = tk.Button(self, text="Upload")
@@ -201,9 +204,7 @@ class NewOligo(tk.Frame):
                             # specified columns of the db
         button4.grid(row=8, column=8)
 
-    def browse2file(self):
-        filename = askopenfilename()
-
+        
         
 
 class ProjectsPage(tk.Frame):
