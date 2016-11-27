@@ -8,9 +8,8 @@ import sys
 import Tkinter as tk
 import tkFont 
 
-#helv36 = tkFont.Font(family="Helvetica",size=36,weight="bold")
 
-mycolor = '#%02x%02x%02x' % (64, 204, 208)
+mycolor = '#%02x%02x%02x' % (0, 182, 195)
 
 
 class OligoDatabase(tk.Tk):
@@ -19,10 +18,11 @@ class OligoDatabase(tk.Tk):
 
         # setting a default font for complete GUI
         default_font = tkFont.nametofont("TkDefaultFont")
-        default_font.configure(family="Verdana", size=24)
+        default_font.configure(family="Corbel", size=24)
+        self.tk_setPalette(background=mycolor, foreground="white",
+                           activeBackground="grey", activeForeground="black")
         
-        container = tk.Frame(self, width=300, height=200, bg=mycolor)
-        #not working bg color
+        container = tk.Frame(self, width=300, height=200)
 
         # the container is where a bunch of frames will be stacked on top
         # of eachother, then the one we want visible will be raised
