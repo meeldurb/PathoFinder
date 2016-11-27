@@ -10,10 +10,12 @@ import tkFont
 #helv36 = tkFont.Font(family="Helvetica",size=36,weight="bold")
 
 mycolor = '#%02x%02x%02x' % (64, 204, 208)
+TITLE_FONT = ("Helvetica", 18, "bold")
 
 class OligoDatabase(tk.Tk):
-    def __init__(self):
-        tk.Tk.__init__(self)
+    def __init__(self, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
+
         
         container = tk.Frame(self, width=300, height=200, bg=mycolor)
         #not working bg color
@@ -26,31 +28,37 @@ class OligoDatabase(tk.Tk):
         self.frames = {}
 
         for F in (StartPage, OligosPage, ProjectsPage, ExperimentsPage):
-            frame = F(container, self)
-            self.frames[F] = frame
+            page_name = F.__name__
+            frame = F(container, self)#parent=container, controller=self
+            self.frames[page_name] = frame
             frame.grid(row=0, column=0,  sticky="NSEW")
 
-        self.show_frame(StartPage)
+        self.title("PathoFinder Oligo DB")
+        self.show_frame("StartPage")
 
-    def show_frame(self, cont):
-        self.title("PathoFinder Oligo DB")#not the usual titlenaming
-        frame = self.frames[cont]
+    def show_frame(self, page_name):
+        #self.title("PathoFinder Oligo DB")#not the usual titlenaming
+        frame = self.frames[page_name]
         frame.tkraise() # raises the frame to the top
 
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)        
+        #self.customFont = tkFont.Font(family="Helvetica", size=20)
 
+        #save a reference to controller in each page:
+        #self.controller = controller
         
+
         label = tk.Label(self, text="Home")
         label.grid(columnspan=8, pady=10)
 
         button1 = tk.Button(self, text="Oligos", bg=mycolor,
-                         command=lambda:controller.show_frame(OligosPage))
+                            command=lambda:controller.show_frame("OligosPage"))
         button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
 
         button2 = tk.Button(self, text="Projects",
-                         command=lambda:controller.show_frame(ProjectsPage))
+                         command=lambda:controller.show_frame("ProjectsPage"))
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
         button3 = tk.Button(self, text="Employees")
@@ -66,7 +74,7 @@ class StartPage(tk.Frame):
         button5.grid(row=4, column=4, pady=5, padx=10, sticky="EW")
 
         button6 = tk.Button(self, text="Experiments",
-                        command=lambda:controller.show_frame(ExperimentsPage))
+                        command=lambda:controller.show_frame("ExperimentsPage"))
                             # go to Experiments page
         button6.grid(row=6, column=4, pady=5, padx=10, sticky="EW")
 
@@ -78,11 +86,12 @@ class OligosPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
+
         label = tk.Label(self, text="Oligo Menu")
         label.grid(columnspan=8, pady=10)
 
         button1 = tk.Button(self, text="Back to Home",
-                         command=lambda:controller.show_frame(StartPage))
+                         command=lambda:controller.show_frame("StartPage"))
         button1.grid(row=8, column=8, pady=5, padx=10)
 
         button2 = tk.Button(self, text="View All Oligos")
@@ -106,22 +115,24 @@ class ProjectsPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
+
         label = tk.Label(self, text="Project menu")
         label.grid(columnspan=8, pady=10)
 
         button1 = tk.Button(self, text="Back to Home",
-                         command=lambda:controller.show_frame(StartPage))
+                         command=lambda:controller.show_frame("StartPage"))
         button1.grid(row=8, column=8, pady=5, padx=10)
 
 class ExperimentsPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
+        
         label = tk.Label(self, text="Experiments menu")
         label.grid(columnspan=8, pady=10)
 
         button1 = tk.Button(self, text="Back to Home",
-                         command=lambda:controller.show_frame(StartPage))
+                         command=lambda:controller.show_frame("StartPage"))
         button1.grid(row=8, column=8, pady=5, padx=10)
 
         button2 = tk.Button(self, text="View All Experiments")
