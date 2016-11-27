@@ -3,14 +3,15 @@ Jorn van der Ent
 Script for having multiple windows frames in a GUI"""
 
 from __future__ import division
-import math 
+import math
+import sys
 import Tkinter as tk
 import tkFont 
 
 #helv36 = tkFont.Font(family="Helvetica",size=36,weight="bold")
 
 mycolor = '#%02x%02x%02x' % (64, 204, 208)
-TITLE_FONT = ("Helvetica", 18, "bold")
+
 
 class OligoDatabase(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -65,8 +66,8 @@ class StartPage(tk.Frame):
         # necessary to initialize internal structures that make up frame widget
         # send in a ref to another widget which is to act as the parent
         # of this new widget
-        tk.Frame.__init__(self, parent)        
-       
+        tk.Frame.__init__(self, parent)
+
 
         #save a reference to controller in each page:
         self.controller = controller
@@ -100,10 +101,11 @@ class StartPage(tk.Frame):
                             # go to Experiments page
         button6.grid(row=6, column=4, pady=5, padx=10, sticky="EW")
 
-        button7 = tk.Button(self, text="Quit")
+        button7 = tk.Button(self, text="Quit", command=controller.destroy)
                             # Close the program
         button7.grid(row=8, column=8, pady=5, padx=10)
 
+        
 class OligosPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
