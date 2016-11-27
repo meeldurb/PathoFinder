@@ -14,15 +14,23 @@ import math
 # probably the input sequence is read as a string  
 ## class OligoProperties(self):
 ## i can probably make a class of this one
-def count_aminoacids(sequence):
+def count_aminoacids(DNA_seq):
+    """Returns a tuple of the number of each amino acid
+
+    Keyword Arguments:
+        DNA_seq -- string, a DNA sequence
+    """ 
     A = sequence.count("A")
     C = sequence.count("C")
     G = sequence.count("G")
     T = sequence.count("C")
     return [A, C, G, T]
 
-def molecular_weight(sequence):
+def molecular_weight(DNA_seq):
     """ Returns the molecular weight in Da of a sequence
+
+    Keyword Arguments:
+        DNA_seq -- string, a DNA sequence
     """
     # weight constants for aminoacids
     A_WEIGHT = 313.21
@@ -38,8 +46,11 @@ def molecular_weight(sequence):
                  T * T_WEIGHT - 61.95
     return seq_weight
 
-def GC_content(sequence):
+def GC_content(DNA_seq):
     """ Returns the GC content in % of a sequence
+
+    Keyword Arguments:
+        DNA_seq -- string, a DNA sequence
     """
     # counting the aminoacids
     A, C, G, T = count_aminoacids(sequence)
@@ -47,18 +58,22 @@ def GC_content(sequence):
     GC_percentage = G+C/length(sequence)
     return GC_percentage
     
-def length(sequence):
+def length(DNA_seq):
     """ Returns the length in numbers of a sequence
+
+    Keyword Arguments:
+        DNA_seq -- string, a DNA sequence
     """
     result = len(sequence)
     return result
 
-def melting_temp(sequence, Na_conc=None):
+def melting_temp(DNA_seq, Na_conc=None):
     # needs some work still
-    """ calculates the melting temperature of a sequence
-    by taking the other parameters in regard
-    sequence -- the sequence that you want to calculate the Tm of
-    Na_conc -- the concentration of Na+(mM) present
+    """ Returns the melting temperature(Tm) of a DNA sequence
+
+    Keyword Arguments:
+        DNA_seq -- string, a DNA sequence
+        Na_conc -- integer, the concentration of Na+(in mM) in solution
     """
     # counting the aminoacids
     A, C, G, T = count_aminoacids(sequence)
