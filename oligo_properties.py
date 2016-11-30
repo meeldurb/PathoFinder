@@ -24,7 +24,7 @@ def count_aminoacids(DNA_seq):
     C = sequence.count("C")
     G = sequence.count("G")
     T = sequence.count("C")
-    return [A, C, G, T]
+    return A, C, G, T
 
 def molecular_weight(DNA_seq):
     """ Returns the molecular weight in Da of a sequence
@@ -55,11 +55,11 @@ def GC_content(DNA_seq):
     # counting the aminoacids
     A, C, G, T = count_aminoacids(sequence)
     # dividing frequency GC by total amino acids    
-    GC_percentage = G+C/length(sequence)
+    GC_percentage = (G+C)/(length(sequence))
     return GC_percentage
     
 def length(DNA_seq):
-    """ Returns the length in numbers of a sequence
+    """ Returns the length in integers of a sequence
 
     Keyword Arguments:
         DNA_seq -- string, a DNA sequence
@@ -69,11 +69,11 @@ def length(DNA_seq):
 
 def melting_temp(DNA_seq, Na_conc=None):
     # needs some work still
-    """ Returns the melting temperature(Tm) of a DNA sequence
+    """ Returns the melting temperature(Tm) in float of a DNA sequence
 
     Keyword Arguments:
         DNA_seq -- string, a DNA sequence
-        Na_conc -- integer, the concentration of Na+(in mM) in solution
+        Na_conc -- float, the concentration of Na+(in mM) in solution
     """
     # counting the aminoacids
     A, C, G, T = count_aminoacids(sequence)
@@ -95,5 +95,20 @@ def melting_temp(DNA_seq, Na_conc=None):
 
 
 if __name__== "__main__":
+    # input DNA sequence
     sequence = "ACTGCCGTAGGCTACCCAGT"
+    print sequence
+    # Run and print functions
+    count_seq = count_aminoacids(sequence)
+    print count_seq
+    mol_w_seq = molecular_weight(sequence)
+    print mol_w_seq
+    length_seq = length(sequence)
+    print length_seq
+    GC_seq = GC_content(sequence)
+    print GC_seq
+    melt_seq_default = melting_temp(sequence)
+    print melt_seq_default
+    melt_seq_na = melting_temp(sequence, 0.30)
+    print melt_seq_na
     
