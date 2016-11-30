@@ -43,8 +43,10 @@ class OligoDatabase(tk.Tk):
         self.frames = {}
 
         for F in (StartPage, OligosPage, ProjectsPage, EmployeesPage,
-                  BatchesPage, SuppliersPage, ExperimentsPage,
-                  ViewAllOligos, NewOligo):
+                  BatchesPage, SuppliersPage, ExperimentPage,
+                  ViewAllOligos, NewOligo, ModifyOligo, LookupOligo,
+                  ViewExperimentPage, NewExperimentPage, EditExperimentPage,
+                  LookupExperimentPage, ContinueNewExperimentPage):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -108,7 +110,7 @@ class StartPage(tk.Frame):
         button5.grid(row=4, column=4, pady=5, padx=10, sticky="EW")
 
         button6 = tk.Button(self, text="Experiments",
-                        command=lambda:controller.show_frame("ExperimentsPage"))
+                        command=lambda:controller.show_frame("ExperimentPage"))
                             # go to Experiments page
         button6.grid(row=6, column=4, pady=5, padx=10, sticky="EW")
 
@@ -138,15 +140,18 @@ class OligosPage(tk.Frame):
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
         button3 = tk.Button(self, text="New Oligo",
-                            command=lambda:controller.show_frame("NewOligo"))
+                        command=lambda:controller.show_frame("NewOligo"))
                             #goes to new screen with textfields
         button3.grid(row=6, column=2, pady=5, padx=10, sticky="WE")
 
-        button4 = tk.Button(self, text="Lookup Oligo")
+        button4 = tk.Button(self, text="Lookup Oligo",
+                        command=lambda:controller.show_frame("LookupOligo"))
                             #goes to table view of one oligo
         button4.grid(row=4, column=4, pady=5, padx=10, sticky="EW")
 
-        button5 = tk.Button(self, text="Modify Oligo")
+        button5 = tk.Button(self, text="Modify Oligo",
+                        command=lambda:controller.show_frame("ModifyOligo"))
+
                             #gos to table view with textfields
         button5.grid(row=6, column=4, pady=5, padx=10, sticky="EW")
         
@@ -164,6 +169,10 @@ class ViewAllOligos(tk.Frame):
         button1 = tk.Button(self, text="Back to Oligo Menu",
                          command=lambda:controller.show_frame("OligosPage"))
         button1.grid(row=8, column=8, pady=5, padx=10)
+
+        button2 = tk.Button(self, text="Back to Home",
+                         command=lambda:controller.show_frame("StartPage"))
+        button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
 
 class NewOligo(tk.Frame):
     def __init__(self, parent, controller):
@@ -191,8 +200,9 @@ class NewOligo(tk.Frame):
         label2 = tk.Label(self, text="Import from file at location:")
         label2.grid(row=8, column=1, pady=5, padx=10)
 
-        text_path = tk.Entry(self, width=30, textvariable=path_var)
-                                # command = shows the path of the file
+        text_path = tk.Entry(self, bg='white', fg='black', width=50,
+                             textvariable=path_var, justify="left" )
+                                # add feature that it will expand upon selection
         text_path.grid(row=8, column=3, columnspan=4)
 
         button3 = tk.Button(self, text="Browse",
@@ -205,7 +215,43 @@ class NewOligo(tk.Frame):
         button4.grid(row=8, column=8)
 
         
+class LookupOligo(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+
         
+        label = tk.Label(self, text="Lookup Oligos")
+        label.grid(columnspan=8, pady=10)
+
+        button1 = tk.Button(self, text="Back to Oligo Menu",
+                         command=lambda:controller.show_frame("OligosPage"))
+        button1.grid(row=8, column=8, pady=5, padx=10)
+
+        button2 = tk.Button(self, text="Back to Home",
+                         command=lambda:controller.show_frame("StartPage"))
+        button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
+
+class ModifyOligo(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+
+        
+        label = tk.Label(self, text="Modify Oligos")
+        label.grid(columnspan=8, pady=10)
+
+        button1 = tk.Button(self, text="Back to Oligo Menu",
+                         command=lambda:controller.show_frame("OligosPage"))
+        button1.grid(row=8, column=8, pady=5, padx=10)
+
+        button2 = tk.Button(self, text="Back to Home",
+                         command=lambda:controller.show_frame("StartPage"))
+        button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
 
 class ProjectsPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -271,7 +317,7 @@ class SuppliersPage(tk.Frame):
         button1.grid(row=8, column=8, pady=5, padx=10)
 
 
-class ExperimentsPage(tk.Frame):
+class ExperimentPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
@@ -279,30 +325,192 @@ class ExperimentsPage(tk.Frame):
         self.controller = controller
         
         
-        label = tk.Label(self, text="Experiments menu")
+        label = tk.Label(self, text="Experiment menu")
         label.grid(columnspan=8, pady=10)
 
         button1 = tk.Button(self, text="Back to Home",
                          command=lambda:controller.show_frame("StartPage"))
         button1.grid(row=8, column=8, pady=5, padx=10)
 
-        button2 = tk.Button(self, text="View All Experiments")
+        button2 = tk.Button(self, text="View All Experiments",
+                         command=lambda:controller.show_frame("ViewExperimentPage"))
+
                              #show a table view of all experiments
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
-        button3 = tk.Button(self, text="New Experiment")
+        button3 = tk.Button(self, text="New Experiment",
+                        command=lambda:controller.show_frame("NewExperimentPage"))
                              #show some text fields for adding experiments
         button3.grid(row=6, column=2, pady=5, padx=10, sticky="WE")
 
-        button4 = tk.Button(self, text="Edit Experiments")
+        button4 = tk.Button(self, text="Edit Experiment",
+                        command=lambda:controller.show_frame("EditExperimentPage"))
                              #show text fields where you can browse for experiment
         button4.grid(row=4, column=4, pady=5, padx=10, sticky="WE")
 
-        button5 = tk.Button(self, text="Lookup")
-                             #show text fields where you can lookup
+        button5 = tk.Button(self, text="Lookup Experiment",
+                        command=lambda:controller.show_frame("LookupExperimentPage"))
         button5.grid(row=6, column=4, pady=5, padx=10, sticky="WE")
 
 
+class ViewExperimentPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+
+        
+        label = tk.Label(self, text="View Experiment")
+        label.grid(columnspan=8, pady=10)
+
+        button1 = tk.Button(self, text="Back to Home",
+                         command=lambda:controller.show_frame("StartPage"))
+        button1.grid(row=8, column=8, pady=5, padx=10)
+
+        button2 = tk.Button(self, text="Back to Experiments",
+                         command=lambda:controller.show_frame("ExperimentPage"))
+        button2.grid(row=6, column=8, pady=5, padx=10)
+
+class NewExperimentPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+
+        
+        label = tk.Label(self, text="New Experiment")
+        label.grid(columnspan=8, pady=10)
+
+        button1 = tk.Button(self, text="Back to Home",
+                         command=lambda:controller.show_frame("StartPage"))
+        button1.grid(row=10, column=7, pady=5, padx=10)
+
+        button2 = tk.Button(self, text="Back to Experiments",
+                         command=lambda:controller.show_frame("ExperimentPage"))
+        button2.grid(row=9, column=7, pady=5, padx=10)
+
+        button3 = tk.Button(self, text="Continue",
+                            command=lambda:controller.show_frame(
+                                "ContinueNewExperimentPage"))
+        button3.grid(row=9, column=6, pady=5, padx=10)
+
+        #Experiment_ID label+entry
+        label1 = tk.Label(self, text="Experiment_ID: ")
+                        #command = self generated a new number
+        label1.grid(row=3, column=2, sticky="E")
+
+        entry1 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry1.grid(row=3, column=3, sticky="NSEW")
+
+        # Project label+entry
+        label2 = tk.Label(self, text="Project: ")
+        label2.grid(row=3, column=5, sticky="E")
+
+        entry2 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry2.grid(row=3, column=6, sticky="NSEW")
+
+        # Oligo 1 label + 3 entry fields        
+        label3 = tk.Label(self, text="Oligo 1")
+        label3.grid(row=5, column=2, sticky="EW")
+
+        entry3_1 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry3_1.grid(row=6, column=2, sticky="EW")
+
+        entry3_2 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry3_2.grid(row=7, column=2, sticky="EW")
+
+        entry3_3 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry3_3.grid(row=8, column=2, sticky="EW") 
+
+        # Oligo 2 label + 3 entry fields        
+        label4 = tk.Label(self, text="Oligo 2")
+        label4.grid(row=5, column=4, sticky="EW")
+
+        entry4_1 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry4_1.grid(row=6, column=4, sticky="EW")
+
+        entry4_2 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry4_2.grid(row=7, column=4, sticky="EW")
+
+        entry4_3 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry4_3.grid(row=8, column=4, sticky="EW")
+
+        # Oligo 3 label + 3 entry fields        
+
+        label5 = tk.Label(self, text="Oligo 3")
+        label5.grid(row=5, column=6, sticky="EW")
+
+        entry5_1 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry5_1.grid(row=6, column=6, sticky="EW")
+
+        entry5_2 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry5_2.grid(row=7, column=6, sticky="EW")
+
+        entry5_3 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry5_3.grid(row=8, column=6, sticky="EW")
+
+class ContinueNewExperimentPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+
+        
+        label = tk.Label(self, text="New Experiment (continued)")
+        label.grid(columnspan=8, pady=10)
+
+        button1 = tk.Button(self, text="Back to Experiments Home",
+                         command=lambda:controller.show_frame("ExperimentPage"))
+        button1.grid(row=8, column=7, pady=5, padx=10)
+
+        button2 = tk.Button(self, text="Back to Experiment",
+                         command=lambda:controller.show_frame("NewExperimentPage"))
+        button2.grid(row=9, column=7, pady=5, padx=10)
+
+        button3 = tk.Button(self, text="Upload")
+                            #command to upload the experiment to database
+        button3.grid(row=9, column=7, pady=5, padx=10)
+
+class EditExperimentPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+
+        
+        label = tk.Label(self, text="Edit Experiment")
+        label.grid(columnspan=8, pady=10)
+
+        button1 = tk.Button(self, text="Back to Home",
+                         command=lambda:controller.show_frame("StartPage"))
+        button1.grid(row=8, column=8, pady=5, padx=10)
+
+        button2 = tk.Button(self, text="Back to Experiments",
+                         command=lambda:controller.show_frame("ExperimentPage"))
+        button2.grid(row=6, column=8, pady=5, padx=10)
+
+class LookupExperimentPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+
+        
+        label = tk.Label(self, text="Lookup Experiment")
+        label.grid(columnspan=8, pady=10)
+
+        button1 = tk.Button(self, text="Back to Home",
+                         command=lambda:controller.show_frame("StartPage"))
+        button1.grid(row=8, column=8, pady=5, padx=10)
+
+        button2 = tk.Button(self, text="Back to Experiments",
+                         command=lambda:controller.show_frame("ExperimentPage"))
+        button2.grid(row=6, column=8, pady=5, padx=10)
 
 
 if __name__ == "__main__":
