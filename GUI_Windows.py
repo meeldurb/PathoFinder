@@ -462,17 +462,80 @@ class ContinueNewExperimentPage(tk.Frame):
         label = tk.Label(self, text="New Experiment (continued)")
         label.grid(columnspan=8, pady=10)
 
+
         button1 = tk.Button(self, text="Back to Experiments Home",
                          command=lambda:controller.show_frame("ExperimentPage"))
-        button1.grid(row=8, column=7, pady=5, padx=10)
+        button1.grid(row=15, column=7, pady=5, padx=10)
 
         button2 = tk.Button(self, text="Back to Experiment",
                          command=lambda:controller.show_frame("NewExperimentPage"))
-        button2.grid(row=9, column=7, pady=5, padx=10)
+        button2.grid(row=14, column=7, pady=5, padx=10)
 
         button3 = tk.Button(self, text="Upload")
                             #command to upload the experiment to database
-        button3.grid(row=9, column=7, pady=5, padx=10)
+        button3.grid(row=13, column=6, pady=5, padx=10)
+
+        # Experiment_ID label and entry
+        label1 = tk.Label(self, text="Experiment_ID: ")
+        label1.grid(row=2, column=2, sticky="EW")
+
+        entry1 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry1.grid(row=2, column=3, sticky="NSEW")
+
+        # Oligo 1 label 
+        label1 = tk.Label(self, text="Oligo 1")
+        label1.grid(row=3, column=2, sticky="EW")
+
+        entry1_1 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry1_1.grid(row=4, column=2, sticky="EW")
+
+        entry1_2 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry1_2.grid(row=7, column=2, sticky="EW")
+
+        entry1_3 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry1_3.grid(row=10, column=2, sticky="EW")
+        
+        # Oligo 2 label 
+        label2 = tk.Label(self, text="Oligo 2")
+        label2.grid(row=3, column=3, sticky="EW")
+
+        entry2_1 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry2_1.grid(row=4, column=3, sticky="EW")
+
+        entry2_2 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry2_2.grid(row=5, column=3, sticky="EW")
+
+        entry2_3 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry2_3.grid(row=6, column=3, sticky="EW")
+
+        entry2_4 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry2_4.grid(row=7, column=3, sticky="EW")
+
+        entry2_5 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry2_5.grid(row=8, column=3, sticky="EW")
+
+        entry2_6 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry2_6.grid(row=9, column=3, sticky="EW")
+
+        entry2_7 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry2_7.grid(row=10, column=3, sticky="EW")
+
+        entry2_8 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry2_8.grid(row=11, column=3, sticky="EW")
+
+        entry2_9 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry2_9.grid(row=12, column=3, sticky="EW")
+
+        # Oligo 3 label 
+        label4 = tk.Label(self, text="Oligo 3")
+        label4.grid(row=3, column=4, sticky="EW")
+
+        entry4_1 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry4_1.grid(row=6, column=4, sticky="EW")
+
+        entry4_2 = tk.Entry(self, bg='white', fg='black', width=30)
+        entry4_2.grid(row=8, column=4, sticky="EW")
+
 
 class EditExperimentPage(tk.Frame):
     def __init__(self, parent, controller):
