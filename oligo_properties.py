@@ -3,6 +3,7 @@
 """
 Author: Melanie van den Bosch
 Script for calculating oligo properties
+lala
 """
 
 # import statements
