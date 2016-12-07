@@ -97,18 +97,18 @@ def melting_temp(DNA_seq, Na_conc=None):
 if __name__== "__main__":
     # input DNA sequence
     sequence = "ACTGCCGTAGGCTACCCAGT"
-    print sequence
+    print "sequence is: ", sequence
     # Run and print functions
     count_seq = count_aminoacids(sequence)
-    print count_seq
+    print "count of A, C, G, T respectively: ", count_seq
     mol_w_seq = molecular_weight(sequence)
-    print mol_w_seq
+    print "molecular weight of sequence: ", mol_w_seq
     length_seq = length(sequence)
-    print length_seq
+    print "length of the sequence: ", length_seq
     GC_seq = GC_content(sequence)
-    print GC_seq
+    print "GC content of the sequence: ", GC_seq
     melt_seq_default = melting_temp(sequence)
-    print melt_seq_default
+    print "melting temp of the sequence(default): ", melt_seq_default
     melt_seq_na = melting_temp(sequence, 0.30)
-    print melt_seq_na
+    print "melting temp of the sequence(Na = 0.3 mM): ", melt_seq_na
     
