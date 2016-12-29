@@ -200,6 +200,9 @@ def execute_select_queries(query): #works
     db.close()
     return results
 
+### SEARCH
+
+
 def search_in_single_attribute(table_str, attribute, search_input): #works
     """Performs a search query on the database, returns all matches in a tuple
 
@@ -207,7 +210,7 @@ def search_in_single_attribute(table_str, attribute, search_input): #works
     table_str       -- string, a table
     attribute       -- string, names of the attribute to search
     search_input    -- string, the word to look for"""
-    sql = """SELECT * FROM %s WHERE %s = '%s'""" % (table_str, attribute, search_input)
+    sql = """SELECT * FROM %s WHERE %s REGEXP '%s'""" % (table_str, attribute, search_input)
     return execute_select_queries(sql)
 
 def search_entire_table(table_str, attributes_list, search_input): #works
@@ -221,6 +224,27 @@ def search_entire_table(table_str, attributes_list, search_input): #works
     for attribute in attributes_list:
         results += search_in_single_attribute(table_str, attribute, search_input)
     return results
+
+def search(table_str, attributes_list, search_input): # works
+    """Performs a search query on the database, recognizes spaces as ANDS, returns all matches in a list
+
+    Keyword Arguments:
+    table_str       -- string, a table
+    attribute       -- string, names of the attributes to search
+    search_input    -- string, the words to look for"""
+    search_words = str.split(search_input)
+    list_searches = []
+    results = []
+    for word in search_words:
+        list_searches += [search_entire_table(table_str, attributes_list, word)]
+    for i in range(len(list_searches)):
+        for j in range(len(list_searches[i])):
+            if list_searches[i][j] in list_searches[i-1]:
+                if list_searches[i][j] not in results:
+                    results += [list_searches[i][j]]
+    return results              
+            
+
 
 # vanaf hier moeten ze gecheckt worden met de nieuwe database (komen namelijk uit het verslag)
 # oligo and batches
@@ -271,7 +295,7 @@ def experimentlist_approval():
         ORDER BY experiment_date"
     return execute_select_queries(sql)
     
-def oligolistt_test_results():
+def oligolist_test_results():
 
     sql = "SELECT DISTINCT oligo.oligo_ID, oligo_name,\
         COUNT(IF(approved_status='approved',1,NULL)) AS Approved,\
@@ -364,10 +388,15 @@ if __name__ == "__main__":
     host = '127.0.0.1'
     user = 'root'
     password = 'root'
-    database = 'pathofinder_db'
+    database = 'groupwork'
     #insert_row('Oligo', { 'oligo_ID' : 'OlI0012', 'oligo_name' : 'test', 'oligo_type': '', 'sequence' : 'J', 'description':'',  'entry_date':'', 'creator':'EMP', 'update_date':'', 'modifier':'EMP', 'label5prime':'', 'label3prime':'', 'labelM1':'', 'labelM1position':'', 'pathogen_name':'', 'target':'', 'notes':''})
     #delete_row('Employee', { 'employee_ID' : 'EMP0066', 'emp_name' : 'test20'})
     #update_row('Employee', { 'employee_ID' : 'EMP0066', 'emp_name' : 'test20'}, { 'employee_ID' : 'EMP0065', 'emp_name' : 'test19'})
     #print search_in_single_attribute('Employee', 'employee_ID', 'EMP0007')
-    #search_entire_table('Employee', ['employee_ID', 'emp_name'], 'EMP0063')
-    oligo_to_temp_bin('OLI0013')
+    #print search_entire_table('Employee', ['employee_ID', 'emp_name'], 'EMP0063')
+    #print search("Employee", ['employee_ID', 'emp_name'], "EMP 0000")
+    print search('Oligo', ['oligo_ID', 'oligo_name', 'oligo_type', '\
+                 sequence', 'description', 'entry_date', 'creator', '\
+                 update_date', 'modifier', 'label5prime', 'label3prime', '\
+                 labelM1', 'labelM1position', 'notes'], "A test OLI0006")
+    #oligo_to_temp_bin('OLI0013')
