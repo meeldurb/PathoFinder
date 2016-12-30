@@ -8,6 +8,10 @@ SQL database
 import MySQLdb
 import time
 import datetime
+from query_functies_dict import execute_edit_queries
+from query_functies_dict import make_insert_row
+from query_functies_dict import insert_row
+
 
 
 def execute_edit_queries(query): #works
@@ -27,24 +31,24 @@ def execute_edit_queries(query): #works
     cursor.close()
     db.close() #disconnect from server
 
-def make_insert_row(table_str, attribute_value_dict): #works
-    """Returns a insert row SQL statement in a string
-        
-    Keyword Arguments:
-    table_str               -- string, a table
-    attribute_value_dict    -- a dictionary, with the attribute as key and the value as value"""
-    #initialize input for string formatting
-    attributes_string = "("
-    values_list = []
-    #retrieve attributes and values from dictionary and add them to the string
-    for key in attribute_value_dict:
-        values_list += [attribute_value_dict[key]]
-        attributes_string += "%s, " % key
-    attributes_string = attributes_string[:(len(attributes_string)-2)]
-    attributes_string += ')'
-    values_tuple = tuple(values_list)
-    sql = """INSERT INTO `%s` %s VALUES %s """ % (table_str, attributes_string, values_tuple)
-    return sql
+##def make_insert_row(table_str, attribute_value_dict): #works
+##    """Returns a insert row SQL statement in a string
+##        
+##    Keyword Arguments:
+##    table_str               -- string, a table
+##    attribute_value_dict    -- a dictionary, with the attribute as key and the value as value"""
+##    #initialize input for string formatting
+##    attributes_string = "("
+##    values_list = []
+##    #retrieve attributes and values from dictionary and add them to the string
+##    for key in attribute_value_dict:
+##        values_list += [attribute_value_dict[key]]
+##        attributes_string += "%s, " % key
+##    attributes_string = attributes_string[:(len(attributes_string)-2)]
+##    attributes_string += ')'
+##    values_tuple = tuple(values_list)
+##    sql = """INSERT INTO `%s` %s VALUES %s """ % (table_str, attributes_string, values_tuple)
+##    return sql
 
 def insert_row(table_str, attribute_value_dict): #works
     """Inserts a new row
@@ -108,6 +112,7 @@ def parse_oligofile(filename):
 ##            print import_supplier_tuple
             insert_row("Oligo", import_oli_dict)
             #insert_row("Batch", import_batch_dict)
+            # does not work yet because batchno itself is empty
             insert_row("Supplier", import_supplier_dict)
             rowcount += 1
         else:
