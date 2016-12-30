@@ -7,6 +7,8 @@ SQL database
 
 import csv
 import query_functies_as_dictionary
+import time
+import datetime
 
 def open_file(filename):
     """ Opens a file and reads it"""
@@ -39,4 +41,8 @@ def parse_oligofile(filename):
     # at the end it is imported to the database and emptied
         for row in import_dict:
             
-   
+def get_date_stamp():
+    """Returns a string of the current date in format DD-MM-YYYY"""
+    ts = time.time()
+    date = datetime.datetime.fromtimestamp(ts).strftime('%d-%m-%Y')
+    return date   
