@@ -321,16 +321,16 @@ def supplier_delivery_time(): # need unified entry of dates in the database, wor
             str_to_date(`order`.order_date, '%d-%m-%Y'))) As difference\
             FROM  supplier, batch, `order`\
             where batch.order_number = `order`.order_number AND `order`.supplier_ID = supplier.supplier_ID\
-            Group By supplier.supplier_name;  
+            Group By supplier.supplier_name"
     return execute_select_queries(sql)
 
 # Project and the linked oligos
 
-def oligos_from_project(project_name): #for some weird reason it gives an ERROR: EOL while scanning string literal, at the beginning of the sql statement 
+def oligos_from_project(project_name): #works
     """Query for creating a table with the oligos from the given project
 
     Keyword Arguments:
-    project_name  -- string, the name of the project (not ID!) in the project table """
+    project_name    -- string, the name of the project (not ID!) in the projec table."""
 
     sql = "SELECT `oligo`.oligo_ID, oligo_name, oligo_type, sequence, description,\
             entry_date, creator, update_date, modifier, label5prime,\
@@ -342,21 +342,26 @@ def oligos_from_project(project_name): #for some weird reason it gives an ERROR:
             ORDER BY entry_date DESC" % project_name
     return execute_select_queries(sql)
 
-def find_approved_oligos_for_project(project_name):
+def find_approved_oligos_for_project(project_name): # works
     """Query for finding which oligo sets are approved for the given project name
 
     Keyword Arguments:
     project_name  -- string, the name of the project (not ID!) in the project table"""
-    projectnames = tuple([project_name]*2)
-    sql = "SELECT experiment.experiment_date, approval.oligo_ID_fwd,\
-            approval.oligo_ID_rev, approval.oligo_ID_probe\
-            FROM project_oligo, project, approval, experiment, oligo\
-            WHERE project.project_name = %s\
+    sql = "SELECT DISTINCT experiment.experiment_date, experiment.experiment_ID,\
+            approval.oligo_ID_fwd, approval.oligo_ID_rev, approval.oligo_ID_probe,\
+            approval.oligo_ID_4, approval.oligo_ID_5\
+            FROM project_oligo, project, approval, experiment, oligo \
+            WHERE project.project_name = '%s'\
+            AND project.project_ID = project_oligo.project_ID\
             AND project_oligo.oligo_ID = oligo.oligo_ID\
-            AND oligo.oligo_ID = approval.oligo_ID_fwd\
-            AND approval.approved_status = %s\
+            AND approval.approved_status = 'approved'\
             AND approval.experiment_ID = experiment.experiment_ID\
-            ORDER BY experiment.experiment_date DESC" % projectnames
+            AND (oligo.oligo_ID = approval.oligo_ID_fwd \
+            OR oligo.oligo_ID = approval.oligo_ID_rev\
+            OR oligo.oligo_ID = approval.oligo_ID_probe \
+            OR oligo.oligo_ID = approval.oligo_ID_4\
+            OR oligo.oligo_ID = approval.oligo_ID_5)\
+            ORDER BY experiment.experiment_date DESC" % project_name
     return execute_select_queries(sql)    
 
 
@@ -392,5 +397,7 @@ if __name__ == "__main__":
     #print testlist_oligo('OLI000018')
     #print oligolist_test_results()
     #print supplier_synthesis_quality()
-    print oligos_from_project('something')
+    #print oligos_from_project('something')
+    #print find_approved_oligos_for_project('something')
+    
     
