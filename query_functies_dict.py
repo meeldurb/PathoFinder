@@ -374,6 +374,63 @@ def get_date_stamp():
     date = datetime.datetime.fromtimestamp(ts).strftime('%d-%m-%Y')
     return date
 
+def open_oligofile(filename):
+    """ Opens a file and reads it"""
+
+    file_content = open(filename, "r")
+    # oligoreader = csv.reader(file_content, delimiter=';')
+    return file_content
+
+
+def parse_oligofile(filename):
+    """ Returns the cells of the oligo import file to a dictionary
+
+    Keyword arguments:
+        filename -- string, the filename of the import oligo file
+
+    Returns:
+        oligo_dict -- dictionary, a dictionary of the data that will be imported
+        into the database
+    """
+    import_data = open_oligofile(filename)
+    # initialize empty dictionaries
+    import_oli_dict = {}
+    import_batch_dict = {}
+    import_supplier_dict = {}
+    rowcount = 0
+    # for every single row import the data into the database
+    for row in import_data:
+        if rowcount > 0:
+            oli_ID, oli_name, oli_type, oli_seq, descr, label5, label3, labelm, \
+                      labelpos, path_name, target, notes, syn_lev, pur_met, \
+                      supp_name = row.strip().split(";")
+            import_oli_dict["oligo_ID"] = oli_ID
+            import_oli_dict["oligo_name"] = oli_name
+            import_oli_dict["oligo_type"] = oli_type
+            import_oli_dict["sequence"] = oli_seq
+            import_oli_dict["description"] = descr
+            import_oli_dict["label5prime"] = label5
+            import_oli_dict["label3prime"] = label3
+            import_oli_dict["labelM1"] = labelm
+            import_oli_dict["labelM1position"] = labelpos
+            import_oli_dict["pathogen_name"] = path_name
+            import_oli_dict["target"] = target
+            import_oli_dict["notes"] = notes
+            import_batch_dict["synthesis_level_ordered"] = syn_lev
+            import_batch_dict["purification_method"] = pur_met
+            import_supplier_dict["supplier_name"] = supp_name
+##            print import_oli_tuple
+##            import_batch_tuple = ("Batch", import_batch_dict)
+##            print import_batch_tuple
+##            import_supplier_tuple = ("Supplier", import_supplier_dict)
+##            print import_supplier_tuple
+            insert_row("Oligo", import_oli_dict)
+            #insert_row("Batch", import_batch_dict)
+            insert_row("Supplier", import_supplier_dict)
+            rowcount += 1
+        else:
+            rowcount += 1
+
   
 
 if __name__ == "__main__":
