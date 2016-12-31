@@ -187,12 +187,88 @@ def find_approved_oligos_for_project(project_name): # works
             ORDER BY experiment.experiment_date DESC" % project_name
     return execute_select_queries(sql)
 
+def build_standard_table_sql(table):
+    db_tables = {
+        'oligo' : (['oligo_ID', 'oligo_name', 'oligo_type',
+                   'sequence', 'description', 'entry_date',
+                   'creator', 'update_date', 'modifier',
+                   'label5prime', 'label3prime', 'labelM1',
+                   'labelM1position', 'pathogen_name', 'target', 'notes'], ['oligo']),
+        'project_oligo' : (['oligo_ID', '`project_oligo`.project_ID'], ['project_oligo']),
+        'project' : (['project_ID', 'project_name'], ['project']),
+        'batch' : (['batch_number', 'oligo_ID', 'synthesis_level_ordered',
+                   'purification_method', 'synthesis_level_delivered',
+                   'spec_sheet_location', 'order_number', 'delivery_date',
+                   'order_status'], ['batch']),
+        'order' : (['order_number', 'supplier_ID', 'order_date', 'employee_ID'], ['order']),
+        'supplier' : (['supplier_ID', 'supplier_name'], ['supplier']),
+        'oligo_oder_list' : (['.oligo_orderlist_PK', 'batch_number', 'supplier_ID',
+                             'oligo_ID', 'employee_ID'], ['oligo_oder_list']),
+        'employee' : (['employee_ID', 'emp_name'], ['employee']),
+        'lab_report' : (['lab_report_PK', 'lab_report_location'], ['lab_report']),
+        'experiment' : (['experiment_ID', 'lab_report_PK', 'experiment_date'], ['experiment']),
+        'approval' : (['experiment_ID', 'test_number', 'oligo_ID_fwd',
+                      'oligo_ID_rev', 'oligo_ID_4', 'oligo_ID_5', 'approved_status'],
+                      ['approval']),
+        'oligo_bin' : (['oligo_ID', 'oligo_name', 'oligo_type',
+                   'sequence', 'description', 'entry_date',
+                   'creator', 'update_date', 'modifier',
+                   'label5prime', 'label3prime', 'labelM1',
+                   'labelM1position', 'pathogen_name', 'target', 'notes'],
+                       ['oligo_bin']),
+        'batches_supplier' : (['batch_number', 'oligo_ID', 'synthesis_level_ordered',
+                   'purification_method', 'synthesis_level_delivered',
+                   'spec_sheet_location', 'order_number', 'delivery_date',
+                   'order_status', 'order_date', 'employee_ID', 'supplier_name'], ['batch', 'order', 'supplier'])
+                    }
+
+    attributes, tablenames = db_tables[table]
+    query = "SELECT `%s`." % tablenames[0]
+    for attribute in attributes:
+            query += attribute + ", "
+    query = query[:(len(query)-2)] + (" FROM `%s`" % tablenames[0])
+    query += " ORDER BY %s DESC" % attributes[0]
+    return (query, attributes)
+            
+def build_direct_sql_dict(table):
+        queries_dict = {"oligo_batch" : ("SELECT oligo.oligo_ID, oligo_name, max(batch_number) AS recent_batch, order_status, oligo_type, sequence, description, entry_date, emp_name AS creator, update_date, emp_name AS modifier, label5prime, label3prime, labelM1, labelM1position, pathogen_name, target, notes \
+FROM pathofinder_db.oligo, employee, batch \
+WHERE creator = employee.employee_ID \
+AND modifier = employee.employee_ID \
+AND oligo.oligo_ID = batch.oligo_ID \
+GROUP BY oligo.oligo_ID",['oligo_ID', 'oligo_name', 'recent_batch', 'order_status', 'oligo_type', 'sequence', 'description', 'entry_date', 'creator', 'update_date', 'modifier', 'label5prime', 'label3prime', 'labelM1', 'labelM1position', 'pathogen_name', 'target', 'notes']),
+                    
+'approval_lab_report': ("SELECT `approval`.experiment_ID, test_number, oligo_ID_fwd, \
+oligo_ID_rev, oligo_ID_4, oligo_ID_5, approved_status, experiment_date, \
+lab_report_location FROM `approval`, `experiment`, \
+`lab_report` WHERE `approval`.experiment_ID = `experiment`.experiment_ID \
+AND `lab_report`.lab_report_PK = `experiment`.lab_report_PK \
+ORDER BY experiment_date DESC",
+                        ['experiment_ID', 'test_number', 'oligo_ID_fwd',
+                         'oligo_ID_rev', 'oligo_ID_4', 'oligo_ID_5', 'approved_status',
+                         'experiment_date', 'lab_report_location']),
+'batches_supplier' : ("SELECT `batch`.batch_number, oligo_ID, synthesis_level_ordered, \
+purification_method, synthesis_level_delivered, spec_sheet_location, batch.order_number, \
+delivery_date, order_status, order_date, emp_name AS employee, supplier_name \
+FROM `batch`, `order`, `supplier`, employee \
+WHERE batch.order_number = `order`.order_number \
+AND `order`.supplier_ID = supplier.supplier_ID \
+AND `order`.employee_ID = employee.employee_ID \
+ORDER BY batch_number DESC",
+                      ['batch_number', 'oligo_ID', 'synthesis_level_ordered',
+                       'purification_method', 'synthesis_level_delivered',
+                       'spec_sheet_location', 'order_number', 'delivery_date',
+                       'order_status', 'order_date', 'employee_ID', 'supplier_name'])
+}
+        return queries_dict[table]
+
 if __name__ == "__main__":
     host = '127.0.0.1'
     user = 'root'
     password = 'root'
     database = 'pathofinder_db'
 
+    build_table_sql('batches_supplier')
     #print search_in_single_attribute('Employee', 'employee_ID', 'EMP0007')
     #print search_entire_table('Employee', ['employee_ID', 'emp_name'], 'EMP0063')
     #print search("Employee", ['employee_ID', 'emp_name'], "EMP 0000")
