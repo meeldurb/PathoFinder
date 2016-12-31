@@ -2,6 +2,8 @@ from Tkinter import *
 from tkFont import Font
 from math import floor
 import MySQLdb
+from Table_Lookup_queries import build_table_sql
+from Table_Lookup_queries import from_direct_sql_dict
 
 class Spreadsheet(Frame):
 
@@ -328,48 +330,6 @@ class Row(list):
         list.__init__(self, vals)
         self.height=0
 
-def build_table_sql(table):
-    db_tables = {
-        'oligo' : (['oligo_ID', 'oligo_name', 'oligo_type',
-                   'sequence', 'description', 'entry_date',
-                   'creator', 'update_date', 'modifier',
-                   'label5prime', 'label3prime', 'labelM1',
-                   'labelM1position', 'pathogen_name', 'target', 'notes'], ['oligo']),
-        'project_oligo' : (['oligo_ID', 'project_ID'], ['project_oligo']),
-        'project' : (['project_ID', 'project_name'], ['project']),
-        'batch' : (['batch_number', 'oligo_ID', 'synthesis_level_ordered',
-                   'purification_method', 'synthesis_level_delivered',
-                   'spec_sheet_location', 'order_number', 'delivery_date',
-                   'order_status'], ['batch']),
-        'order' : (['order_number', 'supplier_ID', 'order_date', 'employee_ID'], ['order']),
-        'supplier' : (['supplier_ID', 'supplier_name'], ['supplier']),
-        'oligo_oder_list' : (['oligo_orderlist_PK', 'batch_number', 'supplier_ID',
-                             'oligo_ID', 'employee_ID'], ['oligo_oder_list']),
-        'employee' : (['employee_ID', 'emp_name'], ['employee']),
-        'lab_report' : (['lab_report_PK', 'lab_report_location'], ['lab_report']),
-        'experiment' : (['experiment_ID', 'lab_report_PK', 'experiment_date'], ['experiment']),
-        'approval' : (['experiment_ID', 'test_number', 'oligo_ID_fwd',
-                      'oligo_ID_rev', 'oligo_ID_4', 'oligo_ID_5', 'approved_status'],
-                      ['approval']),
-        'oligo_bin' : (['oligo_ID', 'oligo_name', 'oligo_type',
-                   'sequence', 'description', 'entry_date',
-                   'creator', 'update_date', 'modifier',
-                   'label5prime', 'label3prime', 'labelM1',
-                   'labelM1position', 'pathogen_name', 'target', 'notes'], ['oligo_bin']),
-        'project_oligo' : (['oligo_ID', 'project_ID'], ['project_oligo'])
-        }
-    if table in db_tables:
-        attributes, tablenames = db_tables[table]
-        query = "SELECT "
-        for attribute in attributes:
-            query += attribute + ", "
-        query = query[:(len(query)-2)] + (" FROM %s" % tablenames[0])
-        for i in range(1, len(tablenames)):
-            query += ", %s" % tablenames[i]
-        query += " ORDER BY %s DESC" % attributes[0]
-        return (query, attributes)
-    elif 
-
 def build_table_window(table):
     tk = Tk()
     ssw = Spreadsheet(tk, width=900)
@@ -380,7 +340,7 @@ def build_table_window(table):
     cursor = db.cursor()
 
     ssw.addColumn('')
-    sql, attributes = build_table_sql(table)
+    sql, attributes = from_direct_sql_dict(table)
     for attribute in attributes:
         ssw.addColumn(attribute, 300, align = LEFT)
     cursor.execute(sql)
@@ -405,45 +365,10 @@ if __name__ == '__main__':
     password = 'root'
     database = 'pathofinder_db'
     
-    db_tables = {
-        'oligo' : (['oligo_ID', 'oligo_name', 'oligo_type',
-                   'sequence', 'description', 'entry_date',
-                   'creator', 'update_date', 'modifier',
-                   'label5prime', 'label3prime', 'labelM1',
-                   'labelM1position', 'pathogen_name', 'target', 'notes'], ['oligo']),
-        'project_oligo' : (['oligo_ID', 'project_ID'], ['project_oligo']),
-        'project' : (['project_ID', 'project_name'], ['project']),
-        'batch' : (['batch_number', 'oligo_ID', 'synthesis_level_ordered',
-                   'purification_method', 'synthesis_level_delivered',
-                   'spec_sheet_location', 'order_number', 'delivery_date',
-                   'order_status'], ['batch']),
-        'order' : (['order_number', 'supplier_ID', 'order_date', 'employee_ID'], ['order']),
-        'supplier' : (['supplier_ID', 'supplier_name'], ['supplier']),
-        'oligo_oder_list' : (['oligo_orderlist_PK', 'batch_number', 'supplier_ID',
-                             'oligo_ID', 'employee_ID'], ['oligo_oder_list']),
-        'employee' : (['employee_ID', 'emp_name'], ['employee']),
-        'lab_report' : (['lab_report_PK', 'lab_report_location'], ['lab_report']),
-        'experiment' : (['experiment_ID', 'lab_report_PK', 'experiment_date'], ['experiment']),
-        'approval' : (['experiment_ID', 'test_number', 'oligo_ID_fwd',
-                      'oligo_ID_rev', 'oligo_ID_4', 'oligo_ID_5', 'approved_status'],
-                      ['approval']),
-        'oligo_bin' : (['oligo_ID', 'oligo_name', 'oligo_type',
-                   'sequence', 'description', 'entry_date',
-                   'creator', 'update_date', 'modifier',
-                   'label5prime', 'label3prime', 'labelM1',
-                   'labelM1position', 'pathogen_name', 'target', 'notes'], ['oligo_bin']),
-        'project_oligo' : (['oligo_ID', 'project_ID'], ['project_oligo'])
-        }
-    views_dict = {
-        'oligo_orderstatus' : (['`oligo`.oligo_ID', 'oligo_name', 'order_status', 'oligo_type',
-                   'sequence', 'description', 'entry_date',
-                   'creator', 'update_date', 'modifier',
-                   'label5prime', 'label3prime', 'labelM1',
-                   'labelM1position', 'pathogen_name', 'target', 'notes'],
-                    ['oligo', 'batch'])
-                    }
-    #build_table_window('oligo',db_tables)    
-    build_table_window('oligo')    
-
+    #build_table_window('oligo')    
+    #build_table_window('oligo_orderstatus')    
+    #build_table_window('approval_lab_report')
+    #build_table_window('batches_supplier')
+    build_table_window('batches_supplier')
 # add buttons: refresh, search, sort, order
 # connect the checkbuttons to be able to order/delete selected
