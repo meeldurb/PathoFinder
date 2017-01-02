@@ -8,9 +8,9 @@ SQL database
 import MySQLdb
 import time
 import datetime
+import re
 from query_functies_dict import *
 from Table_Lookup_queries import *
-import config as cfg
 
 def execute_select_queries(query): #works
     """Executes select queries, so no changes are made to the database
@@ -18,7 +18,7 @@ def execute_select_queries(query): #works
     Keyword Arguments:
     query   -- string, the SELECT statement to ask the database
     """
-    db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
+    db = MySQLdb.connect(host, user, password, database)
     cursor = db.cursor()
     try:
         cursor.execute(query)
@@ -37,7 +37,7 @@ def execute_edit_queries(query): #works
         SQL query -- string, in a SQL query format
     """
     
-    db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database']) # open connection
+    db = MySQLdb.connect(host, user, password, database) # open connection
     cursor = db.cursor() # prepare a cursor object
     try:
         cursor.execute(query)
@@ -113,9 +113,19 @@ def parse_importfile(filename): #maybe need to split in parsing and importing
             # if sequence exists it must not take a new oli_ID, but a new batchno
             """still have to write"""
 
-            # first make a new oligonumber
+            ## retrieve information from the database (and convert)
+            # get current date
+            date = get_date_stamp()
+            # make a new oligonumber
             oli_ID = make_new_ID('Oligo')
-            # put everything in dictionaries
+            # make new batch number
+            batch_no = make_new_ID('Batch')
+            # make new order number
+            order_number = # function
+
+
+            ## put everything in dictionaries
+            # for Oligo table
             import_oli_dict["oligo_ID"] = oli_ID
             import_oli_dict["oligo_name"] = oli_name
             import_oli_dict["oligo_type"] = oli_type
@@ -129,17 +139,28 @@ def parse_importfile(filename): #maybe need to split in parsing and importing
             import_oli_dict["target"] = target
             import_oli_dict["notes"] = notes
 
-            # make new batch number
-            batch_no = make_new_ID('Batch')
+            # for Oder table
+            import_order_dict["order_date"] = date
+
+            # for Employee table
+
+            # for Supplier table
+            import_supplier_dict["supplier_name"] = supp_name
+
+            # for Batch table
             import_batch_dict["batch_number"] = batch_no
             import_batch_dict["synthesis_level_ordered"] = syn_lev
             import_batch_dict["purification_method"] = pur_met
-            import_supplier_dict["supplier_name"] = supp_name
+
+           
 
             # for every row insert the information into the specified tables
             insert_row("Oligo", import_oli_dict)
-            insert_row("Batch", import_batch_dict)
+            insert_row("Order", import_order_dict)
             insert_row("Supplier", import_supplier_dict)
+            #insert_row("Employee", import_emp_dict)
+            insert_row("Batch", import_batch_dict)
+            
 
             rowcount += 1
         else:
@@ -165,7 +186,9 @@ def get_max_ID(table):
         sql = """SELECT MAX(oligo_ID) FROM pathofinder_db.%s """%(table)
     if table == "batch":
         sql = """SELECT MAX(batch_number) FROM pathofinder_db.%s """%(table)
-    # the sql query retuns a tuple, we only want to take the OLI number
+    if table == "order":
+        sql = """SELECT MAX(order_number) FROM pathofinder_db.`%s` """%(table)
+    # the sql query retuns a tuple, we only want to take the number
     max_ID = execute_select_queries(sql)[0][0]
     return max_ID
 
@@ -187,22 +210,47 @@ def make_new_ID(table):
     if table == "batch":
         new_batch_ID = new_batch_number(table)
         return new_batch_ID
+    if table == "order":
+        #new_order_ID = new_order_no(table)
         
 
+def check_uniq_sequence(seq):
+    """checks whether an oligo sequence is unique or not"
+
+    Returns:
+    A boolean, true when oligo sequence is unique false when duplicated"
+    """
+    # if sequence == sequence in db
+    # raise some frame
+    # choose whether commit and it will get a new batchnumber but not a new olinumber
+    # or choose to abort
+
+    
 def new_oligo_ID(table):
     """ Converts the max oligo_ID in the database to the following up ID.
 
     """
     # retrieve only the number part
     max_ID = get_max_ID(table)
-    digit_string = max_ID.partition("OLI")[2]
-    # convert to integer add 1 and convert to string again
-    digits = int(digit_string)
-    new_digit = digits + 1
-    new_digit_string = str(new_digit)
-    # add part of oligoID that is missing
-    new_oligoID = "OLI" + new_digit_string
-    return new_oligoID
+    # retaining the same length of the oligo_ID's (6 digits)
+    # 2 groups in pattern
+    pattern = re.compile(r'(OLI)([0-9]+)')
+    matcher = pattern.search(max_ID)
+    # if matcher is found proceed
+    if matcher != None:
+        # split the 2 groups
+        oli = matcher.group(1)
+        olino = matcher.group(2)
+        # convert oligo number and add 1
+        int_olino = int(olino)
+        new_olino = int_olino + 1
+        convert_olino = str(new_olino)
+        # fill in 0's up until 6 digits
+        complete_olino = convert_olino.zfill(6)
+        # make complete oligoID 
+        new_oligoID = oli + complete_olino
+        return new_oligoID
+
 
 def new_batch_number(table):
     """ Converts the max batch_number in the database to the following up number.
@@ -210,28 +258,72 @@ def new_batch_number(table):
     max_ID = get_max_ID(table)
     # retrieve only variable part
     # first 4 digits are constant per year, need to be sliced off
-    str_digit = str(max_ID)
-    variable_part = str_digit[4:]
-    year_part = str_digit[0:4]
-    print year_part
-    # convert string to int and add 1
-    digits = int(variable_part)
-    new_digit = digits + 1
-    new_digit_string = str(new_digit)
-    # it omits the 0's, therefore make sure that the variable part
-    # contains 4 digits
-    if len(new_digit_string) < 4:
-        new_digit_string = "0" + new_digit_string
-    # do not take old part but look up year and add that to batchno
-    year = get_date_stamp()[6:]
-    # if a new year is found, start over with numbering
-    if year != year_part:
-        # start at 0001
-        string_batch_number = year + "0001"
-        new_batch_number = int(string_batch_number)
-    else: 
-        string_batch_number = year + new_digit_string
-        new_batch_number = int(string_batch_number)
-    return new_batch_number
+    string_max_ID = str(max_ID)
+    # search for pattern, when found proceed
+    pattern = re.compile(r'([0-9][0-9][0-9][0-9])([0-9]+)')
+    matcher = pattern.search(string_max_ID)
+    if matcher != None:
+        # split 2 groups
+        year = matcher.group(1)
+        batchno = matcher.group(2)
+        #convert batchno and add 1
+        int_batchno = int(batchno)
+        new_batchno = int_batchno + 1
+        convert_batchno = str(new_batchno)
+        # fill in 0's up to 4 digits
+        complete_batchno = convert_batchno.zfill(4)
+        print complete_batchno
+        # check whether year is the same, when not start over with numbering
+        actual_year = get_date_stamp()[6:]
+        print actual_year
+        if actual_year != year:
+            # start at 0001 when a new year is found
+            newyear_batchno = actual_year + "0001"
+            new_batch_number = int(newyear_batchno)
+        else:
+            thisyear_batchno = year + complete_batchno
+            new_batch_number = int(string_batchno)
+        return new_batch_number
+        
+def new_order_no(table): #does not work yet because order number is with X in db
+    """ Converts the max order in the database to the following up number.
+    """
+    max_ID = get_max_ID(table)
+    # retrieve only variable part
+    # first 4 digits are constant per year, need to be sliced off
+    string_max_ID = str(max_ID)
+    # search for pattern, when found proceed
+    pattern = re.compile(r'([0-9][0-9][0-9][0-9])(.)([0-9]+)')
+    matcher = pattern.search(string_max_ID)
+    if matcher != None:
+        # split 2 groups
+        year = matcher.group(1)
+        dot = matcher.group(2)
+        orderno = matcher.group(3)
+        #convert batchno and add 1
+        int_orderno = int(orderno)
+        new_orderno = int_orderno + 1
+        convert_orderno = str(new_orderno)
+        # fill in 0's up to 3 digits
+        complete_orderno = convert_orderno.zfill(3)
+        print complete_batchno
+        # check whether year is the same, when not start over with numbering
+        actual_year = get_date_stamp()[6:]
+        print actual_year
+        if actual_year != year:
+            # start at 0001 when a new year is found
+            new_order_number = actual_year + dot + "0001"
+        else:
+            new_order_number = year + dot + complete_batchno
+
+        return new_order_number
 
 
+
+    
+
+if __name__ == "__main__":
+    host = '127.0.0.1'
+    user = 'root'
+    password = 'root'
+    database = 'pathofinder_db'
