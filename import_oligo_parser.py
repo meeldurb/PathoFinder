@@ -139,7 +139,9 @@ def parse_importfile(filename): #maybe need to split in parsing and importing
             import_oli_dict["target"] = target
             import_oli_dict["notes"] = notes
 
-            # for Oder table
+            # for Order table
+            # deze moet echter pas gecreerd worden na het processen van de oligos
+            
             import_order_dict["order_date"] = date
 
             # for Employee table
