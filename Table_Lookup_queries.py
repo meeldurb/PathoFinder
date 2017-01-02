@@ -28,7 +28,7 @@ db_tables_views = { #dictionary containing all tables and table-views and their 
     'lab_report' : ['lab_report_PK', 'lab_report_location'],
     'experiment' : ['experiment_ID', 'lab_report_PK', 'experiment_date'],
     'approval' : ['experiment_ID', 'test_number', 'oligo_ID_fwd',
-                      'oligo_ID_rev', 'oligo_ID_4', 'oligo_ID_5', 'approved_status'],
+                      'oligo_ID_rev', 'oligo_ID_probe', 'oligo_ID_4', 'oligo_ID_5', 'approved_status'],
     'oligo_bin' : ['oligo_ID', 'oligo_name', 'oligo_type',
                    'sequence', 'description', 'entry_date',
                    'creator', 'update_date', 'modifier',
@@ -82,16 +82,12 @@ def build_table_window(sql, attributes):
     attributes  -- list, attributes of the table the sql refers to"""
     tk = Tk()
 
-
     ssw = Spreadsheet(tk, width=900)
-    ssw.pack(expand=TRUE, fill=BOTH)
+    ssw.pack(side = 'bottom', expand=TRUE, fill=BOTH)
     ssw.initialise()
-    
-    closeButton = Button(text="Close")
-    closeButton.pack(side=LEFT, padx=5, pady=5)
-    okButton = Button(text="OK")
-    okButton.pack(side=RIGHT)
 
+    toolbox = Buttons(tk)
+    toolbox.pack(in_=ssw, side = 'top')
  
     db = MySQLdb.connect(host, user, password, database)
     cursor = db.cursor()
