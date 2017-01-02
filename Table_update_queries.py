@@ -5,6 +5,7 @@ Script for executing queries to the groupwork database
 """
 
 import MySQLdb
+import config as cfg
 
 def execute_edit_queries(query): #works
     """Executes queries that edit the database somehow (insert, update, delete)
@@ -12,7 +13,7 @@ def execute_edit_queries(query): #works
     Keyword Arguments:
     SQL query -- string in a SQL query format"""
     
-    db = MySQLdb.connect(host, user, password, database) # open connection
+    db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database']) # open connection
     cursor = db.cursor() # prepare a cursor object
     try:
         cursor.execute(query)
@@ -137,7 +138,7 @@ def oligo_to_temp_bin(oligo_ID): # works
 
     Keyword Arguments:
     oligo_ID    -- string, the key-value of the oligo you want to remove"""
-    db = MySQLdb.connect(host, user, password, database) # open connection
+    db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database']) # open connection
     cursor = db.cursor() # prepare a cursor object
 
     #locate the oligo in the table, retrieve values
@@ -168,10 +169,7 @@ def oligo_to_temp_bin(oligo_ID): # works
     db.close() #disconnect from server
 
 if __name__ == "__main__":
-host = '127.0.0.1'
-user = 'root'
-password = 'root'
-database = 'pathofinder_db'
-#insert_row('Oligo', { 'oligo_ID' : 'OlI0012', 'oligo_name' : 'test', 'oligo_type': '', 'sequence' : 'J', 'description':'',  'entry_date':'', 'creator':'EMP', 'update_date':'', 'modifier':'EMP', 'label5prime':'', 'label3prime':'', 'labelM1':'', 'labelM1position':'', 'pathogen_name':'', 'target':'', 'notes':''})
-#delete_row('Employee', { 'employee_ID' : 'EMP0066', 'emp_name' : 'test20'})
-#update_row('Employee', { 'employee_ID' : 'EMP0066', 'emp_name' : 'test20'}, { 'employee_ID' : 'EMP0065', 'emp_name' : 'test19'})
+
+    #insert_row('Oligo', { 'oligo_ID' : 'OlI0012', 'oligo_name' : 'test', 'oligo_type': '', 'sequence' : 'J', 'description':'',  'entry_date':'', 'creator':'EMP0000', 'update_date':'', 'modifier':'EMP0000', 'label5prime':'', 'label3prime':'', 'labelM1':'', 'labelM1position':'', 'pathogen_name':'', 'target':'', 'notes':''})
+    #delete_row('Employee', { 'employee_ID' : 'EMP0066', 'emp_name' : 'test20'})
+    #update_row('Employee', { 'employee_ID' : 'EMP0066', 'emp_name' : 'test20'}, { 'employee_ID' : 'EMP0065', 'emp_name' : 'test19'})
