@@ -5,7 +5,7 @@ Script for executing queries to the groupwork database
 """
 
 import MySQLdb
-from table_window import *
+from table_windows import *
 
 
 db_tables_views = { #dictionary containing all tables and table-views and their attributes
@@ -162,14 +162,22 @@ def supplier_delivery_time(): # need unified entry of dates in the database, wor
 
 # Project and the linked oligos
 
-def open_table_window(table):
+def open_table_window(table, sort_attribute = 0, sort = 'DESC'):
+    """Opens a window of the selected input table"""
+    if sort != 'DESC' and sort != 'ASC':
+        raise ValueError("Can only sort DESC-ending or ASC-ending")
     attributes = db_tables_views[table]
     query = "SELECT `%s`." % table
     for attribute in attributes:
             query += attribute + ", "
     query = query[:(len(query)-2)] + (" FROM `%s`" % table)
-    query += " ORDER BY %s DESC" % attributes[0]
+    if sort_attribute == 0:
+        query += " ORDER BY %s %s" % (attributes[0], sort)
+    else:
+        query += " ORDER BY %s %s" % (sort_attribute, sort)
     build_table_window(query, attributes)
+
+   
             
 if __name__ == "__main__":
     host = '127.0.0.1'
@@ -177,6 +185,6 @@ if __name__ == "__main__":
     password = 'root'
     database = 'pathofinder_db'
 
-    search('oligo', "OLI000006")
+    #search('oligo', "OLI000006")
     #print testlist_oligo('OLI000018')
-    #open_table_window("batches_supplier")
+    open_table_window("oligo", sort_attribute = 'oligo_name')
