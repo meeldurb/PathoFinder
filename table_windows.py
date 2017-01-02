@@ -2,8 +2,6 @@ from Tkinter import *
 from tkFont import Font
 from math import floor
 import MySQLdb
-from Table_Lookup_queries import build_table_sql
-from Table_Lookup_queries import from_direct_sql_dict
 
 class Spreadsheet(Frame):
 
@@ -330,34 +328,6 @@ class Row(list):
         list.__init__(self, vals)
         self.height=0
 
-def build_table_window(table):
-    tk = Tk()
-    ssw = Spreadsheet(tk, width=900)
-    ssw.pack(expand=TRUE, fill=BOTH)
-    ssw.initialise()
-
-    db = MySQLdb.connect(host, user, password, database)
-    cursor = db.cursor()
-
-    ssw.addColumn('')
-    sql, attributes = from_direct_sql_dict(table)
-    for attribute in attributes:
-        ssw.addColumn(attribute, 300, align = LEFT)
-    cursor.execute(sql)
-    for i in range(cursor.rowcount):
-        check = Checkbutton(ssw.spreadsheet)
-        row = cursor.fetchone()
-        row = list(row)
-        row.insert(0, check)
-        row = tuple(row)
-        ssw.addRow(END, row)
-    cursor.close()
-    db.close()
-
-    ssw.optimiseColumns()
-    ssw.show()
-    tk.mainloop()
-
 
 if __name__ == '__main__':
     host = '127.0.0.1'
@@ -365,10 +335,5 @@ if __name__ == '__main__':
     password = 'root'
     database = 'pathofinder_db'
     
-    #build_table_window('oligo')    
-    #build_table_window('oligo_orderstatus')    
-    #build_table_window('approval_lab_report')
-    #build_table_window('batches_supplier')
-    build_table_window('batches_supplier')
 # add buttons: refresh, search, sort, order
 # connect the checkbuttons to be able to order/delete selected
