@@ -100,13 +100,21 @@ def parse_importfile(filename): #maybe need to split in parsing and importing
     import_oli_dict = {}
     import_batch_dict = {}
     import_supplier_dict = {}
+    import_order_dict = {}
+    
     rowcount = 0
     # for every single row import the data into the database
     for row in import_data:
         if rowcount > 0:
-            oli_ID, oli_name, oli_type, oli_seq, descr, label5, label3, \
+            oli_name, oli_type, oli_seq, descr, label5, label3, \
                     labelm, labelpos, path_name, target, notes, syn_lev, \
                     pur_met, supp_name = row.strip().split(";")
+            # if sequence exists it must not take a new oli_ID, but a new batchno
+            """still have to write"""
+
+            # first make a new oligonumber
+            oli_ID = make_new_ID('Oligo')
+            # put everything in dictionaries
             import_oli_dict["oligo_ID"] = oli_ID
             import_oli_dict["oligo_name"] = oli_name
             import_oli_dict["oligo_type"] = oli_type
@@ -119,14 +127,19 @@ def parse_importfile(filename): #maybe need to split in parsing and importing
             import_oli_dict["pathogen_name"] = path_name
             import_oli_dict["target"] = target
             import_oli_dict["notes"] = notes
+
+            # make new batch number
+            batch_no = make_new_ID('Batch')
+            import_batch_dict["batch_number"] = batch_no
             import_batch_dict["synthesis_level_ordered"] = syn_lev
             import_batch_dict["purification_method"] = pur_met
             import_supplier_dict["supplier_name"] = supp_name
+
             # for every row insert the information into the specified tables
             insert_row("Oligo", import_oli_dict)
-            #insert_row("Batch", import_batch_dict)
-            # does not work yet because batchno itself is empty
+            insert_row("Batch", import_batch_dict)
             insert_row("Supplier", import_supplier_dict)
+
             rowcount += 1
         else:
             rowcount += 1
@@ -166,21 +179,21 @@ def make_new_ID(table):
     """
     # when a typo occurs in table naming
     table = table.lower()
-    max_ID = get_max_ID(table)
     # different methods for different tables
     if table == "oligo":
-        new_oli_ID = new_oligo_ID()
+        new_oli_ID = new_oligo_ID(table)
         return new_oli_ID
     if table == "batch":
-        new_batch_ID = new_batch_number()
+        new_batch_ID = new_batch_number(table)
         return new_batch_ID
         
 
-def new_oligo_ID():
+def new_oligo_ID(table):
     """ Converts the max oligo_ID in the database to the following up ID.
 
     """
     # retrieve only the number part
+    max_ID = get_max_ID(table)
     digit_string = max_ID.partition("OLI")[2]
     # convert to integer add 1 and convert to string again
     digits = int(digit_string)
@@ -190,9 +203,10 @@ def new_oligo_ID():
     new_oligoID = "OLI" + new_digit_string
     return new_oligoID
 
-def new_batch_number():
+def new_batch_number(table):
     """ Converts the max batch_number in the database to the following up number.
     """
+    max_ID = get_max_ID(table)
     # retrieve only variable part
     # first 4 digits are constant per year, need to be sliced off
     str_digit = str(max_ID)
