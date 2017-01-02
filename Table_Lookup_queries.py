@@ -6,63 +6,14 @@ Script for executing queries to the groupwork database
 
 import MySQLdb
 from table_windows import *
-
-
-db_tables_views = { #dictionary containing all tables and table-views and their attributes
-    'oligo' : ['oligo_ID', 'oligo_name', 'oligo_type',
-                   'sequence', 'description', 'entry_date',
-                   'creator', 'update_date', 'modifier',
-                   'label5prime', 'label3prime', 'labelM1',
-                   'labelM1position', 'pathogen_name', 'target', 'notes'], 
-    'project_oligo' : ['oligo_ID', '`project_oligo`.project_ID'], 
-    'project' : ['project_ID', 'project_name'], 
-    'batch' : ['batch_number', 'oligo_ID', 'synthesis_level_ordered',
-                   'purification_method', 'synthesis_level_delivered',
-                   'spec_sheet_location', 'order_number', 'delivery_date',
-                   'order_status'],
-    'order' : ['order_number', 'supplier_ID', 'order_date', 'employee_ID'],
-    'supplier' : ['supplier_ID', 'supplier_name'],
-    'oligo_oder_list' : ['.oligo_orderlist_PK', 'batch_number', 'supplier_ID',
-                             'oligo_ID', 'employee_ID'],
-    'employee' : ['employee_ID', 'emp_name'],
-    'lab_report' : ['lab_report_PK', 'lab_report_location'],
-    'experiment' : ['experiment_ID', 'lab_report_PK', 'experiment_date'],
-    'approval' : ['experiment_ID', 'test_number', 'oligo_ID_fwd',
-                      'oligo_ID_rev', 'oligo_ID_probe', 'oligo_ID_4', 'oligo_ID_5', 'approved_status'],
-    'oligo_bin' : ['oligo_ID', 'oligo_name', 'oligo_type',
-                   'sequence', 'description', 'entry_date',
-                   'creator', 'update_date', 'modifier',
-                   'label5prime', 'label3prime', 'labelM1',
-                   'labelM1position', 'pathogen_name', 'target', 'notes'],
-    'batches_supplier' : ['batch_number', 'oligo_ID', 'synthesis_level_ordered',
-                   'purification_method', 'synthesis_level_delivered',
-                   'spec_sheet_location', 'order_number', 'delivery_date',
-                   'order_status', 'order_date', 'employee', 'supplier_name'],
-    "oligo_batch" : ['oligo_ID', 'oligo_name', 'recent_batch', 'order_status',
-                         'oligo_type', 'sequence', 'description', 'entry_date',
-                         'creator', 'update_date', 'modifier', 'label5prime',
-                         'label3prime', 'labelM1', 'labelM1position',
-                         'pathogen_name', 'target', 'notes'],
-    'approval_lab_report' : ['experiment_ID', 'test_number', 'oligo_ID_fwd',
-                             'oligo_ID_rev', 'oligo_ID_4', 'oligo_ID_5',
-                             'approved_status', 'experiment_date', 'lab_report_location'],
-    'oligolist_test_results' : ['oligo_ID', 'oligo_name', 'Approved', 'Neutral',
-                                'Disapproved', 'Percentage_of_approval'],
-    'supplier_synthesis_quality': ['supplier_name', 'Synthesis_Difference'],
-    'approved_oligos_for_project' : ['project_name', 'experiment_date', 'experiment_ID',
-            'oligo_ID_fwd', 'oligo_ID_rev', 'oligo_ID_probe',
-            'oligo_ID_4', 'oligo_ID_5'],
-    'oligos_from_project': ['oligo_ID', 'oligo_name', 'oligo_type', 'sequence', 'description',
-            'entry_date', 'creator', 'update_date', 'modifier', 'label5prime',
-            'label3prime', 'labelM1', 'labelM1position', 'notes']
-                    }
+import config as cfg
     
 def execute_select_queries(query): #works
     """Executes select queries, so no changes are made to the database
 
     Keyword Arguments:
     query   -- sting, the SELECT statement to ask the database"""
-    db = MySQLdb.connect(host, user, password, database)
+    db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
     cursor = db.cursor()
     try:
         cursor.execute(query)
@@ -89,7 +40,7 @@ def build_table_window(sql, attributes):
     toolbox = Buttons(tk)
     toolbox.pack(in_=ssw, side = 'top')
  
-    db = MySQLdb.connect(host, user, password, database)
+    db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
     cursor = db.cursor()
        
     ssw.addColumn('')
@@ -123,7 +74,7 @@ def search(table_str, search_input): # works
     for word in search_words:
         search_string += "%s|" % word
         search_string = search_string[:(len(search_string)-1)]
-        attributes = db_tables_views[table_str]
+        attributes = cfg.db_tables_views[table_str]
     query = "SELECT * FROM `%s` WHERE " % table_str
     for i in range(len(attributes)):
         if i != (len(attributes)-1):
@@ -170,7 +121,7 @@ def open_table_window(table, sort_attribute = 0, sort = 'DESC'):
     """Opens a window of the selected input table"""
     if sort != 'DESC' and sort != 'ASC':
         raise ValueError("Can only sort DESC-ending or ASC-ending")
-    attributes = db_tables_views[table]
+    attributes = cfg.db_tables_views[table]
     query = "SELECT `%s`." % table
     for attribute in attributes:
             query += attribute + ", "
@@ -184,10 +135,6 @@ def open_table_window(table, sort_attribute = 0, sort = 'DESC'):
    
             
 if __name__ == "__main__":
-    host = '127.0.0.1'
-    user = 'root'
-    password = 'root'
-    database = 'pathofinder_db'
 
     #search('oligo', "OLI000006")
     #print testlist_oligo('OLI000018')
