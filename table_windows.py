@@ -123,8 +123,21 @@ class Spreadsheet(Frame):
                 row.widgets.append(item)
                 item.internal=False
             else:
-                e=Listbox(self.spreadsheet, bg=colDat['bg'],
-                        fg=colDat['fg'], font=self.txtFont)#, justify=colDat['align'])
+                if item == 'Delivered' or item == 'approved':
+                   e=Listbox(self.spreadsheet, bg= 'green',
+                        fg=colDat['fg'], font=self.txtFont)
+                elif item == 'Ordered' or item == 'neutral':
+                    e=Listbox(self.spreadsheet, bg='yellow',
+                        fg=colDat['fg'], font=self.txtFont)
+                elif item == 'Not yet Ordered':
+                    e=Listbox(self.spreadsheet, bg='orange',
+                        fg=colDat['fg'], font=self.txtFont)
+                elif item == 'Out of Stock' or item == 'disapproved':
+                    e=Listbox(self.spreadsheet, bg='red',
+                        fg=colDat['fg'], font=self.txtFont)
+                else:
+                    e=Listbox(self.spreadsheet, bg=colDat['bg'],
+                        fg=colDat['fg'], font=self.txtFont)
                 e.internal=True
                 e.insert(END, item)
                 if colDat['align']==RIGHT: e.xview(END)
