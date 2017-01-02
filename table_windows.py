@@ -1,8 +1,6 @@
 from Tkinter import *
-from ttk import Frame, Button, Style
 from tkFont import Font
 from math import floor
-import MySQLdb
 
 class Spreadsheet(Frame):
 
@@ -349,12 +347,5 @@ class Buttons(Frame):
         previousButton.pack(side=RIGHT, padx=5, pady=5)
         
 
-if __name__ == '__main__':
-    host = '127.0.0.1'
-    user = 'root'
-    password = 'root'
-    database = 'pathofinder_db'
-
     
-# add buttons: refresh, search, sort, order
 # connect the checkbuttons to be able to order/delete selected
