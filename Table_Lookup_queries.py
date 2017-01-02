@@ -81,13 +81,21 @@ def build_table_window(sql, attributes):
     sql         -- string, The SQL query in a string
     attributes  -- list, attributes of the table the sql refers to"""
     tk = Tk()
+
+
     ssw = Spreadsheet(tk, width=900)
     ssw.pack(expand=TRUE, fill=BOTH)
     ssw.initialise()
+    
+    closeButton = Button(text="Close")
+    closeButton.pack(side=LEFT, padx=5, pady=5)
+    okButton = Button(text="OK")
+    okButton.pack(side=RIGHT)
 
+ 
     db = MySQLdb.connect(host, user, password, database)
     cursor = db.cursor()
-
+       
     ssw.addColumn('')
     for attribute in attributes:
         ssw.addColumn(attribute, 300, align = LEFT)
@@ -187,4 +195,4 @@ if __name__ == "__main__":
 
     #search('oligo', "OLI000006")
     #print testlist_oligo('OLI000018')
-    open_table_window("oligo", sort_attribute = 'oligo_name')
+    open_table_window("approval")
