@@ -156,12 +156,13 @@ def get_max_ID(table):
     return max_ID
 
 def make_new_ID(table):
-    """ Makes a new numerical ID regarding on which table is called
+    """ Returns a new numerical ID regarding on which table is called
 
     Keyword Arguments:
         table -- string, the name of the table that information need to be taken from
     Returns:
-        
+        depending on the table parameter, it calls the function for making a new
+        follow up ID.
     """
     # when a typo occurs in table naming
     table = table.lower()
@@ -175,9 +176,10 @@ def make_new_ID(table):
         return new_batch_ID
         
 
-
-
 def new_oligo_ID():
+    """ Converts the max oligo_ID in the database to the following up ID.
+
+    """
     # retrieve only the number part
     digit_string = max_ID.partition("OLI")[2]
     # convert to integer add 1 and convert to string again
@@ -189,6 +191,8 @@ def new_oligo_ID():
     return new_oligoID
 
 def new_batch_number():
+    """ Converts the max batch_number in the database to the following up number.
+    """
     # retrieve only variable part
     # first 4 digits are constant per year, need to be sliced off
     str_digit = str(max_ID)
@@ -213,7 +217,7 @@ def new_batch_number():
     else: 
         string_batch_number = year + new_digit_string
         new_batch_number = int(string_batch_number)
-    print new_batch_number
+    return new_batch_number
 
 
     
