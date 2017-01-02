@@ -1,7 +1,6 @@
 from Tkinter import *
 from tkFont import Font
 from math import floor
-import MySQLdb
 
 class Spreadsheet(Frame):
 
@@ -9,13 +8,6 @@ class Spreadsheet(Frame):
         Frame.__init__(self, parent)
         self.columns=[]
 
-# Cannot make multiple buttons look nice. Because of "pack()" method, buttons are listed on seperate rows, instead of columns.
-
-        toolbox_button = Button( text = 'Toolbox')
-        toolbox_button.pack(side = 'left', ipadx = 20)
-
-        add = Button( text = "add")
-        add.pack(side='left')
         
         # Setup font information
         if font:
@@ -51,8 +43,7 @@ class Spreadsheet(Frame):
 
         self.bind("<Configure>", self.catchResize)
 
-        #btn_add = Button(self, text = 'add')
-        #btn_add.grid(row = 0, column = 0)
+
 
 
     def catchResize(self, event):
@@ -333,7 +324,6 @@ class Spreadsheet(Frame):
         self.rows.sort(cmp=lambda a, b, c=colID: cmp(a[c], b[c]))
         self.show()
 
-
 class Row(list):
 
     def __init__(self, vals):
@@ -341,12 +331,21 @@ class Row(list):
         list.__init__(self, vals)
         self.height=0
 
+class Buttons(Frame):
+    def __init__(self, parent):
+        Frame.__init__(self, parent)
 
-if __name__ == '__main__':
-    host = '127.0.0.1'
-    user = 'root'
-    password = 'root'
-    database = 'pathofinder_db'
+        refreshButton = Button(text="Refresh")
+        refreshButton.pack(side=LEFT, padx=5, pady=5)
+        reorderButton = Button(text="Re-Order")
+        reorderButton.pack(side=LEFT, padx=5, pady=5)
+        removeButton = Button(text="Remove")
+        removeButton.pack(side=LEFT, padx=5, pady=5)
+        searchButton = Button(text="Search")
+        searchButton.pack(side=LEFT, padx=5, pady=5)
+        previousButton = Button(text="Previous")
+        previousButton.pack(side=RIGHT, padx=5, pady=5)
+        
+
     
-# add buttons: refresh, search, sort, order
 # connect the checkbuttons to be able to order/delete selected

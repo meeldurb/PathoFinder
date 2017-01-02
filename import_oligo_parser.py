@@ -10,6 +10,7 @@ import time
 import datetime
 from query_functies_dict import *
 from Table_Lookup_queries import *
+import config as cfg
 
 def execute_select_queries(query): #works
     """Executes select queries, so no changes are made to the database
@@ -17,7 +18,7 @@ def execute_select_queries(query): #works
     Keyword Arguments:
     query   -- string, the SELECT statement to ask the database
     """
-    db = MySQLdb.connect(host, user, password, database)
+    db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
     cursor = db.cursor()
     try:
         cursor.execute(query)
@@ -36,7 +37,7 @@ def execute_edit_queries(query): #works
         SQL query -- string, in a SQL query format
     """
     
-    db = MySQLdb.connect(host, user, password, database) # open connection
+    db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database']) # open connection
     cursor = db.cursor() # prepare a cursor object
     try:
         cursor.execute(query)
@@ -234,10 +235,3 @@ def new_batch_number(table):
     return new_batch_number
 
 
-    
-
-if __name__ == "__main__":
-    host = '127.0.0.1'
-    user = 'root'
-    password = 'root'
-    database = 'pathofinder_db'
