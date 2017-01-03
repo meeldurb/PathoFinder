@@ -138,4 +138,5 @@ if __name__ == "__main__":
 
     #search('oligo', "OLI000006")
     #print testlist_oligo('OLI000018')
-    open_table_window("approval")
+    #open_table_window("oligo_batch", sort_attribute = 'recent_batch')
+    search('batch', 'OLI000020')
