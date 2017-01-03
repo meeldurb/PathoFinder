@@ -25,6 +25,7 @@ def execute_edit_queries(query): #works
     db.close() #disconnect from server
 
 def make_insert_row(table_str, attribute_value_dict): #works
+#Aanpassen zodat query niet uitgevoerd wordt als pk al bestaat
     """Returns a insert row SQL statement in a string
         
     Keyword Arguments:
@@ -39,8 +40,8 @@ def make_insert_row(table_str, attribute_value_dict): #works
         attributes_string += "%s, " % key
     attributes_string = attributes_string[:(len(attributes_string)-2)]
     attributes_string += ')'
-    values_tuple = tuple(values_list)
-    sql = """INSERT INTO `%s` %s VALUES %s """ % (table_str, attributes_string, values_tuple)
+    values = str(tuple(values_list))
+    sql = """INSERT INTO `%s` %s VALUES %s """ % (table_str, attributes_string, values)
     return sql
 
 def insert_row(table_str, attribute_value_dict): #works
@@ -169,7 +170,7 @@ def oligo_to_temp_bin(oligo_ID): # works
     db.close() #disconnect from server
 
 if __name__ == "__main__":
-
+    print ""
     #insert_row('Oligo', { 'oligo_ID' : 'OlI0012', 'oligo_name' : 'test', 'oligo_type': '', 'sequence' : 'J', 'description':'',  'entry_date':'', 'creator':'EMP0000', 'update_date':'', 'modifier':'EMP0000', 'label5prime':'', 'label3prime':'', 'labelM1':'', 'labelM1position':'', 'pathogen_name':'', 'target':'', 'notes':''})
     #delete_row('Employee', { 'employee_ID' : 'EMP0066', 'emp_name' : 'test20'})
     #update_row('Employee', { 'employee_ID' : 'EMP0066', 'emp_name' : 'test20'}, { 'employee_ID' : 'EMP0065', 'emp_name' : 'test19'})
