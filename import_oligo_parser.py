@@ -9,78 +9,11 @@ import MySQLdb
 import time
 import datetime
 import re
-from query_functies_dict import *
-from Table_Lookup_queries import *
+from Table_update_queries import *
+from Table_Lookup_queries import execute_select_queries
 
-def execute_select_queries(query): #works
-    """Executes select queries, so no changes are made to the database
 
-    Keyword Arguments:
-    query   -- string, the SELECT statement to ask the database
-    """
-    db = MySQLdb.connect(host, user, password, database)
-    cursor = db.cursor()
-    try:
-        cursor.execute(query)
-        results = cursor.fetchall()
-    except MySQLdb.Error,e:
-        print e[0], e[1]
-        db.rollback()
-    cursor.close()
-    db.close()
-    return results
-
-def execute_edit_queries(query): #works
-    """Executes queries that edit the database (insert, update, delete)
-        
-    Keyword Arguments:
-        SQL query -- string, in a SQL query format
-    """
-    
-    db = MySQLdb.connect(host, user, password, database) # open connection
-    cursor = db.cursor() # prepare a cursor object
-    try:
-        cursor.execute(query)
-        db.commit()   
-    except MySQLdb.Error,e:# Rollback in case there is any error
-        print e[0], e[1]
-        db.rollback()
-    cursor.close()
-    db.close() #disconnect from server
-
-##def make_insert_row(table_str, attribute_value_dict): #works
-##    """Returns a insert row SQL statement in a string
-##        
-##    Keyword Arguments:
-##        table_str -- string, a table
-##        attribute_value_dict -- dictionary, with the attribute as key
-##        and the value as value
-##    """
-##    #initialize input for string formatting
-##    attributes_string = "("
-##    values_list = []
-##    #retrieve attributes and values from dictionary and add them to the string
-##    for key in attribute_value_dict:
-##        values_list += [attribute_value_dict[key]]
-##        attributes_string += "%s, " % key
-##    attributes_string = attributes_string[:(len(attributes_string)-2)]
-##    attributes_string += ')'
-##    values_tuple = tuple(values_list)
-##    sql = """INSERT INTO `%s` %s VALUES %s """ % (table_str, attributes_string, values_tuple)
-##    return sql
-
-def insert_row(table_str, attribute_value_dict): #works
-    """Inserts a new row in the database
-        
-    Keyword Arguments:
-        table_str -- string, a table in the database
-        attribute_value_dict    -- dictionary, with the attribute as key
-        and the value as value
-    """
-    sql = make_insert_row(table_str, attribute_value_dict)
-    execute_edit_queries(sql)
-
-    
+ 
 def open_importfile(filename):
     """ Opens a file and reads it"""
 
@@ -121,7 +54,7 @@ def parse_importfile(filename): #maybe need to split in parsing and importing
             # make new batch number
             batch_no = make_new_ID('Batch')
             # make new order number
-            order_number = # function
+            order_number = make_new_ID('Order')
 
 
             ## put everything in dictionaries
@@ -141,13 +74,15 @@ def parse_importfile(filename): #maybe need to split in parsing and importing
 
             # for Order table
             # deze moet echter pas gecreerd worden na het processen van de oligos
-            
+            import_order_dict["order_number"] = order_number
             import_order_dict["order_date"] = date
 
             # for Employee table
 
             # for Supplier table
             import_supplier_dict["supplier_name"] = supp_name
+            # import supplier id
+            
 
             # for Batch table
             import_batch_dict["batch_number"] = batch_no
@@ -158,8 +93,8 @@ def parse_importfile(filename): #maybe need to split in parsing and importing
 
             # for every row insert the information into the specified tables
             insert_row("Oligo", import_oli_dict)
-            insert_row("Order", import_order_dict)
             insert_row("Supplier", import_supplier_dict)
+            insert_row("Order", import_order_dict)
             #insert_row("Employee", import_emp_dict)
             insert_row("Batch", import_batch_dict)
             
@@ -213,7 +148,7 @@ def make_new_ID(table):
         new_batch_ID = new_batch_number(table)
         return new_batch_ID
     if table == "order":
-        #new_order_ID = new_order_no(table)
+        new_order_ID = new_order_no(table)
         
 
 def check_uniq_sequence(seq):
@@ -295,7 +230,7 @@ def new_order_no(table): #does not work yet because order number is with X in db
     # first 4 digits are constant per year, need to be sliced off
     string_max_ID = str(max_ID)
     # search for pattern, when found proceed
-    pattern = re.compile(r'([0-9][0-9][0-9][0-9])(.)([0-9]+)')
+    pattern = re.compile(r'ORD([0-9][0-9][0-9][0-9])(.)([0-9]+)')
     matcher = pattern.search(string_max_ID)
     if matcher != None:
         # split 2 groups
@@ -308,24 +243,18 @@ def new_order_no(table): #does not work yet because order number is with X in db
         convert_orderno = str(new_orderno)
         # fill in 0's up to 3 digits
         complete_orderno = convert_orderno.zfill(3)
-        print complete_batchno
+        print complete_orderno
         # check whether year is the same, when not start over with numbering
         actual_year = get_date_stamp()[6:]
         print actual_year
         if actual_year != year:
             # start at 0001 when a new year is found
-            new_order_number = actual_year + dot + "0001"
+            new_order_number = "ORD" + actual_year + dot + "0001"
         else:
-            new_order_number = year + dot + complete_batchno
+            new_order_number = "ORD" + year + dot + complete_orderno
 
         return new_order_number
 
 
 
-    
 
-if __name__ == "__main__":
-    host = '127.0.0.1'
-    user = 'root'
-    password = 'root'
-    database = 'pathofinder_db'
