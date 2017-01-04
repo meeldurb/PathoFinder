@@ -70,17 +70,19 @@ def search(table_str, search_input): # works
     table_str       -- string, a table
     search_input    -- string, the words to look for"""
     search_words = str.split(search_input)
-    search_string = ""
-    for word in search_words:
-        search_string += "%s|" % word
-        search_string = search_string[:(len(search_string)-1)]
-        attributes = cfg.db_tables_views[table_str]
-    query = "SELECT * FROM `%s` WHERE " % table_str
-    for i in range(len(attributes)):
-        if i != (len(attributes)-1):
-            query += "%s REGEXP '%s' OR " % (attributes[i], search_string)
-        if i == (len(attributes)-1):
-            query += "%s REGEXP '%s'" % (attributes[i], search_string)
+    attributes = cfg.db_tables_views[table_str]
+    query = "SELECT * FROM `%s` WHERE" % table_str
+    for j in range(len(search_words)):
+        search_string = "" 
+        for i in range(len(attributes)):
+            if i != (len(attributes)-1):
+                search_string += "%s REGEXP '%s' OR " % ( attributes[i], search_words[j])
+            if i == (len(attributes)-1):
+                search_string += "%s REGEXP '%s'" % (attributes[i], search_words[j])
+        if j != (len(search_words)-1):
+            query += " (%s) AND" % search_string
+        if j == (len(search_words)-1):
+            query += " (%s)" % search_string  
     build_table_window(query, attributes)          
             
 
@@ -139,4 +141,4 @@ if __name__ == "__main__":
     #search('oligo', "OLI000006")
     #print testlist_oligo('OLI000018')
     #open_table_window("oligo_batch", sort_attribute = 'recent_batch')
-    search('batch', 'OLI000020')
+    search('batch', 'OLI000020 50')
