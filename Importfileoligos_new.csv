@@ -7,3 +7,4 @@ Mycoplasma_16S_1A_Fwd3;primer;AATCATCATGCCTCTTACGAGTG;Adjusted Mycoplasma Fwd pr
 Mycoplasma_16S_1A_Rev2;primer;CGGTGTGTACAAGACCCGA;Adjusted Mycoplasma Rev primer for D&D3400 Amaryllis Environmental 16S gene;;;;;Mycoplasma;16S ;;40;Standard Desalted;EllaBiotech;Amaryllis Environmental
 probe_test;probe;AATCATCATGCCTCTTACGAGTG;test probe;FAM;BHQ1;;;E. Coli;hypothetical gene;;100;HPLC;IDT;blablabla
 boundarie_case;primer;AATCATCATGCCTCTTACGAGTG;boudary testing;;;;;E. Coli;hypothetical gene;;200;HPLC;IDT;something
+duplicated_seq;primer;AGATCAACTTCTGTCATCCAGCAA;duplicated_seq for testing;;;;;;;;200;HPLC;IDT;something
