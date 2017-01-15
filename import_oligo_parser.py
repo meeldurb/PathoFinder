@@ -42,78 +42,87 @@ def parse_importfile(filename): #need to split in parsing and importing
             oli_name, oli_type, oli_seq, descr, label5, label3, \
                     labelm, labelpos, path_name, target, notes, syn_lev, \
                     pur_met, supp_name, proj_name = row.strip().split(";")
+            # if sequence == sequence in db, raise error/frame
+            sequence_duplicated = check_sequence_duplicated(oli_seq,
+                                                            label5,
+                                                            label3, labelm,
+                                                            labelpos)
+            print sequence_duplicated
+            if sequence_duplicated[0] == True:
+                # when sequence is duplicated ask user whether sure to import
+                # into database, give new batchno but same olino as sequence
+                import_anyway = raw_input("The sequence (with labels) is duplicated, \
+                                            import anyway? The seq will get a new \
+                                            batchnumber. y/n: ")
+                if import_anyway == "y":
+                    # do not make new oligono
+                    oli_ID = sequence_duplicated[1]
+                    print oli_ID
+                else:
+                    rowcount += 1             
+                
+            if sequence_duplicated[0] != True:                    
+                ## retrieve information from the database (and convert)         
+                # make a new oligonumber
+                oli_ID = make_new_ID('Oligo')
+                # make new batch number
+                batch_no = make_new_ID('Batch')
+                
+
+                ## put everything in dictionaries
+                # for Oligo table
+                import_oli_dict["oligo_ID"] = oli_ID
+                import_oli_dict["oligo_name"] = oli_name
+                import_oli_dict["oligo_type"] = oli_type
+                import_oli_dict["sequence"] = oli_seq
+                import_oli_dict["description"] = descr
+                import_oli_dict["entry_date"] = entry_date
+                # creator needs to be imported from the log-in
+                # when an update is done also needs to be imported still, not here
+                import_oli_dict["label5prime"] = label5
+                import_oli_dict["label3prime"] = label3
+                import_oli_dict["labelM1"] = labelm
+                import_oli_dict["labelM1position"] = labelpos
+                import_oli_dict["pathogen_name"] = path_name
+                import_oli_dict["target"] = target
+                import_oli_dict["notes"] = notes
+
+                # for Employee table
+                # Employee table is already filled, just need to transfer
+                # when importing/updating
+                
+                # for Supplier table
+                import_supplier_dict["supplier_name"] = supp_name
+                supp_ID = get_supplier_ID(supp_name)
+                print supp_ID
+                #import_supplier_dict["supplier_ID"] = supp_ID
+                # need to keep in mind that ID is also imported, or linked
+                
+                # for Batch table
+                import_batch_dict["batch_number"] = batch_no
+                import_batch_dict["oligo_ID"] = oli_ID
+                import_batch_dict["synthesis_level_ordered"] = syn_lev
+                import_batch_dict["purification_method"] = pur_met
+                import_batch_dict["order_status"] = "not ordered"
+
             
-            # first check whether oli_seq is not already inside database.
-            # when there is, we only need to make a new batchno
-            # sometimes they also order the same seq again, but then as probe
-            # need to keep in mind
-            #if check_sequence_duplicated() == True:
-            ## retrieve information from the database (and convert)
+##              yield import_oli_dict, import_supplier_dict, import_batch_dict
+##              import_oli_dict = {}
+##              import_supplier_dict = {}
+##              import_batch_dict = {}
+
+
+            #   for every row insert the information into the specified tables
+            #   for import_oli_dict, import_supplier_dict, import_batch_dict in parse_importfile(filename)
             
-            
-            # make a new oligonumber
-            oli_ID = make_new_ID('Oligo')
-            # make new batch number
-            batch_no = make_new_ID('Batch')
+                insert_row("Oligo", import_oli_dict)
+                insert_row("Supplier", import_supplier_dict)
+                #insert_row("Order", import_order_dict)
+                #insert_row("Employee", import_emp_dict)
+                insert_row("Batch", import_batch_dict)
             
 
-            ## put everything in dictionaries
-            # for Oligo table
-            import_oli_dict["oligo_ID"] = oli_ID
-            import_oli_dict["oligo_name"] = oli_name
-            import_oli_dict["oligo_type"] = oli_type
-            import_oli_dict["sequence"] = oli_seq
-            import_oli_dict["description"] = descr
-            import_oli_dict["entry_date"] = entry_date
-            # creator needs to be imported from the log-in
-            # when an update is done also needs to be imported still, not here
-            import_oli_dict["label5prime"] = label5
-            import_oli_dict["label3prime"] = label3
-            import_oli_dict["labelM1"] = labelm
-            import_oli_dict["labelM1position"] = labelpos
-            import_oli_dict["pathogen_name"] = path_name
-            import_oli_dict["target"] = target
-            import_oli_dict["notes"] = notes
-
-            # for Employee table
-            # Employee table is already filled, just need to transfer
-            # when importing/updating
-            
-            # for Supplier table
-            import_supplier_dict["supplier_name"] = supp_name
-            supp_ID = get_supplier_ID(supp_name)
-            print supp_ID
-            #import_supplier_dict["supplier_ID"] = supp_ID
-            # need to keep in mind that ID is also imported, or linked
-            
-            # for Batch table
-            import_batch_dict["batch_number"] = batch_no
-            import_batch_dict["oligo_ID"] = oli_ID
-            import_batch_dict["synthesis_level_ordered"] = syn_lev
-            import_batch_dict["purification_method"] = pur_met
-            import_batch_dict["order_status"] = "not ordered"
-
-            # if sequence exists it must not take a new oli_ID, but a new batchno
-            # still have to write
-
-            
-##            yield import_oli_dict, import_supplier_dict, import_batch_dict
-##            import_oli_dict = {}
-##            import_supplier_dict = {}
-##            import_batch_dict = {}
-
-
-            # for every row insert the information into the specified tables
-            # for import_oli_dict, import_supplier_dict, import_batch_dict in parse_importfile(filename)
-            
-            insert_row("Oligo", import_oli_dict)
-            insert_row("Supplier", import_supplier_dict)
-            #insert_row("Order", import_order_dict)
-            #insert_row("Employee", import_emp_dict)
-            insert_row("Batch", import_batch_dict)
-            
-
-            rowcount += 1
+                rowcount += 1
         else:
             rowcount += 1
 
@@ -154,7 +163,7 @@ def get_supplier_ID(supplier_name): # not sure whether need to use
     sql = """SELECT supplier_ID FROM pathofinder_db.supplier
              WHERE supplier_name = "%s";""" %(supplier_name)
     supplier_tuple = execute_select_queries(sql)
-    supplier_ID = supplier_tuple[0][0]
+    supplier_ID = supplier_tuple[0]
     return supplier_ID
     
     
@@ -169,7 +178,8 @@ def check_sequence_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos='')
         M1 -- the internal label of sequence that we want to import into db
         M1pos -- the position of internal label of sequence that we want to import into db
     Returns:
-        duplicated -- A boolean, False when oligo sequence is unique and True when duplicated"
+        duplicated -- A boolean, False when oligo sequence is unique and True when duplicated
+        oligoID -- a string, the oligoID of duplicated seq, empty when seq is unique
     """
     # from import_oli_dict the info is obtained
     # and read into seq, fiveprime, threeprime and M1, M1pos
@@ -178,15 +188,17 @@ def check_sequence_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos='')
     # raise some frame
     # choose whether commit and it will get a new batchnumber but not a new olinumber
     # or choose to abort
-    sql = """SELECT sequence FROM pathofinder_db.oligo WHERE
+    sql = """SELECT sequence, oligo_ID FROM pathofinder_db.oligo WHERE
             sequence = "%s" """ %(seq)
     seq_tuple = execute_select_queries(sql)
-    # print seq_tuple
+    print seq_tuple
     # not unpacking tuple yet, just checking whether something is inside
     if seq_tuple:
-        # when something is inside it means that the sequence is already inside database
-        # then we need to check whether the labels are the same or not
-        
+        # we need to retrieve also oligoID for when user wants to re-order oligo
+        # the oligo gets a new batch, but keeps the oligoID
+        sequence, oligoID = seq_tuple[0]
+        # when tuple is filled, means that sequence is inside database
+        # we also need to check whether the labels are the same 
         if check_labels_duplicated(seq, fiveprime, threeprime, M1, M1pos):
             duplicated = True
             print "sequence and labels duplicated"
@@ -196,9 +208,10 @@ def check_sequence_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos='')
     else:
         # when tuple is found empty, we can proceed importing the oligo
         duplicated = False
+        oligoID = ""
         print "sequence unique"
 
-    print duplicated
+    return duplicated, oligoID
 
 def check_labels_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos=''):
     """ Checks whether the imported labels of a sequence are equal
@@ -216,6 +229,7 @@ def check_labels_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos=''):
 
     sql = """SELECT sequence, label5prime, label3prime, labelM1, labelM1position
         FROM pathofinder_db.oligo WHERE sequence = "%s" """ %(seq)
+    
    
     sequence, labelfive, labelthree, labelM1, labelM1pos = execute_select_queries(sql)[0]
     
@@ -233,6 +247,20 @@ def check_labels_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos=''):
         print "unique labels"
 
     return duplicated
+
+def get_oliID_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos=''):
+    """ When oligo sequence is duplicated, retrieve oligoID when user wants
+        to import anyway into database
+
+    Keyword arguments:
+        seq -- the sequence that we want to import into database
+        fiveprime -- the label at 5' of sequence that we want to import into db
+        threeprime -- the label at 3' of sequence that we want to import into db
+        M1 -- the internal label of sequence that we want to import into db
+        M1pos -- the position of internal label of sequence that we want to import into db
+    Returns:
+        dup_oliID -- string, the oligoID of sequence we want to duplicate in db
+    """
 
 
 def get_max_ID(table):
@@ -386,9 +414,16 @@ if __name__ == "__main__":
 ##    new_batch_number("batch")
 ##    get_supplier_ID("IDT")
 ##    new_batch_number("batch")
-    parse_importfile("Importfileoligos_new.csv")
-##    check_sequence_duplicated("AATCACGAGGACCAAAGCACTGAATAACATTTTCCTCTCTGGTAGGGG") 
-##    check_sequence_duplicated("AAT")
+##    parse_importfile("Importfileoligos_new.csv")
+    #test1=check_sequence_duplicated("AATCACGAGGACCAAAGCACTGAATAACATTTTCCTCTCTGGTAGGGG")
+    test2=check_sequence_duplicated("AATCATCATGCCTCTTACGAGTG")
+    #print test1
+    print test2
+##    print type(test1[0])
+##    print type(test1[1])
+##    print type(test2[0])
+##    print type(test2[1])
+    
 ##    # these do not work yet as it finds 2 sequences
 ##    check_sequence_duplicated('TTTCCCTTCCTAACCTGGACATA', 'FAM', '', 'TAMRA', '23')
 ##    check_sequence_duplicated('TTTCCCTTCCTAACCTGGACATA', 'YY', 'BHQ1', 'TAMRA', '23')
