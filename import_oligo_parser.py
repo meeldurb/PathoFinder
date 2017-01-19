@@ -34,6 +34,8 @@ def parse_importfile(filename): #need to split in parsing and importing
     import_oli_dict = {}
     import_batch_dict = {}
     import_supplier_dict = {}
+    import_project_dict = {}
+    import_projoli_dict = {}
     # keep a rowcount, because first row with headers needs to be excluded
     rowcount = 0
     # for every single row import the data into the correct dictionaries
@@ -57,19 +59,47 @@ def parse_importfile(filename): #need to split in parsing and importing
                 if import_anyway == "y":
                     # do not make new oligono
                     oli_ID = sequence_duplicated[1]
-                    print oli_ID
+                    # Batch table
+                    # make new batch number
+                    batch_no = make_new_ID('Batch')
+                    import_batch_dict["batch_number"] = batch_no
+                    import_batch_dict["oligo_ID"] = oli_ID
+                    import_batch_dict["synthesis_level_ordered"] = syn_lev
+                    import_batch_dict["purification_method"] = pur_met
+                    import_batch_dict["order_status"] = "not ordered"
+
+                    # for Employee table
+                    # Employee table is already filled, just need to transfer
+                    # when importing/updating
+
+                    # for project_oligo table
+                    import_projoli_dict["oligo_ID"] = oli_ID
+                    proj_ID = get_project_ID(proj_name)
+                    import_projoli_dict["project_ID"] = proj_ID
+                    
+                    # for project table
+                    import_project_dict["project_ID"] = proj_ID
+                    import_project_dict["project_name"] = proj_name
+
+                    # for Supplier table
+                    supp_ID = get_supplier_ID(supp_name)
+                    import_supplier_dict["supplier_ID"] = supp_ID
+                    import_supplier_dict["supplier_name"] = supp_name
+
+                    insert_row("Oligo", import_oli_dict)
+                    insert_row("Batch", import_batch_dict)
+                    insert_row("Project_Oligo", import_projoli_dict)
+                    insert_row("Project", import_project_dict)
+                    insert_row("Supplier", import_supplier_dict)
                 else:
                     rowcount += 1             
                 
             if sequence_duplicated[0] != True:                    
-                ## retrieve information from the database (and convert)         
+                ## retrieve information from the database (and convert)                     
+
+                ## put everything in dictionaries to be appropriate for import
                 # make a new oligonumber
                 oli_ID = make_new_ID('Oligo')
-                # make new batch number
-                batch_no = make_new_ID('Batch')
-                
-
-                ## put everything in dictionaries
                 # for Oligo table
                 import_oli_dict["oligo_ID"] = oli_ID
                 import_oli_dict["oligo_name"] = oli_name
@@ -78,6 +108,7 @@ def parse_importfile(filename): #need to split in parsing and importing
                 import_oli_dict["description"] = descr
                 import_oli_dict["entry_date"] = entry_date
                 # creator needs to be imported from the log-in
+                # import_oli_dict["creator"] = emp_loggedin
                 # when an update is done also needs to be imported still, not here
                 import_oli_dict["label5prime"] = label5
                 import_oli_dict["label3prime"] = label3
@@ -87,39 +118,58 @@ def parse_importfile(filename): #need to split in parsing and importing
                 import_oli_dict["target"] = target
                 import_oli_dict["notes"] = notes
 
-                # for Employee table
-                # Employee table is already filled, just need to transfer
-                # when importing/updating
-                
-                # for Supplier table
-                import_supplier_dict["supplier_name"] = supp_name
-                supp_ID = get_supplier_ID(supp_name)
-                print supp_ID
-                #import_supplier_dict["supplier_ID"] = supp_ID
-                # need to keep in mind that ID is also imported, or linked
-                
                 # for Batch table
+                # make new batch number
+                batch_no = make_new_ID('Batch')
                 import_batch_dict["batch_number"] = batch_no
                 import_batch_dict["oligo_ID"] = oli_ID
                 import_batch_dict["synthesis_level_ordered"] = syn_lev
                 import_batch_dict["purification_method"] = pur_met
                 import_batch_dict["order_status"] = "not ordered"
 
+                # for Employee table
+                # Employee table is already filled, just need to transfer
+                # when importing/updating
+
+                # for project_oligo table
+                import_projoli_dict["oligo_ID"] = oli_ID
+                proj_ID = get_project_ID(proj_name)
+                import_projoli_dict["project_ID"] = proj_ID
+                    
+                # for project table
+                proj_ID = get_project_ID(proj_name)
+                import_project_dict["project_ID"] = proj_ID
+                import_project_dict["project_name"] = proj_name
+
+                # for Supplier table
+                supp_ID = get_supplier_ID(supp_name)
+                import_supplier_dict["supplier_ID"] = supp_ID
+                import_supplier_dict["supplier_name"] = supp_name
+                
             
-##              yield import_oli_dict, import_supplier_dict, import_batch_dict
+##              yield import_oli_dict, import_batch_dict, import_projoli_dict,
+##              import_project_dict, import_supplier_dict, import_employee_dict                
 ##              import_oli_dict = {}
-##              import_supplier_dict = {}
 ##              import_batch_dict = {}
+##              import_projoli_dict = {}
+##              import_project_dict = {}
+##              import_supplier_dict = {}
+##              import_employee_dict = {}
 
 
-            #   for every row insert the information into the specified tables
-            #   for import_oli_dict, import_supplier_dict, import_batch_dict in parse_importfile(filename)
+
+                # for every row insert the information into the specified tables
+                # for import_oli_dict, import_supplier_dict, import_batch_dict in parse_importfile(filename)
             
                 insert_row("Oligo", import_oli_dict)
+                insert_row("Batch", import_batch_dict)
+                insert_row("Project_Oligo", import_projoli_dict)
+                insert_row("Project", import_project_dict)
                 insert_row("Supplier", import_supplier_dict)
                 #insert_row("Order", import_order_dict)
                 #insert_row("Employee", import_emp_dict)
-                insert_row("Batch", import_batch_dict)
+                
+                
             
 
                 rowcount += 1
@@ -163,9 +213,30 @@ def get_supplier_ID(supplier_name): # not sure whether need to use
     sql = """SELECT supplier_ID FROM pathofinder_db.supplier
              WHERE supplier_name = "%s";""" %(supplier_name)
     supplier_tuple = execute_select_queries(sql)
-    supplier_ID = supplier_tuple[0]
-    return supplier_ID
-    
+    if supplier_tuple:
+        supplier_ID = supplier_tuple[0]
+        return supplier_ID
+    else:
+        print 'supplier is not in db. Please import suppliername and ID first'
+
+
+def get_project_ID(project_name):
+    """Returns the project ID of a project_name
+
+    Keyword arguments:
+        project_name: string, the name of project as in sql database
+    Returns:
+        project_ID: string, the ID of project associated to project_name
+    """
+    sql = """SELECT project_ID FROM pathofinder_db.project
+             WHERE project_name = "%s";""" %(project_name)
+    project_tuple = execute_select_queries(sql)
+    if project_tuple:
+        project_ID = project_tuple[0]
+        return project_ID
+    else:
+        print 'project is not in database. Please import the new project name and ID first'
+        
     
 def check_sequence_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos=''):
     # fix to get information from import_oli_dict
@@ -414,11 +485,11 @@ if __name__ == "__main__":
 ##    new_batch_number("batch")
 ##    get_supplier_ID("IDT")
 ##    new_batch_number("batch")
-##    parse_importfile("Importfileoligos_new.csv")
+    parse_importfile("Importfileoligos_new.csv")
     #test1=check_sequence_duplicated("AATCACGAGGACCAAAGCACTGAATAACATTTTCCTCTCTGGTAGGGG")
-    test2=check_sequence_duplicated("AATCATCATGCCTCTTACGAGTG")
+    #test2=check_sequence_duplicated("AATCATCATGCCTCTTACGAGTG")
     #print test1
-    print test2
+    #print test2
 ##    print type(test1[0])
 ##    print type(test1[1])
 ##    print type(test2[0])
