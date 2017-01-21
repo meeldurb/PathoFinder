@@ -1,6 +1,9 @@
 from Tkinter import *
 from tkFont import Font
 from math import floor
+import config as cfg
+from Table_Lookup_queries import build_table_window
+
 
 class Spreadsheet(Frame):
 
@@ -42,8 +45,6 @@ class Spreadsheet(Frame):
         self.defaultCursor=self.cget("cursor")
 
         self.bind("<Configure>", self.catchResize)
-
-
 
 
     def catchResize(self, event):
@@ -332,20 +333,38 @@ class Row(list):
         self.height=0
 
 class Buttons(Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, sql, attributes):
         Frame.__init__(self, parent)
 
+        self.frame = parent
+
+        self.sortattribute = StringVar()
+        self.sortattribute.set(attributes[0])
+        self.sortmethod = StringVar()
+        self.sortmethod.set('Descending')
+
         refreshButton = Button(text="Refresh")
+        refreshButton['command'] = lambda : self.refresh(sql, attributes)
         refreshButton.pack(side=LEFT, padx=5, pady=5)
-        reorderButton = Button(text="Re-Order")
-        reorderButton.pack(side=LEFT, padx=5, pady=5)
-        removeButton = Button(text="Remove")
-        removeButton.pack(side=LEFT, padx=5, pady=5)
+
         searchButton = Button(text="Search")
         searchButton.pack(side=LEFT, padx=5, pady=5)
-        previousButton = Button(text="Previous")
+        
+        previousButton = Button(text="Back")
         previousButton.pack(side=RIGHT, padx=5, pady=5)
         
+        homeButton = Button(text = "Home")
+        homeButton.pack(side= RIGHT, padx=5, pady=5)
 
-    
+        sortList = OptionMenu(parent, self.sortattribute, *attributes)
+        #sortList['command'] = lambda : 
+        sortList.pack(side=LEFT, padx=5, pady=5)
+
+        sortmethodList = OptionMenu(parent, self.sortmethod, 'Ascending', 'Descending')
+        sortmethodList.pack(side=LEFT, padx=5, pady=5)        
+
+    def refresh(self, sql, attributes):
+        if self.frame is not None:
+            self.frame.destroy()
+        self.frame = build_table_window(sql, attributes)
 # connect the checkbuttons to be able to order/delete selected
