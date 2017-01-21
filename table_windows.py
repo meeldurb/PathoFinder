@@ -3,7 +3,7 @@ from tkFont import Font
 from math import floor
 import config as cfg
 from Table_Lookup_queries import build_table_window
-
+import re
 
 class Spreadsheet(Frame):
 
@@ -333,16 +333,19 @@ class Row(list):
         self.height=0
 
 class Buttons(Frame):
-    def __init__(self, parent, sql, attributes):
+    def __init__(self, parent, sql, attributes, sortattribute, sortmethod):
         Frame.__init__(self, parent)
 
+        # set frame in oder to be able to refresh
         self.frame = parent
 
+        # set variables
         self.sortattribute = StringVar()
-        self.sortattribute.set(attributes[0])
+        self.sortattribute.set(sortattribute)
         self.sortmethod = StringVar()
-        self.sortmethod.set('Descending')
+        self.sortmethod.set(sortmethod)
 
+        # Set Buttons
         refreshButton = Button(text="Refresh")
         refreshButton['command'] = lambda : self.refresh(sql, attributes)
         refreshButton.pack(side=LEFT, padx=5, pady=5)
@@ -356,15 +359,41 @@ class Buttons(Frame):
         homeButton = Button(text = "Home")
         homeButton.pack(side= RIGHT, padx=5, pady=5)
 
-        sortList = OptionMenu(parent, self.sortattribute, *attributes)
-        #sortList['command'] = lambda : 
+        sortList = OptionMenu(parent, self.sortattribute, *attributes, command = lambda(sortattribute) : self.resort_attribute(sql, attributes, sortattribute))
         sortList.pack(side=LEFT, padx=5, pady=5)
 
-        sortmethodList = OptionMenu(parent, self.sortmethod, 'Ascending', 'Descending')
+        sortmethodList = OptionMenu(parent, self.sortmethod, 'Ascending', 'Descending', command = lambda(sortmethod) : self.resort_method(sql, attributes, sortmethod))
         sortmethodList.pack(side=LEFT, padx=5, pady=5)        
 
-    def refresh(self, sql, attributes):
+    def refresh(self, sql, attributes, sortattribute, sortmethod):
+        # destroy the window in order to build a new one
         if self.frame is not None:
             self.frame.destroy()
-        self.frame = build_table_window(sql, attributes)
+        # build new one
+        self.frame = build_table_window(sql, attributes, sortattribute, sortmethod)
+
+    def resort_attribute(self, sql, attributes, sortattribute):
+        if sortattribute in attributes:
+            pattern = r'(ORDER BY )[^ \t\n\r\f\v]*( [A-Z]*)'
+            matcher = re.compile(pattern)
+            sub = r'\1%s\2' % sortattribute
+            sql = matcher.sub(sub, sql)
+        else:
+            raise ValueError("Selected attribute does not occur in this table")
+        self.refresh(sql, attributes, sortattribute, self.sortmethod.get())
+        
+    def resort_method(self, sql, attributes, sortmethod):
+        if sortmethod == 'Ascending' or sortmethod == 'Descending':
+            if sortmethod == 'Ascending':
+                sortmethod_syntax = 'ASC'
+            else:
+                sortmethod_syntax = 'DESC'
+            pattern = r'(ORDER BY [^ \t\n\r\f\v]* )[A-Z]*'
+            matcher = re.compile(pattern)
+            sub = r'\1%s' % sortmethod_syntax
+            sql = matcher.sub(sub, sql)
+        else:
+            raise ValueError("Sortmethod should be Ascending or Descending")
+        self.refresh(sql, attributes, self.sortattribute.get(), sortmethod)  
+            
 # connect the checkbuttons to be able to order/delete selected
