@@ -180,5 +180,5 @@ if __name__ == "__main__":
     
     #search('oligo', "OLI000006")
     #print testlist_oligo('OLI000018')
-    #build_query_and_table("oligo_recent_batch")
-    search('batch', 'OLI000020 50')
+    build_query_and_table("oligo_recent_batch")
+    #search('batch', 'OLI000020 50')
