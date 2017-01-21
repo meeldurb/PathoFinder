@@ -347,7 +347,7 @@ class Buttons(Frame):
 
         # Set Buttons
         refreshButton = Button(text="Refresh")
-        refreshButton['command'] = lambda : self.refresh(sql, attributes)
+        refreshButton['command'] = lambda : self.refresh(sql, attributes, self.sortattribute.get(), self.sortmethod.get())
         refreshButton.pack(side=LEFT, padx=5, pady=5)
 
         searchButton = Button(text="Search")
@@ -366,34 +366,62 @@ class Buttons(Frame):
         sortmethodList.pack(side=LEFT, padx=5, pady=5)        
 
     def refresh(self, sql, attributes, sortattribute, sortmethod):
-        # destroy the window in order to build a new one
+        """Destroy the window in order to build a new one
+
+        Keyword Arguments:
+        sql             -- string, SQL query statement including an ORDER BY
+        attributes      -- list, list of all the attributes of the current table
+        sortattribute   -- string, an attribute of the current table
+        sortmethod      -- string, either Ascending or Descending"""
         if self.frame is not None:
             self.frame.destroy()
         # build new one
         self.frame = build_table_window(sql, attributes, sortattribute, sortmethod)
 
     def resort_attribute(self, sql, attributes, sortattribute):
-        if sortattribute in attributes:
-            pattern = r'(ORDER BY )[^ \t\n\r\f\v]*( [A-Z]*)'
-            matcher = re.compile(pattern)
-            sub = r'\1%s\2' % sortattribute
-            sql = matcher.sub(sub, sql)
-        else:
+        """Rebuilds the query to change the window to sort on a new attribute
+        Keyword Arguments:
+        sql             -- string, SQL query statement including an ORDER BY
+        attributes      -- list, list of all the attributes of the current table
+        sortattribute   -- string, an attribute of the current table
+        sortmethod      -- string, either Ascending or Descending"""
+        # check for valid attribute
+        if sortattribute not in attributes:
             raise ValueError("Selected attribute does not occur in this table")
+        # build pattern finder
+        pattern = r'(ORDER BY )[^ \t\n\r\f\v]*( [A-Z]*)'
+        matcher = re.compile(pattern)
+        sub = r'\1%s\2' % sortattribute
+        # replace text in the query
+        sql = matcher.sub(sub, sql)
+
+        # refresh the window with the new settings
         self.refresh(sql, attributes, sortattribute, self.sortmethod.get())
         
     def resort_method(self, sql, attributes, sortmethod):
-        if sortmethod == 'Ascending' or sortmethod == 'Descending':
-            if sortmethod == 'Ascending':
-                sortmethod_syntax = 'ASC'
-            else:
-                sortmethod_syntax = 'DESC'
-            pattern = r'(ORDER BY [^ \t\n\r\f\v]* )[A-Z]*'
-            matcher = re.compile(pattern)
-            sub = r'\1%s' % sortmethod_syntax
-            sql = matcher.sub(sub, sql)
-        else:
+        """Rebuilds the query to change the window for a different sorting method
+        Keyword Arguments:
+        sql             -- string, SQL query statement including an ORDER BY
+        attributes      -- list, list of all the attributes of the current table
+        sortattribute   -- string, an attribute of the current table
+        sortmethod      -- string, either Ascending or Descending"""
+        # check for valid sortmethod
+        if sortmethod != 'Ascending' and sortmethod != 'Descending':
             raise ValueError("Sortmethod should be Ascending or Descending")
+        # make the right sort syntax
+        if sortmethod == 'Ascending':
+            sortmethod_syntax = 'ASC'
+        else:
+            sortmethod_syntax = 'DESC'
+
+        # build pattern finder
+        pattern = r'(ORDER BY [^ \t\n\r\f\v]* )[A-Z]*'
+        matcher = re.compile(pattern)
+        sub = r'\1%s' % sortmethod_syntax
+        # replace text in the query
+        sql = matcher.sub(sub, sql)
+        
+        # refresh the window with the new settings
         self.refresh(sql, attributes, self.sortattribute.get(), sortmethod)  
             
 # connect the checkbuttons to be able to order/delete selected
