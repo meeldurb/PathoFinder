@@ -5,7 +5,7 @@ Script for executing queries to the groupwork database
 """
 
 import MySQLdb
-from table_windows import *
+import table_windows as tw
 import config as cfg
     
 def execute_select_queries(query): #works
@@ -31,13 +31,13 @@ def build_table_window(sql, attributes):
     Keyword Arguments
     sql         -- string, The SQL query in a string
     attributes  -- list, attributes of the table the sql refers to"""
-    tk = Tk()
+    tk = tw.Tk()
 
-    ssw = Spreadsheet(tk, width=900)
-    ssw.pack(side = 'bottom', expand=TRUE, fill=BOTH)
+    ssw = tw.Spreadsheet(tk, width=900)
+    ssw.pack(side = 'bottom', expand=True, fill= 'both')
     ssw.initialise()
 
-    toolbox = Buttons(tk)
+    toolbox = tw.Buttons(tk, sql, attributes)
     toolbox.pack(in_=ssw, side = 'top')
  
     db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
@@ -45,15 +45,15 @@ def build_table_window(sql, attributes):
        
     ssw.addColumn('')
     for attribute in attributes:
-        ssw.addColumn(attribute, 300, align = LEFT)
+        ssw.addColumn(attribute, 300, align = 'left')
     cursor.execute(sql)
     for i in range(cursor.rowcount):
-        check = Checkbutton(ssw.spreadsheet)
+        check = tw.Checkbutton(ssw.spreadsheet)
         row = cursor.fetchone()
         row = list(row)
         row.insert(0, check)
         row = tuple(row)
-        ssw.addRow(END, row)
+        ssw.addRow('end', row)
     cursor.close()
     db.close()
 
