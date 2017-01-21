@@ -25,7 +25,7 @@ def execute_select_queries(query): #works
     db.close()
     return results
 
-def build_table_window(sql, attributes):
+def build_table_window(sql, attributes, sortattribute, sortmethod):
     """Builds up the table window
 
     Keyword Arguments
@@ -37,7 +37,7 @@ def build_table_window(sql, attributes):
     ssw.pack(side = 'bottom', expand=True, fill= 'both')
     ssw.initialise()
 
-    toolbox = tw.Buttons(tk, sql, attributes)
+    toolbox = tw.Buttons(tk, sql, attributes, sortattribute, sortmethod)
     toolbox.pack(in_=ssw, side = 'top')
  
     db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
@@ -119,26 +119,29 @@ def supplier_delivery_time(): # need unified entry of dates in the database, wor
 
 # Project and the linked oligos
 
-def open_table_window(table, sort_attribute = 0, sort = 'DESC'):
+def open_table_window(table, sort_attribute = 0, sort = 'Descending'):
     """Opens a window of the selected input table"""
-    if sort != 'DESC' and sort != 'ASC':
-        raise ValueError("Can only sort DESC-ending or ASC-ending")
+    if sort != 'Descending' and sort != 'Ascending':
+        raise ValueError("Expected input: 'Descending' or 'Ascending'")
+    if sort == 'Descending':
+        sort_syntax = 'DESC'
+    else:
+        sort_syntax = 'ASC'
     attributes = cfg.db_tables_views[table]
     query = "SELECT `%s`." % table
     for attribute in attributes:
             query += attribute + ", "
     query = query[:(len(query)-2)] + (" FROM `%s`" % table)
     if sort_attribute == 0:
-        query += " ORDER BY %s %s" % (attributes[0], sort)
-    else:
-        query += " ORDER BY %s %s" % (sort_attribute, sort)
-    build_table_window(query, attributes)
+        sort_attribute = attributes[0]
+    query += " ORDER BY %s %s" % (sort_attribute, sort_syntax)
+    build_table_window(query, attributes, sort_attribute, sort)
 
    
             
 if __name__ == "__main__":
-
+    
     #search('oligo', "OLI000006")
     #print testlist_oligo('OLI000018')
-    #open_table_window("oligo_batch", sort_attribute = 'recent_batch')
-    search('batch', 'OLI000020 50')
+    open_table_window("oligo_recent_batch")
+    #search('batch', 'OLI000020 50')
