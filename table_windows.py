@@ -359,11 +359,19 @@ class Buttons(Frame):
         homeButton = Button(text = "Home")
         homeButton.pack(side= RIGHT, padx=5, pady=5)
 
-        sortList = OptionMenu(parent, self.sortattribute, *attributes, command = lambda(sortattribute) : self.resort_attribute(sql, attributes, sortattribute))
+        # Setup a Frame which contains all the sort widgets
+        sort_group = LabelFrame(parent)
+        sort_group.pack(padx=10)
+        
+        sortList = OptionMenu(sort_group, self.sortattribute, *attributes)
         sortList.pack(side=LEFT, padx=5, pady=5)
 
-        sortmethodList = OptionMenu(parent, self.sortmethod, 'Ascending', 'Descending', command = lambda(sortmethod) : self.resort_method(sql, attributes, sortmethod))
-        sortmethodList.pack(side=LEFT, padx=5, pady=5)        
+        sortmethodList = OptionMenu(sort_group, self.sortmethod, 'Ascending', 'Descending')
+        sortmethodList.pack(side=LEFT, padx=5, pady=5)
+
+        sortbutton = Button(sort_group, text = 'Sort', padx = 10)
+        sortbutton['command'] = lambda : self.sort_table(sql, attributes, self.sortattribute.get(), self.sortmethod.get())
+        sortbutton.pack(side = RIGHT, padx=5, pady=5)
 
     def refresh(self, sql, attributes, sortattribute, sortmethod):
         """Destroy the window in order to build a new one
@@ -378,50 +386,38 @@ class Buttons(Frame):
         # build new one
         self.frame = build_table_window(sql, attributes, sortattribute, sortmethod)
 
-    def resort_attribute(self, sql, attributes, sortattribute):
-        """Rebuilds the query to change the window to sort on a new attribute
-        Keyword Arguments:
-        sql             -- string, SQL query statement including an ORDER BY
-        attributes      -- list, list of all the attributes of the current table
-        sortattribute   -- string, an attribute of the current table
-        sortmethod      -- string, either Ascending or Descending"""
-        # check for valid attribute
-        if sortattribute not in attributes:
-            raise ValueError("Selected attribute does not occur in this table")
-        # build pattern finder
-        pattern = r'(ORDER BY )[^ \t\n\r\f\v]*( [A-Z]*)'
-        matcher = re.compile(pattern)
-        sub = r'\1%s\2' % sortattribute
-        # replace text in the query
-        sql = matcher.sub(sub, sql)
+    def sort_table(self, sql, attributes, sortattribute, sortmethod):
+        """Destroy the window in order to build a new one
 
-        # refresh the window with the new settings
-        self.refresh(sql, attributes, sortattribute, self.sortmethod.get())
-        
-    def resort_method(self, sql, attributes, sortmethod):
-        """Rebuilds the query to change the window for a different sorting method
         Keyword Arguments:
         sql             -- string, SQL query statement including an ORDER BY
         attributes      -- list, list of all the attributes of the current table
         sortattribute   -- string, an attribute of the current table
         sortmethod      -- string, either Ascending or Descending"""
+        
         # check for valid sortmethod
         if sortmethod != 'Ascending' and sortmethod != 'Descending':
             raise ValueError("Sortmethod should be Ascending or Descending")
-        # make the right sort syntax
+        # check for valid attribute
+        if sortattribute not in attributes:
+            raise ValueError("Selected attribute does not occur in this table")
+
+        # make the right sortmethod syntax
         if sortmethod == 'Ascending':
             sortmethod_syntax = 'ASC'
         else:
             sortmethod_syntax = 'DESC'
 
         # build pattern finder
-        pattern = r'(ORDER BY [^ \t\n\r\f\v]* )[A-Z]*'
+        pattern = r'(ORDER BY )[^ \t\n\r\f\v]*( )[A-Z]*'
         matcher = re.compile(pattern)
-        sub = r'\1%s' % sortmethod_syntax
+        sub = r'\1%s\2%s' % (sortattribute, sortmethod_syntax)
         # replace text in the query
         sql = matcher.sub(sub, sql)
-        
+
         # refresh the window with the new settings
-        self.refresh(sql, attributes, self.sortattribute.get(), sortmethod)  
+        self.refresh(sql, attributes, sortattribute, sortmethod)
+
+          
             
 # connect the checkbuttons to be able to order/delete selected
