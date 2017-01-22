@@ -14,7 +14,8 @@ import os
 import Tkinter as tk
 import tkFont
 from tkFileDialog import askopenfilename
-
+import MySQLdb
+import config as cfg
 
 
 mycolor = '#%02x%02x%02x' % (0, 182, 195)
@@ -42,7 +43,7 @@ class OligoDatabase(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, OligosPage, ProjectsPage, EmployeesPage,
+        for F in (Login, StartPage, OligosPage, ProjectsPage, EmployeesPage,
                   BatchesPage, SuppliersPage, ExperimentPage,
                   ViewAllOligos, NewOligo, ModifyOligo, LookupOligo,
                   ViewExperimentPage, NewExperimentPage, EditExperimentPage,
@@ -63,7 +64,7 @@ class OligoDatabase(tk.Tk):
             frame.grid(row=0, column=0,  sticky="NSEW")
 
         self.title("PathoFinder Oligo DB")
-        self.show_frame("StartPage")
+        self.show_frame("Login")
 
     def show_frame(self, page_name):
         """ Raises the frame of the given page name to the top
@@ -71,6 +72,63 @@ class OligoDatabase(tk.Tk):
         frame = self.frames[page_name]
         frame.tkraise() 
 
+class Login(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        
+        self.controller = controller
+        self.username = tk.StringVar()
+        self.password = tk.StringVar()
+        self.var_message = tk.StringVar()
+
+        label = tk.Label(self, text="Login")
+        label.grid(columnspan=8, pady=10)
+
+
+        # username
+        user_label = tk.Label(self, text = "Username: ")
+        user_label.grid(row = 1, column = 1, pady = 5)
+        
+        user = tk.Entry(self)
+        user['textvariable'] = self.username
+        user.grid(row = 1, column = 2, columnspan = 4, pady = 5)
+
+        # password
+        pw_label = tk.Label(self, text = "Password: ")
+        pw_label.grid(row = 2, column = 1, pady = 5)
+                  
+        pw = tk.Entry(self, show = "*")
+        pw['textvariable'] = self.password
+        pw.grid(row = 2, column = 2, columnspan = 4, pady = 5)
+
+        # Button
+        login_button = tk.Button(self, text = "Login")
+        login_button['command'] = lambda: self.check_login()
+        login_button.grid(row = 4, column = 2, pady = 10)
+
+        # Message
+        msg = tk.Message(self, width=280)
+        msg['textvariable'] = self.var_message
+        msg.grid(row=3, column=0, columnspan=3)
+
+    def check_login(self):
+        """Check whether Login details are valid, in order to continute"""
+        sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (self.username.get(), self.password.get())
+        db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
+        cursor = db.cursor()
+        try:
+            cursor.execute(sql)
+            match = cursor.fetchall()
+        except MySQLdb.Error,e:
+            print e[0], e[1]
+            db.rollback()
+        cursor.close()
+        db.close()
+        if len(match) == 0:
+            self.var_message.set("Invalid username or password")
+        else:
+            self.controller.show_frame('StartPage')
+            
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
         # each page is a subblass of tk.Frame class, this calls
@@ -117,6 +175,8 @@ class StartPage(tk.Frame):
         button7 = tk.Button(self, text="Quit", command=controller.destroy)
                             # Close the program
         button7.grid(row=8, column=8, pady=5, padx=10)
+
+
 
         
 class OligosPage(tk.Frame):
