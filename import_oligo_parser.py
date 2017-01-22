@@ -232,7 +232,7 @@ def get_project_ID(project_name):
              WHERE project_name = "%s";""" %(project_name)
     project_tuple = execute_select_queries(sql)
     if project_tuple:
-        project_ID = project_tuple[0]
+        project_ID = project_tuple[0][0]
         return project_ID
     else:
         print 'project is not in database. Please import the new project name and ID first'
