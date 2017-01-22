@@ -166,14 +166,10 @@ def build_query_and_table(table, sort_attribute = 0, sort = 'Descending'):
         raise ValueError("not a valid sort attributes, choose one that is in the table")
     # build query
     query = "SELECT `%s`." % table
-    print query
     for attribute in attributes:
             query += attribute + ", "
-    print query
     query = query[:(len(query)-2)] + (" FROM `%s`" % table)
-    print query
     query += " ORDER BY %s %s" % (sort_attribute, sort_syntax)
-    print query
 
     # show the results in the window
     build_table_window(query, table, attributes, sort_attribute, sort)
@@ -181,5 +177,5 @@ def build_query_and_table(table, sort_attribute = 0, sort = 'Descending'):
    
             
 if __name__ == "__main__":
-    build_query_and_table("oligo_recent_batch")
+    build_query_and_table("oligo")
 
