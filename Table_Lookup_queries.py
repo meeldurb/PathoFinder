@@ -39,7 +39,7 @@ def build_table_window(sql, table_str, attributes, sortattribute, sortmethod):
     ssw.initialise()
 
     # add the Toolbox (the buttons) frame to the winow
-    toolbox = tw.Buttons(tk, sql, table_str, attributes, sortattribute, sortmethod)
+    toolbox = tw.ButtonsFrame(tk, sql, table_str, attributes, sortattribute, sortmethod)
     toolbox.pack(in_=ssw, side = 'top')
  
     db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
@@ -109,38 +109,6 @@ def search(table_str, search_input, sort_attribute = 0, sort = 'Descending'): # 
     return(query, attributes)
             
 
-
-# Experiments analysis
-
-def testlist_oligo(oligo_ID): #works
-    """Returns a tuple of all tests in which the given oligo was used
-
-    Keyword Arguments:
-    oligo_ID    -- string, the key of the oligo for which you want retrieve the information."""
-    oligo = tuple([oligo_ID]*5)
-    sql = "SELECT DISTINCT experiment.experiment_ID, test_number, lab_report, experiment_date, \
-            oligo_ID_fwd, oligo_ID_rev, oligo_ID_probe, oligo_ID_4, oligo_ID_5, approved_status\
-            FROM experiment, approval, `lab_report`\
-            WHERE experiment.experiment_ID = approval.experiment_ID\
-            AND (approval.oligo_ID_fwd = '%s'\
-            OR approval.oligo_ID_rev = '%s'\
-            OR approval.oligo_ID_probe = '%s'\
-            OR approval.oligo_ID_4 = '%s'\
-            OR approval.oligo_ID_5 = '%s')" % oligo
-    return execute_select_queries(sql)
-
-
-
-def supplier_delivery_time(): # need unified entry of dates in the database, worked with test data!
-    """Query for calculating the average delivery time per supplier."""
-    sql = "SELECT supplier_name, avg(DATEDIFF(str_to_date(batch.delivery_date, '%d-%m-%Y'),\
-            str_to_date(`order`.order_date, '%d-%m-%Y'))) As Delivery_Difference\
-            FROM  supplier, batch, `order`\
-            where batch.order_number = `order`.order_number AND `order`.supplier_ID = supplier.supplier_ID\
-            Group By supplier.supplier_name"
-    return execute_select_queries(sql)
-
-# Project and the linked oligos
 
 def build_query_and_table(table, sort_attribute = 0, sort = 'Descending'):
     """Opens a window of the selected input table
