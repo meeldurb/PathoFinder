@@ -20,8 +20,74 @@ def open_importfile(filename):
     file_content = open(filename, "r")
     return file_content
 
+def parse_importfile(filename):
+    """ Returns the cells of the oligo import excel file to a dictionary
 
-def parse_importfile(filename): #need to split in parsing and importing
+    Keyword arguments:
+        filename -- string, the filename of the import oligo file
+    """
+    import_data = open_importfile(filename)
+    # get current date
+    entry_date = get_date_stamp()
+    # initialize empty dictionary
+    import_dict = {}
+    rowcount = 0
+    # for every row in import file import data into dictionary
+    for row in import_data:
+        if rowcount > 0: #skips the first line with headers
+            oli_name, oli_type, oli_seq, descr, label5, label3, \
+                    labelm, labelpos, path_name, target, notes, syn_lev, \
+                    pur_met, supp_name, proj_name = row.strip().split(";")
+            # retrieve data to import also
+            proj_ID = get_project_ID(proj_name)            
+            supp_ID = get_supplier_ID(supp_name)
+
+            # put information in dictionary
+            import_dict["oligo_name"] = oli_name
+            import_dict["oligo_type"] = oli_type
+            import_dict["sequence"] = oli_seq
+            import_dict["description"] = descr
+            import_dict["entry_date"] = entry_date
+            # creator needs to be imported from the log-in
+            # import_queue_dict["creator"] = emp_loggedin
+            # when an update is done also needs to be imported still, not here
+            import_dict["label5prime"] = label5
+            import_dict["label3prime"] = label3
+            import_dict["labelM1"] = labelm
+            import_dict["labelM1position"] = labelpos
+            import_dict["pathogen_name"] = path_name
+            import_dict["target"] = target
+            import_dict["notes"] = notes
+            import_dict["synthesis_level_ordered"] = syn_lev
+            import_dict["purification_method"] = pur_met
+            import_dict["order_status"] = "not ordered"               
+            import_dict["project_ID"] = proj_ID
+            import_dict["project_name"] = proj_name
+            import_dict["supplier_ID"] = supp_ID
+            import_dict["supplier_name"] = supp_name
+
+            yield import_dict
+            import_dict = {}
+            rowcount += 1
+        else:
+            rowcount += 1
+
+def import_to_db(import_dict, table):
+    """Imports the dictionary into the mySQL database
+
+    Keyword arguments:
+        import_dict -- dictionary, the dictionary that needs to be imported to the database
+        table -- string, the table the data needs to be imported in
+    """
+    
+    insert_row(table, import_dict)
+    
+    #insert_row("Batch", import_batch_dict)
+    #insert_row("Project_Oligo", import_projoli_dict)
+    #insert_row("Project", import_project_dict)
+    #insert_row("Supplier", import_supplier_dict)
+    
+def old_parse_importfile(filename): #need to split in parsing and importing
     """ Returns the cells of the oligo import file to a dictionary and import into sql database
 
     Keyword arguments:
@@ -217,7 +283,8 @@ def get_supplier_ID(supplier_name): # not sure whether need to use
         supplier_ID = supplier_tuple[0]
         return supplier_ID
     else:
-        print 'supplier is not in db. Please import suppliername and ID first'
+        print 'supplier is not in db. Please ask admin to import \
+                supplier name and ID first'
 
 
 def get_project_ID(project_name):
@@ -235,7 +302,8 @@ def get_project_ID(project_name):
         project_ID = project_tuple[0][0]
         return project_ID
     else:
-        print 'project is not in database. Please import the new project name and ID first'
+        print 'project is not in db. Please ask admin to import \
+                new project name and ID first'
         
     
 def check_sequence_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos=''):
