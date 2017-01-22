@@ -349,18 +349,18 @@ class Buttons(Frame):
         self.search_input = StringVar()
 
         # Set Buttons
-        refreshButton = Button(text="Refresh")
+        refreshButton = Button(parent, text="Refresh")
         refreshButton['command'] = lambda : self.refresh(sql, table_str, attributes, self.sortattribute.get(), self.sortmethod.get())
         refreshButton.pack(side=LEFT, padx=5, pady=5)
 
-        searchButton = Button(text="Search")
+        searchButton = Button(parent, text="Search")
         searchButton['command'] = lambda : self.open_search_window(table_str, attributes, self.sortattribute.get(), self.sortmethod.get())
         searchButton.pack(side=LEFT, padx=5, pady=5)
         
-        previousButton = Button(text="Back")
+        previousButton = Button(parent, text="Back")
         previousButton.pack(side=RIGHT, padx=5, pady=5)
         
-        homeButton = Button(text = "Home")
+        homeButton = Button(parent, text = "Home")
         homeButton.pack(side= RIGHT, padx=5, pady=5)
 
         # Setup a Frame which contains all the sort widgets
@@ -374,7 +374,7 @@ class Buttons(Frame):
         sortmethodList.pack(side=LEFT, padx=5, pady=5)
 
         sortbutton = Button(sort_group, text = 'Sort', padx = 10)
-        sortbutton['command'] = lambda : self.sort_table(sql, table_str, attributes, self.sortattribute.get(), self.sortmethod.get().tkraise())
+        sortbutton['command'] = lambda : self.sort_table(sql, table_str, attributes, self.sortattribute.get(), self.sortmethod.get())
         sortbutton.pack(side = RIGHT, padx=5, pady=5)
 
     def open_search_window(self, table_str, attributes, sortattribute, sortmethod):
