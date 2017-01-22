@@ -412,14 +412,13 @@ class Buttons(Frame):
         sortbutton['command'] = lambda : self.search_button_go(table_str, self.search_input.get(), self.sortattribute.get(), self.sortmethod.get())
         sortbutton.pack(side = 'left' , padx=5, pady=10)
 
-
+        # Cancel
         cancelbutton = Button(action_group, text = 'Cancel', padx = 20, pady = 5)
         cancelbutton['command'] = lambda : win.destroy()
         cancelbutton.pack(side = 'right', padx = 5, pady = 10)
 
     def search_button_go(self, table_str, search_input, sortattribute, sortmethod):
         sql, attributes = TLQ.search(table_str, search_input, sortattribute, sortmethod)
-        print sql
         self.refresh(sql, table_str, attributes, sortattribute, sortmethod)
         
  
