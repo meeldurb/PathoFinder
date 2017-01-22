@@ -2,7 +2,7 @@ from Tkinter import *
 from tkFont import Font
 from math import floor
 import config as cfg
-from Table_Lookup_queries import build_table_window
+import Table_Lookup_queries as TLQ
 import re
 
 class Spreadsheet(Frame):
@@ -333,8 +333,10 @@ class Row(list):
         self.height=0
 
 class Buttons(Frame):
-    def __init__(self, parent, sql, attributes, sortattribute, sortmethod):
+    def __init__(self, parent, sql, table_str, attributes, sortattribute, sortmethod):
         Frame.__init__(self, parent)
+
+        self.master.title(table_str)
 
         # set frame in oder to be able to refresh
         self.frame = parent
@@ -344,13 +346,15 @@ class Buttons(Frame):
         self.sortattribute.set(sortattribute)
         self.sortmethod = StringVar()
         self.sortmethod.set(sortmethod)
+        self.search_input = StringVar()
 
         # Set Buttons
         refreshButton = Button(text="Refresh")
-        refreshButton['command'] = lambda : self.refresh(sql, attributes, self.sortattribute.get(), self.sortmethod.get())
+        refreshButton['command'] = lambda : self.refresh(sql, table_str, attributes, self.sortattribute.get(), self.sortmethod.get())
         refreshButton.pack(side=LEFT, padx=5, pady=5)
 
         searchButton = Button(text="Search")
+        searchButton['command'] = lambda : self.open_search_window(table_str, attributes, self.sortattribute.get(), self.sortmethod.get())
         searchButton.pack(side=LEFT, padx=5, pady=5)
         
         previousButton = Button(text="Back")
@@ -370,10 +374,57 @@ class Buttons(Frame):
         sortmethodList.pack(side=LEFT, padx=5, pady=5)
 
         sortbutton = Button(sort_group, text = 'Sort', padx = 10)
-        sortbutton['command'] = lambda : self.sort_table(sql, attributes, self.sortattribute.get(), self.sortmethod.get())
+        sortbutton['command'] = lambda : self.sort_table(sql, table_str, attributes, self.sortattribute.get(), self.sortmethod.get().tkraise())
         sortbutton.pack(side = RIGHT, padx=5, pady=5)
 
-    def refresh(self, sql, attributes, sortattribute, sortmethod):
+    def open_search_window(self, table_str, attributes, sortattribute, sortmethod):
+        win = Toplevel()
+
+        # Search Group
+        search_group = LabelFrame(win, text = 'Search')
+        search_group.pack(side = 'top', padx=10, pady=10)
+        
+        search_label = Label(search_group, text = 'Search for: ')
+        search_label.pack(side = 'left', padx=10, pady=10)
+
+        search_entry = Entry(search_group, width = 50)
+        search_entry['textvariable'] = self.search_input
+        search_entry.pack(side = 'left', padx=10, pady=10)
+
+
+        # Sort Group
+        sort_group = LabelFrame(win, text = 'Sort By')
+        sort_group.pack(side = 'top', padx=10, pady = 10)
+        
+        sortList = OptionMenu(sort_group, self.sortattribute, *attributes)
+        sortList.pack(side=LEFT, padx=5, pady=5)
+
+        sortmethodList = OptionMenu(sort_group, self.sortmethod, 'Ascending', 'Descending')
+        sortmethodList.pack(side=LEFT, padx=5, pady=5)
+
+
+        # Action Buttons
+        action_group = LabelFrame(win, padx = 50)
+        action_group.pack(side = 'top', padx = 10, pady = 10)
+
+        # Go
+        sortbutton = Button(action_group, text = 'GO', padx = 20, pady = 10)
+        sortbutton['command'] = lambda : self.search_button_go(table_str, self.search_input.get(), self.sortattribute.get(), self.sortmethod.get())
+        sortbutton.pack(side = 'left' , padx=5, pady=10)
+
+
+        cancelbutton = Button(action_group, text = 'Cancel', padx = 20, pady = 5)
+        cancelbutton['command'] = lambda : win.destroy()
+        cancelbutton.pack(side = 'right', padx = 5, pady = 10)
+
+    def search_button_go(self, table_str, search_input, sortattribute, sortmethod):
+        sql, attributes = TLQ.search(table_str, search_input, sortattribute, sortmethod)
+        print sql
+        self.refresh(sql, table_str, attributes, sortattribute, sortmethod)
+        
+ 
+
+    def refresh(self, sql, table_str, attributes, sortattribute, sortmethod):
         """Destroy the window in order to build a new one
 
         Keyword Arguments:
@@ -384,9 +435,9 @@ class Buttons(Frame):
         if self.frame is not None:
             self.frame.destroy()
         # build new one
-        self.frame = build_table_window(sql, attributes, sortattribute, sortmethod)
+        self.frame = TLQ.build_table_window(sql, table_str, attributes, sortattribute, sortmethod)
 
-    def sort_table(self, sql, attributes, sortattribute, sortmethod):
+    def sort_table(self, sql, table_str, attributes, sortattribute, sortmethod):
         """Destroy the window in order to build a new one
 
         Keyword Arguments:
@@ -416,8 +467,7 @@ class Buttons(Frame):
         sql = matcher.sub(sub, sql)
 
         # refresh the window with the new settings
-        self.refresh(sql, attributes, sortattribute, sortmethod)
-
+        self.refresh(sql, table_str, attributes, sortattribute, sortmethod)
           
             
 # connect the checkbuttons to be able to order/delete selected
