@@ -16,6 +16,7 @@ import tkFont
 from tkFileDialog import askopenfilename
 import MySQLdb
 import config as cfg
+import Table_Lookup_queries as TLQ
 
 
 mycolor = '#%02x%02x%02x' % (0, 182, 195)
@@ -192,10 +193,11 @@ class OligosPage(tk.Frame):
 
         button1 = tk.Button(self, text="Back to Home",
                          command=lambda:controller.show_frame("StartPage"))
+                            
         button1.grid(row=8, column=8, pady=5, padx=10)
 
         button2 = tk.Button(self, text="View All Oligos",
-                        command=lambda:controller.show_frame("ViewAllOligos"))
+                        command = lambda : TLQ.build_query_and_table('oligo'))
                             #Put here the table view that Jorn made
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
