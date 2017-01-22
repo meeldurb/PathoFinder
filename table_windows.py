@@ -368,9 +368,13 @@ class Buttons(Frame):
         sort_group.pack(padx=10)
         
         sortList = OptionMenu(sort_group, self.sortattribute, *attributes)
+        sortList['width'] = 20
+        sortList['height'] = 1
         sortList.pack(side=LEFT, padx=5, pady=5)
 
-        sortmethodList = OptionMenu(sort_group, self.sortmethod, 'Ascending', 'Descending')
+        sortmethodList = OptionMenu(sort_group, self.sortmethod,'Ascending', 'Descending')
+        sortmethodList['width'] = 20
+        sortmethodList['height'] = 1
         sortmethodList.pack(side=LEFT, padx=5, pady=5)
 
         sortbutton = Button(sort_group, text = 'Sort', padx = 10)
