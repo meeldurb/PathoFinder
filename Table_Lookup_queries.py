@@ -25,7 +25,7 @@ def execute_select_queries(query): #works
     db.close()
     return results
 
-def build_table_window(sql, attributes, sortattribute, sortmethod):
+def build_table_window(sql, table_str, attributes, sortattribute, sortmethod):
     """Builds up the table window
 
     Keyword Arguments
@@ -39,7 +39,7 @@ def build_table_window(sql, attributes, sortattribute, sortmethod):
     ssw.initialise()
 
     # add the Toolbox (the buttons) frame to the winow
-    toolbox = tw.Buttons(tk, sql, attributes, sortattribute, sortmethod)
+    toolbox = tw.Buttons(tk, sql, table_str, attributes, sortattribute, sortmethod)
     toolbox.pack(in_=ssw, side = 'top')
  
     db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
@@ -106,7 +106,7 @@ def search(table_str, search_input, sort_attribute = 0, sort = 'Descending'): # 
 
     # add the query for ordering the table
     query += " ORDER BY %s %s" % (sort_attribute, sort_syntax)
-    build_table_window(query, attributes, sort_attribute, sort)          
+    return(query, attributes)
             
 
 
@@ -166,19 +166,20 @@ def build_query_and_table(table, sort_attribute = 0, sort = 'Descending'):
         raise ValueError("not a valid sort attributes, choose one that is in the table")
     # build query
     query = "SELECT `%s`." % table
+    print query
     for attribute in attributes:
             query += attribute + ", "
+    print query
     query = query[:(len(query)-2)] + (" FROM `%s`" % table)
+    print query
     query += " ORDER BY %s %s" % (sort_attribute, sort_syntax)
+    print query
 
     # show the results in the window
-    build_table_window(query, attributes, sort_attribute, sort)
+    build_table_window(query, table, attributes, sort_attribute, sort)
 
    
             
 if __name__ == "__main__":
-    
-    #search('oligo', "OLI000006")
-    #print testlist_oligo('OLI000018')
     build_query_and_table("oligo_recent_batch")
-    #search('batch', 'OLI000020 50')
+
