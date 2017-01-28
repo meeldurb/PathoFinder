@@ -9,6 +9,7 @@ import MySQLdb
 import time
 import datetime
 import re
+import config as cfg
 from Table_update_queries import *
 from Table_Lookup_queries import execute_select_queries
 
@@ -43,6 +44,10 @@ def parse_importfile(filename):
             supp_ID = get_supplier_ID(supp_name)
 
             # put information in dictionary
+            # make new queue_ID and import
+            queue_no = make_new_ID('Order_queue')
+            import_dict["queue_ID"] = queue_no
+
             import_dict["oligo_name"] = oli_name
             import_dict["oligo_type"] = oli_type
             import_dict["sequence"] = oli_seq
@@ -72,20 +77,51 @@ def parse_importfile(filename):
         else:
             rowcount += 1
 
-def import_to_db(import_dict, table):
+def import_to_queue(table, filename):
     """Imports the dictionary into the mySQL database
 
     Keyword arguments:
         import_dict -- dictionary, the dictionary that needs to be imported to the database
         table -- string, the table the data needs to be imported in
     """
-    
-    insert_row(table, import_dict)
+    for import_dict in parse_importfile(filename):
+        insert_row(table, import_dict)
     
     #insert_row("Batch", import_batch_dict)
     #insert_row("Project_Oligo", import_projoli_dict)
     #insert_row("Project", import_project_dict)
     #insert_row("Supplier", import_supplier_dict)
+
+
+def get_from_orderqueue(queue_ID_list):
+    """ Retrieves information from order_queue table 
+
+        Keyword Arguments:
+            queue_ID_list -- numeric list, a list that contains the queue_ID
+            of the information that we want to import in the db
+        Returns:
+            yields a tuple for every separate queue_ID
+    """
+    # open connection
+    db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'],
+                         cfg.mysql['password'], cfg.mysql['database'])
+    # prepare a cursor object
+    cursor = db.cursor()
+    # lookup and retrieve values
+    # get a boolean here, that checks which oligos were selected for processing
+    # if process = selected:
+    for queue_ID in queue_ID_list:
+        sql = """SELECT * FROM pathofinder_db.order_queue
+             WHERE queue_ID = "%s";""" %(queue_ID)
+        orderqueue_tuple = execute_select_queries(sql)[0]
+        yield orderqueue_tuple
+
+def process_to_db(queue_ID_list):
+
+    for orderqueue_tuple in get_from_orderqueue(queue_ID_list):
+ 
+
+
     
 def old_parse_importfile(filename): #need to split in parsing and importing
     """ Returns the cells of the oligo import file to a dictionary and import into sql database
@@ -271,16 +307,16 @@ def get_supplier_ID(supplier_name): # not sure whether need to use
     """Returns the supplier ID of a supplier_name
 
     Keyword arguments:
-        supplier_name: string, the name of supplier as in sql database
+        supplier_name -- string, the name of supplier as in sql database
     Returns:
-        supplier_ID: string, the ID of supplier associated to supplier_name
+        supplier_ID -- string, the ID of supplier associated to supplier_name
     """
 
     sql = """SELECT supplier_ID FROM pathofinder_db.supplier
              WHERE supplier_name = "%s";""" %(supplier_name)
     supplier_tuple = execute_select_queries(sql)
     if supplier_tuple:
-        supplier_ID = supplier_tuple[0]
+        supplier_ID = supplier_tuple[0][0]
         return supplier_ID
     else:
         print 'supplier is not in db. Please ask admin to import \
@@ -291,9 +327,9 @@ def get_project_ID(project_name):
     """Returns the project ID of a project_name
 
     Keyword arguments:
-        project_name: string, the name of project as in sql database
+        project_name -- string, the name of project as in sql database
     Returns:
-        project_ID: string, the ID of project associated to project_name
+        project_ID -- string, the ID of project associated to project_name
     """
     sql = """SELECT project_ID FROM pathofinder_db.project
              WHERE project_name = "%s";""" %(project_name)
@@ -387,19 +423,7 @@ def check_labels_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos=''):
 
     return duplicated
 
-def get_oliID_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos=''):
-    """ When oligo sequence is duplicated, retrieve oligoID when user wants
-        to import anyway into database
 
-    Keyword arguments:
-        seq -- the sequence that we want to import into database
-        fiveprime -- the label at 5' of sequence that we want to import into db
-        threeprime -- the label at 3' of sequence that we want to import into db
-        M1 -- the internal label of sequence that we want to import into db
-        M1pos -- the position of internal label of sequence that we want to import into db
-    Returns:
-        dup_oliID -- string, the oligoID of sequence we want to duplicate in db
-    """
 
 
 def get_max_ID(table):
@@ -417,6 +441,9 @@ def get_max_ID(table):
         sql = """SELECT MAX(batch_number) FROM pathofinder_db.%s """%(table)
     if table == "order":
         sql = """SELECT MAX(order_number) FROM pathofinder_db.`%s` """%(table)
+    if table == "order_queue":
+        sql = """SELECT MAX(queue_ID) FROM pathofinder_db.`%s` """%(table)
+
     # the sql query retuns a tuple, we only want to take the number
     max_ID = execute_select_queries(sql)[0][0]
     return max_ID
@@ -440,8 +467,29 @@ def make_new_ID(table):
         new_batch_ID = new_batch_number(table)
         return new_batch_ID
     if table == "order":
-        new_order_ID = new_order_no(table)    
-    
+        new_order_ID = new_order_no(table)
+    if table == "order_queue":
+        new_queue_ID = new_queue_no(table)
+        return new_queue_ID
+
+def new_queue_no(table):
+    """ Converts the max queue_ID in the database to the following up ID.
+        When no queue it starts with 1
+
+    Keyword Arguments:
+        table -- string, the name of the table that information need to be taken from
+    Returns:
+        A new queue ID number
+    """
+    max_ID = get_max_ID(table)
+    if max_ID:
+        int_queueno = int(max_ID)
+        new_queueno = int_queueno + 1
+        new_queue_ID = str(new_queueno)
+    else:
+        new_queue_ID = "1"
+    return new_queue_ID
+        
     
 def new_oligo_ID(table):
     """ Converts the max oligo_ID in the database to the following up ID.
@@ -553,7 +601,14 @@ if __name__ == "__main__":
 ##    new_batch_number("batch")
 ##    get_supplier_ID("IDT")
 ##    new_batch_number("batch")
-    parse_importfile("Importfileoligos_new.csv")
+##    dicts = parse_importfile("Importfileoligos_new.csv")
+##    for i in dicts:
+##        print(i)
+##    import_to_queue("order_queue", "Importfileoligos_new.csv")
+    #get_from_orderqueue([1,2,3,4,5])
+    process_to_db([1,2,3,4,5,6])
+
+
     #test1=check_sequence_duplicated("AATCACGAGGACCAAAGCACTGAATAACATTTTCCTCTCTGGTAGGGG")
     #test2=check_sequence_duplicated("AATCATCATGCCTCTTACGAGTG")
     #print test1

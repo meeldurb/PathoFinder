@@ -6,6 +6,7 @@ Script for executing queries to the groupwork database
 
 import MySQLdb
 import config as cfg
+import query_functies_dict
 
 def execute_edit_queries(query): #works
     """Executes queries that edit the database somehow (insert, update, delete)
@@ -149,7 +150,10 @@ def oligo_to_temp_bin(oligo_ID): # works
     #convert to list, for indexing purposes
     oligo = list(oligo[0])
     #initialize attributes and dictionary
-    oligo_attributes = ['oligo_ID', 'oligo_name', 'oligo_type', 'sequence', 'description', 'entry_date', 'creator', 'update_date', 'modifier', 'label5prime', 'label3prime', 'labelM1', 'labelM1position', 'pathogen_name', 'target','notes']
+    oligo_attributes = ['oligo_ID', 'oligo_name', 'oligo_type', 'sequence',
+                        'description', 'entry_date', 'creator', 'update_date',
+                        'modifier', 'label5prime', 'label3prime', 'labelM1',
+                        'labelM1position', 'pathogen_name', 'target','notes']
     oligo_dict = {}
     #create dictionary for function inputs
     for i in range(len(oligo_attributes)):
