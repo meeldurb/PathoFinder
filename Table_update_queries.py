@@ -131,7 +131,7 @@ def update_row(table_str, attribute_value_dict, keys_dict): #works
     table_str           -- string, a table
     attribute_value_dict    -- a dictionary of the attributes you want to change, with the attribute as key and the value as value.
     keys_dict               -- a dictionary of the (combination) primary key, with the attribute as key and the value as value"""
-    sql = update_row(table_str, attribute_value_dict, keys_dict)
+    sql = make_update_row(table_str, attribute_value_dict, keys_dict)
     execute_edit_queries(sql)
 
 def oligo_to_temp_bin(oligo_ID): # works
@@ -173,4 +173,4 @@ if __name__ == "__main__":
     print ""
     #insert_row('Oligo', { 'oligo_ID' : 'OlI0012', 'oligo_name' : 'test', 'oligo_type': '', 'sequence' : 'J', 'description':'',  'entry_date':'', 'creator':'EMP0000', 'update_date':'', 'modifier':'EMP0000', 'label5prime':'', 'label3prime':'', 'labelM1':'', 'labelM1position':'', 'pathogen_name':'', 'target':'', 'notes':''})
     #delete_row('Employee', { 'employee_ID' : 'EMP0066', 'emp_name' : 'test20'})
-    #update_row('Employee', { 'employee_ID' : 'EMP0066', 'emp_name' : 'test20'}, { 'employee_ID' : 'EMP0065', 'emp_name' : 'test19'})
+    #update_row('Employee', { 'password' : 'test'}, { 'emp_name' : 'test'})
