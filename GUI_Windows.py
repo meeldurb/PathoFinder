@@ -693,13 +693,7 @@ class SearchPage(tk.Frame):
         cancelbutton.pack(side = 'right', padx = 5, pady = 10)
 
     def search_button_go(self, table_str, search_input, sortattribute, sortmethod):
-        print table_str
-        print search_input
-        print sortattribute
-        print sortmethod
         sql, attributes = TLQ.search(table_str, search_input, sortattribute, sortmethod)
-        print sql
-        print attributes
         self.frame.destroy()
         TLQ.build_table_window(sql, table_str, attributes, sortattribute, sortmethod)
 
