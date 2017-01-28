@@ -18,10 +18,11 @@ import MySQLdb
 import config as cfg
 import Table_Lookup_queries as TLQ
 import table_windows as tw
+import Table_update_queries as TUQ
 
 
 mycolor = '#%02x%02x%02x' % (0, 182, 195)
-
+username = ""
 
 class OligoDatabase(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -45,11 +46,10 @@ class OligoDatabase(tk.Tk):
 
         self.frames = {}
 
-        for F in (Login, StartPage, OligosPage, ProjectsPage, EmployeesPage,
-                  BatchesPage, SuppliersPage, ExperimentPage,
-                  ViewAllOligos, NewOligo, ModifyOligo, LookupOligo,
-                  ViewExperimentPage, NewExperimentPage, EditExperimentPage,
-                  LookupExperimentPage, ContinueNewExperimentPage):
+        # initialize username
+
+        for F in (Home, View, OrderStatus, Import, Experiment, ChangePassword,
+                  Experiment):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -66,7 +66,7 @@ class OligoDatabase(tk.Tk):
             frame.grid(row=0, column=0,  sticky="NSEW")
 
         self.title("PathoFinder Oligo DB")
-        self.show_frame("StartPage")
+        self.show_frame("Home")
 
     def show_frame(self, page_name):
         """ Raises the frame of the given page name to the top
@@ -75,47 +75,56 @@ class OligoDatabase(tk.Tk):
         frame.tkraise() 
 
 class Login(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent):
         tk.Frame.__init__(self, parent)
+
+        default_font = tkFont.nametofont("TkDefaultFont")
+        default_font.configure(family="Corbel", size=24)
+        self.tk_setPalette(background=mycolor, foreground="white",
+                           activeBackground="grey", activeForeground="black")
+
+        self.frame = parent
         
-        self.controller = controller
-        self.username = tk.StringVar()
+        self.user = tk.StringVar()
+        #self.controller = controller
         self.password = tk.StringVar()
         self.var_message = tk.StringVar()
 
-        label = tk.Label(self, text="Login")
+        label = tk.Label(parent, text="Login")
         label.grid(columnspan=8, pady=10)
 
 
         # username
-        user_label = tk.Label(self, text = "Username: ")
+        user_label = tk.Label(parent, text = "Username: ")
         user_label.grid(row = 1, column = 1, pady = 5)
         
-        user = tk.Entry(self)
-        user['textvariable'] = self.username
+        user = tk.Entry(parent)
+        user['textvariable'] = self.user
         user.grid(row = 1, column = 2, columnspan = 4, pady = 5)
 
         # password
-        pw_label = tk.Label(self, text = "Password: ")
+        pw_label = tk.Label(parent, text = "Password: ")
         pw_label.grid(row = 2, column = 1, pady = 5)
                   
-        pw = tk.Entry(self, show = "*")
+        pw = tk.Entry(parent, show = "*")
         pw['textvariable'] = self.password
         pw.grid(row = 2, column = 2, columnspan = 4, pady = 5)
 
         # Button
-        login_button = tk.Button(self, text = "Login")
+        login_button = tk.Button(parent, text = "Login")
         login_button['command'] = lambda: self.check_login()
         login_button.grid(row = 4, column = 2, pady = 10)
 
         # Message
-        msg = tk.Message(self, width=280)
+        msg = tk.Message(parent, width=280)
         msg['textvariable'] = self.var_message
         msg.grid(row=3, column=0, columnspan=3)
 
     def check_login(self):
         """Check whether Login details are valid, in order to continute"""
-        sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (self.username.get(), self.password.get())
+        global username
+        username = self.user.get()
+        sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (username, self.password.get())
         db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
         cursor = db.cursor()
         try:
@@ -129,9 +138,11 @@ class Login(tk.Frame):
         if len(match) == 0:
             self.var_message.set("Invalid username or password")
         else:
-            self.controller.show_frame('StartPage')
+            self.frame.destroy()
+            OligoDatabase()
+
             
-class StartPage(tk.Frame):
+class Home(tk.Frame):
     def __init__(self, parent, controller):
         # each page is a subblass of tk.Frame class, this calls
         # constructor of parent class
@@ -146,42 +157,46 @@ class StartPage(tk.Frame):
         
 
         label = tk.Label(self, text="Home")
-        label.grid(columnspan=8, pady=10)
+        label.grid(row = 1, column = 1, columnspan=3, pady=10)
 
-        button1 = tk.Button(self, text="Oligos", bg=mycolor,
-                            command=lambda:controller.show_frame("OligosPage"))
+        button1 = tk.Button(self, text="Import oligos", bg=mycolor,
+                            command=lambda:controller.show_frame("Import"))
         button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
 
-        button2 = tk.Button(self, text="Projects",
-                         command=lambda:controller.show_frame("ProjectsPage"))
+        button2 = tk.Button(self, text="View",
+                         command=lambda:controller.show_frame("View"))
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
-        button3 = tk.Button(self, text="Employees",
-                        command=lambda:controller.show_frame("EmployeesPage"))
+        button3 = tk.Button(self, text="Experiment",
+                        command=lambda:controller.show_frame("Experiment"))
                              # go to Employees page
         button3.grid(row=6, column=2, pady=5, padx=10, sticky="WE")
 
-        button4 = tk.Button(self, text="Batches",
-                        command=lambda:controller.show_frame("BatchesPage"))
+        button4 = tk.Button(self, text="Order-Status",
+                        command=lambda:controller.show_frame("OrderStatus"))
         button4.grid(row=2, column=4, pady=5, padx=10, sticky="EW")
 
-        button5 = tk.Button(self, text="Suppliers",
-                        command=lambda:controller.show_frame("SuppliersPage"))
+        button5 = tk.Button(self, text="Search",
+                        command=lambda:controller.show_frame("Search"))
         button5.grid(row=4, column=4, pady=5, padx=10, sticky="EW")
 
-        button6 = tk.Button(self, text="Experiments",
-                        command=lambda:controller.show_frame("ExperimentPage"))
+        button6 = tk.Button(self, text="Change password",
+                        command=lambda:controller.show_frame("ChangePassword"))
                             # go to Experiments page
-        button6.grid(row=6, column=4, pady=5, padx=10, sticky="EW")
+        button6.grid(row=4, column=14, pady=5, padx=10, sticky="EW")
 
-        button7 = tk.Button(self, text="Quit", command=controller.destroy)
+        button7 = tk.Button(self, text = "Admin",
+                            command = lambda : controllor.show_frame("Admin"))
+        button7.grid(row=4, column=12, pady=5, padx=10, sticky="EW")                    
+
+        button8 = tk.Button(self, text="Quit", command=controller.destroy)
                             # Close the program
-        button7.grid(row=8, column=8, pady=5, padx=10)
+        button8.grid(row=12, column=8, pady=5, padx=10, columnspan=2)
 
 
 
         
-class OligosPage(tk.Frame):
+class View(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
@@ -189,37 +204,43 @@ class OligosPage(tk.Frame):
         self.controller = controller
 
         
-        label = tk.Label(self, text="Oligo Menu")
+        label = tk.Label(self, text="Table Views")
         label.grid(columnspan=8, pady=10)
+
+
+
+        button2 = tk.Button(self, text="Oligos with most recent Batches",
+                        command = lambda : TLQ.build_query_and_table("oligo_recent_batch"))
+                            
+        button2.grid(row=2, column=1, pady=5, padx=10, sticky="WE")
+
+        button3 = tk.Button(self, text="Batch, Order & Supplier",
+                        command=lambda:TLQ.build_query_and_table("batches_order_supplier"))
+                          
+        button3.grid(row=3, column=1, pady=5, padx=10, sticky="WE")
+
+        button4 = tk.Button(self, text="Supplier analytics",
+                        command=lambda: TLQ.build_query_and_table('supplier_analysis'))
+                        
+        button4.grid(row=4, column=1, pady=5, padx=10, sticky="EW")
+
+        button5 = tk.Button(self, text="Projects",
+                        command=lambda:TLQ.build_query_and_table("oligos_from_project"))
+
+        button5.grid(row=5, column=1, pady=5, padx=10, sticky="EW")
+
+        button6 = tk.Button(self, text="Everything",
+                        command=lambda:TLQ.build_query_and_table("everything"))
+
+        button6.grid(row=6, column=1, pady=5, padx=10, sticky="EW")
 
         button1 = tk.Button(self, text="Back to Home",
-                         command=lambda:controller.show_frame("StartPage"))
+                         command=lambda:controller.show_frame("Home"))
                             
-        button1.grid(row=8, column=8, pady=5, padx=10)
-
-        button2 = tk.Button(self, text="View All Oligos",
-                        command = lambda : TLQ.build_query_and_table("oligo"))
-                            #Put here the table view that Jorn made
-        button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
-
-        button3 = tk.Button(self, text="New Oligo",
-                        command=lambda:controller.show_frame("NewOligo"))
-                            #goes to new screen with textfields
-        button3.grid(row=6, column=2, pady=5, padx=10, sticky="WE")
-
-        button4 = tk.Button(self, text="Search",
-                        command=lambda: SearchPage(tk.Tk(), 'oligo'))
-                            #goes to table view of one oligo
-        button4.grid(row=4, column=4, pady=5, padx=10, sticky="EW")
-
-        button5 = tk.Button(self, text="Modify Oligo",
-                        command=lambda:controller.show_frame("ModifyOligo"))
-
-                            #gos to table view with textfields
-        button5.grid(row=6, column=4, pady=5, padx=10, sticky="EW")
+        button1.grid(row=7, column=3, pady=5, padx=10)
     
         
-class ViewAllOligos(tk.Frame):
+class OrderStatus(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
@@ -227,18 +248,14 @@ class ViewAllOligos(tk.Frame):
         self.controller = controller
 
         
-        label = tk.Label(self, text="View All Oligos")
+        label = tk.Label(self, text="Change order status")
         label.grid(columnspan=8, pady=10)
 
-        button1 = tk.Button(self, text="Back to Oligo Menu",
-                         command=lambda:controller.show_frame("OligosPage"))
-        button1.grid(row=8, column=8, pady=5, padx=10)
-
         button2 = tk.Button(self, text="Back to Home",
-                         command=lambda:controller.show_frame("StartPage"))
+                         command=lambda:controller.show_frame("Home"))
         button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
 
-class NewOligo(tk.Frame):
+class Import(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
@@ -250,17 +267,11 @@ class NewOligo(tk.Frame):
         label = tk.Label(self, text="Entry of New Oligos")
         label.grid(row=1, columnspan=8, pady=10)
 
-        button1 = tk.Button(self, text="Back to Oligo Menu",
-                         command=lambda:controller.show_frame("OligosPage"))
-        button1.grid(row=9, column=9, pady=5, padx=10, sticky="EW")
-
         button2 = tk.Button(self, text="Back to Home",
-                         command=lambda:controller.show_frame("StartPage"))
+                         command=lambda:controller.show_frame("Home"))
         button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
 
-        label1 = tk.Label(self, text="Order number:")
-        label1.grid (row=2, column=1)
-        
+     
         label2 = tk.Label(self, text="Import from file at location:")
         label2.grid(row=8, column=1, pady=5, padx=10)
 
@@ -279,43 +290,110 @@ class NewOligo(tk.Frame):
         button4.grid(row=8, column=8)
 
         
-class LookupOligo(tk.Frame):
+class Experiment(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
         #save a reference to controller in each page:
         self.controller = controller
-
         
-        label = tk.Label(self, text="Lookup Oligos")
+        label = tk.Label(self, text="Experiments")
         label.grid(columnspan=8, pady=10)
 
-        button1 = tk.Button(self, text="Back to Oligo Menu",
-                         command=lambda:controller.show_frame("OligosPage"))
-        button1.grid(row=8, column=8, pady=5, padx=10)
-
         button2 = tk.Button(self, text="Back to Home",
-                         command=lambda:controller.show_frame("StartPage"))
+                         command=lambda:controller.show_frame("Home"))
         button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
 
-class ModifyOligo(tk.Frame):
+class ChangePassword(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
         #save a reference to controller in each page:
         self.controller = controller
-
+        self.cpassword = tk.StringVar()
+        self.npassword = tk.StringVar()
+        self.rnpassword = tk.StringVar()
+        self.var_message = tk.StringVar()
         
-        label = tk.Label(self, text="Modify Oligos")
-        label.grid(columnspan=8, pady=10)
+        label = tk.Label(self, text="Change Password")
+        label.grid(row = 1, column = 1, columnspan=8, pady=10)
 
-        button1 = tk.Button(self, text="Back to Oligo Menu",
-                         command=lambda:controller.show_frame("OligosPage"))
-        button1.grid(row=8, column=8, pady=5, padx=10)
+
+        labeluser = tk.Label(self)
+        labeluser['text'] = username
+        labeluser.grid(row = 2, column = 4, pady=10)
+
+        # currrent password
+        cpwlabel = tk.Label(self, text = "Current Password: ")
+        cpwlabel.grid(row = 3, column = 2, pady=10)
+
+        cpw = tk.Entry(self, show = "*", bg='white', fg='black')
+        cpw['textvariable'] = self.cpassword
+        cpw.grid(row = 3, column = 4, columnspan = 4, pady = 10)
+
+        # new password
+        npwlabel = tk.Label(self, text = "New Password: ")
+        npwlabel.grid(row = 4, column = 2, pady=10)
+
+        npw = tk.Entry(self, show = "*", bg='white', fg='black')
+        npw['textvariable'] = self.npassword
+        npw.grid(row = 4, column = 4, columnspan = 4, pady = 10)
+
+        # repeat password
+        rnlabel = tk.Label(self, text = "Repeat New Password: ")
+        rnlabel.grid(row = 5, column = 2, pady=10)
+
+        rnpw = tk.Entry(self, show = "*", bg='white', fg='black')
+        rnpw['textvariable'] = self.rnpassword
+        rnpw.grid(row = 5, column = 4, columnspan = 4, pady = 10)
+
+        # Message
+        msg = tk.Message(self, width=280)
+        msg['textvariable'] = self.var_message
+        msg.grid(row=6, column=2, columnspan=4, pady = 10)
+
+        # Button
+        changpass = tk.Button(self, text = "Confirm")
+        changpass['command'] = lambda: self.change_password()
+        changpass.grid(row = 7, column = 4, pady = 10)
+
 
         button2 = tk.Button(self, text="Back to Home",
-                         command=lambda:controller.show_frame("StartPage"))
-        button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
+                         command=lambda:controller.show_frame("Home"))
+        button2.grid(row=9, column=9, pady=5, padx=10, sticky="EW")
+
+    def change_password(self):
+        """Change Password"""
+        
+        # check new and repeat new are equel
+        print self.npassword.get()
+        print self.rnpassword.get()
+        print self.cpassword.get()
+        
+        if self.npassword.get() != self.rnpassword.get():
+            self.var_message.set("New password is not entered correctly")
+        else:
+            print 'passwords correctly entered'
+            # check whether current password is correct       
+            sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (username, self.cpassword.get())
+            db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
+            cursor = db.cursor()
+            try:
+                cursor.execute(sql)
+                match = cursor.fetchall()
+            except MySQLdb.Error,e:
+                print e[0], e[1]
+                db.rollback()
+            cursor.close()
+            db.close()
+            if len(match) == 0:
+                self.var_message.set("Invalid password")
+            else:
+                # execute update of password
+                TUQ.update_row('Employee', { 'password' : self.npassword.get()}, {'emp_name' : username})
+                self.var_message.set("Password Changed Succesfully")
+                
+                
 
 class ProjectsPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -641,6 +719,7 @@ class LookupExperimentPage(tk.Frame):
 
 # Stand-alone search window
 class SearchPage(tk.Frame):
+    # call using: SearchPage(tk.Tk(), "table")
     def __init__(self, parent, table): 
         tk.Frame.__init__(self, parent)
 
@@ -699,5 +778,5 @@ class SearchPage(tk.Frame):
 
 
 if __name__ == "__main__":
-    app = OligoDatabase()
+    app = Login(tk.Tk())
     app.mainloop()
