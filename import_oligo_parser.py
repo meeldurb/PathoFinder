@@ -9,6 +9,7 @@ import MySQLdb
 import time
 import datetime
 import re
+import config as cfg
 from Table_update_queries import *
 from Table_Lookup_queries import execute_select_queries
 
@@ -92,13 +93,33 @@ def import_to_queue(table, filename):
     #insert_row("Supplier", import_supplier_dict)
 
 
-def process_to_db():
-    """ Moves informaion from order_queue table to all the target tables in the
-        database
+def get_from_orderqueue(queue_ID_list):
+    """ Retrieves information from order_queue table 
 
         Keyword Arguments:
+            queue_ID_list -- numeric list, a list that contains the queue_ID
+            of the information that we want to import in the db
+        Returns:
+            yields a tuple for every separate queue_ID
     """
-    db = 
+    # open connection
+    db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'],
+                         cfg.mysql['password'], cfg.mysql['database'])
+    # prepare a cursor object
+    cursor = db.cursor()
+    # lookup and retrieve values
+    # get a boolean here, that checks which oligos were selected for processing
+    # if process = selected:
+    for queue_ID in queue_ID_list:
+        sql = """SELECT * FROM pathofinder_db.order_queue
+             WHERE queue_ID = "%s";""" %(queue_ID)
+        orderqueue_tuple = execute_select_queries(sql)[0]
+        yield orderqueue_tuple
+
+def process_to_db(queue_ID_list):
+
+    for orderqueue_tuple in get_from_orderqueue(queue_ID_list):
+ 
 
 
     
@@ -286,9 +307,9 @@ def get_supplier_ID(supplier_name): # not sure whether need to use
     """Returns the supplier ID of a supplier_name
 
     Keyword arguments:
-        supplier_name: string, the name of supplier as in sql database
+        supplier_name -- string, the name of supplier as in sql database
     Returns:
-        supplier_ID: string, the ID of supplier associated to supplier_name
+        supplier_ID -- string, the ID of supplier associated to supplier_name
     """
 
     sql = """SELECT supplier_ID FROM pathofinder_db.supplier
@@ -306,9 +327,9 @@ def get_project_ID(project_name):
     """Returns the project ID of a project_name
 
     Keyword arguments:
-        project_name: string, the name of project as in sql database
+        project_name -- string, the name of project as in sql database
     Returns:
-        project_ID: string, the ID of project associated to project_name
+        project_ID -- string, the ID of project associated to project_name
     """
     sql = """SELECT project_ID FROM pathofinder_db.project
              WHERE project_name = "%s";""" %(project_name)
@@ -580,10 +601,14 @@ if __name__ == "__main__":
 ##    new_batch_number("batch")
 ##    get_supplier_ID("IDT")
 ##    new_batch_number("batch")
-    dicts = parse_importfile("Importfileoligos_new.csv")
-    for i in dicts:
-        print(i)
-    import_to_queue("order_queue", "Importfileoligos_new.csv")
+##    dicts = parse_importfile("Importfileoligos_new.csv")
+##    for i in dicts:
+##        print(i)
+##    import_to_queue("order_queue", "Importfileoligos_new.csv")
+    #get_from_orderqueue([1,2,3,4,5])
+    process_to_db([1,2,3,4,5,6])
+
+
     #test1=check_sequence_duplicated("AATCACGAGGACCAAAGCACTGAATAACATTTTCCTCTCTGGTAGGGG")
     #test2=check_sequence_duplicated("AATCATCATGCCTCTTACGAGTG")
     #print test1
