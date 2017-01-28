@@ -17,6 +17,7 @@ from tkFileDialog import askopenfilename
 import MySQLdb
 import config as cfg
 import Table_Lookup_queries as TLQ
+import table_windows as tw
 
 
 mycolor = '#%02x%02x%02x' % (0, 182, 195)
@@ -65,7 +66,7 @@ class OligoDatabase(tk.Tk):
             frame.grid(row=0, column=0,  sticky="NSEW")
 
         self.title("PathoFinder Oligo DB")
-        self.show_frame("Login")
+        self.show_frame("StartPage")
 
     def show_frame(self, page_name):
         """ Raises the frame of the given page name to the top
@@ -197,7 +198,7 @@ class OligosPage(tk.Frame):
         button1.grid(row=8, column=8, pady=5, padx=10)
 
         button2 = tk.Button(self, text="View All Oligos",
-                        command = lambda : TLQ.build_query_and_table('oligo'))
+                        command = lambda : TLQ.build_query_and_table("oligo"))
                             #Put here the table view that Jorn made
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
@@ -206,8 +207,8 @@ class OligosPage(tk.Frame):
                             #goes to new screen with textfields
         button3.grid(row=6, column=2, pady=5, padx=10, sticky="WE")
 
-        button4 = tk.Button(self, text="Lookup Oligo",
-                        command=lambda:controller.show_frame("LookupOligo"))
+        button4 = tk.Button(self, text="Search",
+                        command=lambda: SearchPage(tk.Tk(), 'oligo'))
                             #goes to table view of one oligo
         button4.grid(row=4, column=4, pady=5, padx=10, sticky="EW")
 
@@ -216,6 +217,7 @@ class OligosPage(tk.Frame):
 
                             #gos to table view with textfields
         button5.grid(row=6, column=4, pady=5, padx=10, sticky="EW")
+    
         
 class ViewAllOligos(tk.Frame):
     def __init__(self, parent, controller):
@@ -636,6 +638,70 @@ class LookupExperimentPage(tk.Frame):
         button2 = tk.Button(self, text="Back to Experiments",
                          command=lambda:controller.show_frame("ExperimentPage"))
         button2.grid(row=6, column=8, pady=5, padx=10)
+
+# Stand-alone search window
+class SearchPage(tk.Frame):
+    def __init__(self, parent, table): 
+        tk.Frame.__init__(self, parent)
+
+        self.master.title("Search")
+        self.frame = parent
+        
+        # set variables
+        self.sortattribute = tk.StringVar()
+        self.sortattribute.set(cfg.db_tables_views[table][0])
+        self.sortmethod = tk.StringVar()
+        self.sortmethod.set("Descending")
+        self.search_input = tk.StringVar()
+
+        # Search Group
+        search_group = tk.LabelFrame(parent, text = 'Search')
+        search_group.pack(side = 'top', padx=10, pady=10)
+        
+        search_label = tk.Label(search_group, text = 'Search for: ')
+        search_label.pack(side = 'left', padx=10, pady=10)
+
+        search_entry = tk.Entry(search_group, width = 50)
+        search_entry['textvariable'] = self.search_input
+        search_entry.pack(side = 'left', padx=10, pady=10)
+
+
+        # Sort Group
+        sort_group = tk.LabelFrame(parent, text = 'Sort By')
+        sort_group.pack(side = 'top', padx=10, pady = 10)
+        
+        sortList = tk.OptionMenu(sort_group, self.sortattribute, *cfg.db_tables_views[table])
+        sortList.pack(side='left', padx=5, pady=5)
+
+        sortmethodList = tk.OptionMenu(sort_group, self.sortmethod, 'Ascending', 'Descending')
+        sortmethodList.pack(side='left', padx=5, pady=5)
+
+
+        # Action Buttons Group
+        action_group = tk.LabelFrame(parent, padx = 50)
+        action_group.pack(side = 'top', padx = 10, pady = 10)
+
+        # Go
+        sortbutton = tk.Button(action_group, text = 'GO', padx = 20, pady = 10)
+        sortbutton['command'] = lambda : self.search_button_go(table, search_entry.get(), self.sortattribute.get(), self.sortmethod.get())
+        # To clarify: for some weird reason self.search_input.get()didn't work, so had to use search_entry.get() instead.
+        sortbutton.pack(side = 'left' , padx=5, pady=10)
+
+        # Cancel
+        cancelbutton = tk.Button(action_group, text = 'Cancel', padx = 20, pady = 5)
+        cancelbutton['command'] = lambda: self.frame.destroy()
+        cancelbutton.pack(side = 'right', padx = 5, pady = 10)
+
+    def search_button_go(self, table_str, search_input, sortattribute, sortmethod):
+        print table_str
+        print search_input
+        print sortattribute
+        print sortmethod
+        sql, attributes = TLQ.search(table_str, search_input, sortattribute, sortmethod)
+        print sql
+        print attributes
+        self.frame.destroy()
+        TLQ.build_table_window(sql, table_str, attributes, sortattribute, sortmethod)
 
 
 if __name__ == "__main__":
