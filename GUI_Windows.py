@@ -22,7 +22,8 @@ import Table_update_queries as TUQ
 
 
 mycolor = '#%02x%02x%02x' % (0, 182, 195)
-username = ""
+#username = ""
+table = ""
 
 class OligoDatabase(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -46,10 +47,16 @@ class OligoDatabase(tk.Tk):
 
         self.frames = {}
 
+        # Make a dictionary with variables which can be accessed from all the classes
+        self.shared_data = {
+            "username" : tk.StringVar(),
+            "table" : tk.StringVar(),
+            "search" : tk.StringVar()
+            }
         # initialize username
 
-        for F in (Home, View, OrderStatus, Import, Experiment, ChangePassword,
-                  Experiment):
+        for F in (Login, Home, TableViews, OrderStatus, Import, Experiment, ChangePassword,
+                  Experiment, SearchPage):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -75,7 +82,7 @@ class OligoDatabase(tk.Tk):
         frame.tkraise() 
 
 class Login(tk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
         default_font = tkFont.nametofont("TkDefaultFont")
@@ -83,47 +90,43 @@ class Login(tk.Frame):
         self.tk_setPalette(background=mycolor, foreground="white",
                            activeBackground="grey", activeForeground="black")
 
-        self.frame = parent
-        
-        self.user = tk.StringVar()
-        #self.controller = controller
+        self.controller = controller
         self.password = tk.StringVar()
         self.var_message = tk.StringVar()
 
-        label = tk.Label(parent, text="Login")
+        label = tk.Label(self, text="Login")
         label.grid(columnspan=8, pady=10)
 
 
         # username
-        user_label = tk.Label(parent, text = "Username: ")
+        user_label = tk.Label(self, text = "Username: ")
         user_label.grid(row = 1, column = 1, pady = 5)
         
-        user = tk.Entry(parent)
-        user['textvariable'] = self.user
+        user = tk.Entry(self)
+        user['textvariable'] = self.controller.shared_data["username"]
         user.grid(row = 1, column = 2, columnspan = 4, pady = 5)
 
         # password
-        pw_label = tk.Label(parent, text = "Password: ")
+        pw_label = tk.Label(self, text = "Password: ")
         pw_label.grid(row = 2, column = 1, pady = 5)
                   
-        pw = tk.Entry(parent, show = "*")
+        pw = tk.Entry(self, show = "*")
         pw['textvariable'] = self.password
         pw.grid(row = 2, column = 2, columnspan = 4, pady = 5)
 
         # Button
-        login_button = tk.Button(parent, text = "Login")
+        login_button = tk.Button(self, text = "Login")
         login_button['command'] = lambda: self.check_login()
         login_button.grid(row = 4, column = 2, pady = 10)
 
         # Message
-        msg = tk.Message(parent, width=280)
+        msg = tk.Message(self, width=280)
         msg['textvariable'] = self.var_message
         msg.grid(row=3, column=0, columnspan=3)
 
     def check_login(self):
         """Check whether Login details are valid, in order to continute"""
-        global username
-        username = self.user.get()
+        username = self.controller.shared_data["username"].get()
         sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (username, self.password.get())
         db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
         cursor = db.cursor()
@@ -138,8 +141,7 @@ class Login(tk.Frame):
         if len(match) == 0:
             self.var_message.set("Invalid username or password")
         else:
-            self.frame.destroy()
-            OligoDatabase()
+            self.controller.show_frame("Home")
 
             
 class Home(tk.Frame):
@@ -164,7 +166,7 @@ class Home(tk.Frame):
         button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
 
         button2 = tk.Button(self, text="View",
-                         command=lambda:controller.show_frame("View"))
+                         command=lambda:controller.show_frame("TableViews"))
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
         button3 = tk.Button(self, text="Experiment",
@@ -177,7 +179,7 @@ class Home(tk.Frame):
         button4.grid(row=2, column=4, pady=5, padx=10, sticky="EW")
 
         button5 = tk.Button(self, text="Search",
-                        command=lambda:controller.show_frame("Search"))
+                        command=lambda:controller.show_frame("SearchPage"))
         button5.grid(row=4, column=4, pady=5, padx=10, sticky="EW")
 
         button6 = tk.Button(self, text="Change password",
@@ -187,16 +189,23 @@ class Home(tk.Frame):
 
         button7 = tk.Button(self, text = "Admin",
                             command = lambda : controllor.show_frame("Admin"))
-        button7.grid(row=4, column=12, pady=5, padx=10, sticky="EW")                    
+        button7.grid(row=4, column=12, pady=5, padx=10, sticky="EW")
+        
 
         button8 = tk.Button(self, text="Quit", command=controller.destroy)
                             # Close the program
-        button8.grid(row=12, column=8, pady=5, padx=10, columnspan=2)
+        button8.grid(row=12, column=10, pady=5, padx=10, columnspan=2)
+
+        button9 = tk.Button(self, text="Log Out",
+                            command=lambda : controller.show_frame("Login"))
+                            # Close the program
+        button9.grid(row=12, column=8, pady=5, padx=10, columnspan=2)
+        
 
 
 
         
-class View(tk.Frame):
+class TableViews(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
@@ -238,7 +247,7 @@ class View(tk.Frame):
                          command=lambda:controller.show_frame("Home"))
                             
         button1.grid(row=7, column=3, pady=5, padx=10)
-    
+ 
         
 class OrderStatus(tk.Frame):
     def __init__(self, parent, controller):
@@ -318,11 +327,6 @@ class ChangePassword(tk.Frame):
         label = tk.Label(self, text="Change Password")
         label.grid(row = 1, column = 1, columnspan=8, pady=10)
 
-
-        labeluser = tk.Label(self)
-        labeluser['text'] = username
-        labeluser.grid(row = 2, column = 4, pady=10)
-
         # currrent password
         cpwlabel = tk.Label(self, text = "Current Password: ")
         cpwlabel.grid(row = 3, column = 2, pady=10)
@@ -375,7 +379,7 @@ class ChangePassword(tk.Frame):
         else:
             print 'passwords correctly entered'
             # check whether current password is correct       
-            sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (username, self.cpassword.get())
+            sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (self.controller.shared_data["username"].get(), self.cpassword.get())
             db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
             cursor = db.cursor()
             try:
@@ -390,11 +394,122 @@ class ChangePassword(tk.Frame):
                 self.var_message.set("Invalid password")
             else:
                 # execute update of password
-                TUQ.update_row('Employee', { 'password' : self.npassword.get()}, {'emp_name' : username})
+                TUQ.update_row('Employee', { 'password' : self.npassword.get()}, {'emp_name' : self.controller.shared_data["username"].get()})
                 self.var_message.set("Password Changed Succesfully")
                 
                 
+# Stand-alone search window
+class SearchPage(tk.Frame):
+    # call using: SearchPage(tk.Tk(), "table")
+    def __init__(self, parent, controller): 
+        tk.Frame.__init__(self, parent)
 
+        # set variables
+
+        self.controller = controller
+
+        self.frame = parent
+        self.tables = cfg.db_tables_views.keys()   
+
+        self.table = tk.StringVar()
+        self.table.set(self.tables[0])
+        self.search_input = tk.StringVar()
+
+        # initialize check for the presence of the subFrame
+        self.restsearchpresence = tk.BooleanVar()
+        self.restsearchpresence.set(False)
+
+        # Search Group
+        search_group = tk.LabelFrame(self, text = 'Search')
+        search_group.pack(side = 'top', padx=10, pady=10)
+        
+        search_label = tk.Label(search_group, text = 'Search for: ')
+        search_label.pack(side = 'left', padx=10, pady=10)
+
+        search_entry = tk.Entry(search_group, width = 50)
+        search_entry['textvariable'] = self.search_input
+        search_entry.pack(side = 'left', padx=10, pady=10)
+
+        # tablemenu group
+        tablelabel =tk.Label(self, text = 'Choose table to search in:')
+        tablelabel.pack(side = 'top', padx=10, pady=10)
+        
+        tablesmenu = tk.OptionMenu(self, self.table, *self.tables)
+        tablesmenu.pack(side = 'top', padx = 10, pady = 10)
+
+        buttonsgroup = tk.LabelFrame(self)
+        buttonsgroup.pack(side = 'top', padx = 10, pady = 10)
+        
+        # Cancel
+        cancelbutton = tk.Button(buttonsgroup, text = 'Cancel')
+        cancelbutton['command'] = lambda: self.cancelbutton()
+        cancelbutton.pack(side = 'right', padx = 5, pady = 10)
+        
+        # Continue to open the other options
+        continuebutton = tk.Button(buttonsgroup, text = "Continue")
+        continuebutton["command"] = lambda : self.searchrestadd()
+        continuebutton.pack(side = 'right', padx = 5, pady = 10)
+
+    def cancelbutton(self):
+        # if subFrame is present, destroy
+        if self.restsearchpresence.get():
+            self.restframe.destroy()
+        self.controller.show_frame("Home")
+
+    def searchrestadd(self):
+        if self.restsearchpresence.get():
+            self.restframe.destroy()
+        # Feed the data to the Gui variables:
+        self.controller.shared_data["table"].set(self.table.get())
+        self.controller.shared_data["search"].set(self.search_input.get())
+
+        # Set the presence to True, and add subFrame to the current Frame
+        self.restsearchpresence.set(True)
+        self.restframe = SearchRest(self.controller)
+        self.restframe.pack(in_ = self, side = 'bottom')
+
+class SearchRest(tk.Frame):
+    def __init__(self, controller):
+        tk.Frame.__init__(self)
+        #win = tk.Toplevel()
+
+        self.controller = controller
+
+        self.table = self.controller.shared_data["table"].get()
+        self.search_input = self.controller.shared_data["search"].get()
+
+        self.sortattribute = tk.StringVar()
+        self.sortmethod = tk.StringVar()
+        self.sortmethod.set("Descending")
+        
+        # Sort Group
+        sort_group = tk.LabelFrame(self, text = 'Sort By')
+        sort_group.pack(side = 'top', padx=10, pady = 10)
+        
+        sortList = tk.OptionMenu(sort_group, self.sortattribute, *cfg.db_tables_views[self.table])
+        sortList.pack(side='left', padx=5, pady=5)
+
+        sortmethodList = tk.OptionMenu(sort_group, self.sortmethod, 'Ascending', 'Descending')
+        sortmethodList.pack(side='left', padx=5, pady=5)
+
+
+        # Go
+        sortbutton = tk.Button(self, text = 'GO', padx = 20, pady = 10)
+        sortbutton['command'] = lambda : self.search_button_go(self.table, self.search_input, self.sortattribute.get(), self.sortmethod.get())
+        # To clarify: for some weird reason self.search_input.get()didn't work, so had to use search_entry.get() instead.
+        sortbutton.pack(side = 'left' , padx=5, pady=10)
+
+    def search_button_go(self, table_str, search_input, sortattribute, sortmethod):
+        sql, attributes = TLQ.search(table_str, search_input, sortattribute, sortmethod)
+        self.destroy()
+        TLQ.build_table_window(sql, table_str, attributes, sortattribute, sortmethod)
+        
+
+
+####################################
+        ##################
+        ############
+        
 class ProjectsPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -717,66 +832,8 @@ class LookupExperimentPage(tk.Frame):
                          command=lambda:controller.show_frame("ExperimentPage"))
         button2.grid(row=6, column=8, pady=5, padx=10)
 
-# Stand-alone search window
-class SearchPage(tk.Frame):
-    # call using: SearchPage(tk.Tk(), "table")
-    def __init__(self, parent, table): 
-        tk.Frame.__init__(self, parent)
-
-        self.master.title("Search")
-        self.frame = parent
-        
-        # set variables
-        self.sortattribute = tk.StringVar()
-        self.sortattribute.set(cfg.db_tables_views[table][0])
-        self.sortmethod = tk.StringVar()
-        self.sortmethod.set("Descending")
-        self.search_input = tk.StringVar()
-
-        # Search Group
-        search_group = tk.LabelFrame(parent, text = 'Search')
-        search_group.pack(side = 'top', padx=10, pady=10)
-        
-        search_label = tk.Label(search_group, text = 'Search for: ')
-        search_label.pack(side = 'left', padx=10, pady=10)
-
-        search_entry = tk.Entry(search_group, width = 50)
-        search_entry['textvariable'] = self.search_input
-        search_entry.pack(side = 'left', padx=10, pady=10)
-
-
-        # Sort Group
-        sort_group = tk.LabelFrame(parent, text = 'Sort By')
-        sort_group.pack(side = 'top', padx=10, pady = 10)
-        
-        sortList = tk.OptionMenu(sort_group, self.sortattribute, *cfg.db_tables_views[table])
-        sortList.pack(side='left', padx=5, pady=5)
-
-        sortmethodList = tk.OptionMenu(sort_group, self.sortmethod, 'Ascending', 'Descending')
-        sortmethodList.pack(side='left', padx=5, pady=5)
-
-
-        # Action Buttons Group
-        action_group = tk.LabelFrame(parent, padx = 50)
-        action_group.pack(side = 'top', padx = 10, pady = 10)
-
-        # Go
-        sortbutton = tk.Button(action_group, text = 'GO', padx = 20, pady = 10)
-        sortbutton['command'] = lambda : self.search_button_go(table, search_entry.get(), self.sortattribute.get(), self.sortmethod.get())
-        # To clarify: for some weird reason self.search_input.get()didn't work, so had to use search_entry.get() instead.
-        sortbutton.pack(side = 'left' , padx=5, pady=10)
-
-        # Cancel
-        cancelbutton = tk.Button(action_group, text = 'Cancel', padx = 20, pady = 5)
-        cancelbutton['command'] = lambda: self.frame.destroy()
-        cancelbutton.pack(side = 'right', padx = 5, pady = 10)
-
-    def search_button_go(self, table_str, search_input, sortattribute, sortmethod):
-        sql, attributes = TLQ.search(table_str, search_input, sortattribute, sortmethod)
-        self.frame.destroy()
-        TLQ.build_table_window(sql, table_str, attributes, sortattribute, sortmethod)
 
 
 if __name__ == "__main__":
-    app = Login(tk.Tk())
+    app = OligoDatabase()
     app.mainloop()
