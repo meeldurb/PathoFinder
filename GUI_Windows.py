@@ -373,7 +373,6 @@ class ChangePassword(tk.Frame):
         if self.npassword.get() != self.rnpassword.get():
             self.var_message.set("New password is not entered correctly")
         else:
-            print 'passwords correctly entered'
             # check whether current password is correct       
             sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (self.controller.shared_data["username"].get(), self.cpassword.get())
             db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
@@ -417,7 +416,7 @@ class SearchPage(tk.Frame):
         self.restsearchpresence.set(False)
 
         # Search Group
-        search_group = tk.LabelFrame(self, text = 'Search')
+        search_group = tk.LabelFrame(self)
         search_group.pack(side = 'top', padx=10, pady=10)
         
         search_label = tk.Label(search_group, text = 'Search for: ')
@@ -475,6 +474,7 @@ class SearchRest(tk.Frame):
         self.search_input = self.controller.shared_data["search"].get()
 
         self.sortattribute = tk.StringVar()
+        self.sortattribute.set(cfg.db_tables_views[self.table][0])
         self.sortmethod = tk.StringVar()
         self.sortmethod.set("Descending")
         
@@ -497,7 +497,6 @@ class SearchRest(tk.Frame):
 
     def search_button_go(self, table_str, search_input, sortattribute, sortmethod):
         sql, attributes = TLQ.search(table_str, search_input, sortattribute, sortmethod)
-        print sql
         self.destroy()
         TLQ.build_table_window(sql, table_str, attributes, sortattribute, sortmethod)
         
