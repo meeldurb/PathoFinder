@@ -71,7 +71,6 @@ def search(table_str, search_input, sort_attribute = 0, sort = 'Descending'): # 
     Keyword Arguments:
     table_str       -- string, a table
     search_input    -- string, the words to look for"""
-
     # check for valid sort method
     if sort != 'Descending' and sort != 'Ascending':
         raise ValueError("Expected input: 'Descending' or 'Ascending'")
@@ -81,28 +80,38 @@ def search(table_str, search_input, sort_attribute = 0, sort = 'Descending'): # 
         sort_syntax = 'ASC'
 
     # load attributes
-    search_words = str.split(search_input)
     attributes = cfg.db_tables_views[table_str]
     if sort_attribute == 0:
         sort_attribute = attributes[0]
+            
+    # start query
+    query = "SELECT * FROM `%s`"% table_str
+    # strip leading/trailing spaces from search input
+    search_input.strip()
+    if search_input != "":
+        # get list of input
+        search_words = str.split(search_input)
 
-     # check whether sort_attribute is valid:
-    if sort_attribute not in attributes:
-        raise ValueError("not a valid sort attributes, choose one that is in the table")
+        # add the WHERE to the query
+        query += " WHERE"
 
-    # build search query
-    query = "SELECT * FROM `%s` WHERE" % table_str
-    for j in range(len(search_words)):
-        search_string = "" 
-        for i in range(len(attributes)):
-            if i != (len(attributes)-1):
-                search_string += "%s REGEXP '%s' OR " % ( attributes[i], search_words[j])
-            if i == (len(attributes)-1):
-                search_string += "%s REGEXP '%s'" % (attributes[i], search_words[j])
-        if j != (len(search_words)-1):
-            query += " (%s) AND" % search_string
-        if j == (len(search_words)-1):
-            query += " (%s)" % search_string
+        # check whether sort_attribute is valid:
+        if sort_attribute not in attributes:
+            raise ValueError("not a valid sort attributes, choose one that is in the table")
+
+        # build search query
+        query = "SELECT * FROM `%s` WHERE" % table_str
+        for j in range(len(search_words)):
+            search_string = "" 
+            for i in range(len(attributes)):
+                if i != (len(attributes)-1):
+                    search_string += "%s REGEXP '%s' OR " % ( attributes[i], search_words[j])
+                if i == (len(attributes)-1):
+                    search_string += "%s REGEXP '%s'" % (attributes[i], search_words[j])
+            if j != (len(search_words)-1):
+                query += " (%s) AND" % search_string
+            if j == (len(search_words)-1):
+                query += " (%s)" % search_string
 
     # add the query for ordering the table
     query += " ORDER BY %s %s" % (sort_attribute, sort_syntax)
