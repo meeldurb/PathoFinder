@@ -366,7 +366,7 @@ class ChangePassword(tk.Frame):
         button2.grid(row=9, column=9, pady=5, padx=10, sticky="EW")
 
     def change_password(self):
-        """Change Password"""
+        """Change Password for current user"""
         
         # check new and repeat new are equel
        
@@ -510,7 +510,7 @@ class Admin(tk.Frame):
         label = tk.Label(self, text="Admin")
         label.grid(row = 1, column = 1, columnspan=3, pady=10)
 
-        button1 = tk.Button(self, text="Oligo Bin", bg=mycolor)
+        button1 = tk.Button(self, text="Oligos Bin")
         
         button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
 
@@ -547,9 +547,6 @@ class Employees(tk.Frame):
                          command=lambda:self.controller.show_frame("Home"))
                             
         button3.grid(row=7, column=3, pady=5, padx=10)
-
-    def show_view(self):
-        self.password()
         
     
     def popup_password(self, window):
@@ -649,7 +646,7 @@ class AddEmployee(tk.Frame):
         button2.grid(row=9, column=9, pady=5, padx=10, sticky="EW")
 
     def insert_user(self):
-        """Change Password"""
+        """Inserts a new employee"""
         # check new and repeat new are equel
         
         if self.npassword.get() != self.rnpassword.get():
@@ -677,6 +674,80 @@ class AddEmployee(tk.Frame):
                 # execute update of password
                 TUQ.insert_row('Employee', {'employee_ID' : new_emp_ID('employee'), 'emp_name' : username, 'password' : self.npassword.get()})
                 self.var_message.set("Succesfully added the new Employee")
+
+class OligosBin(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        self.controller = controller
+
+        label = tk.Label(self, text="Oligos Bin")
+        label.grid(row = 1, column = 1, columnspan=3, pady=10)
+
+        button1 = tk.Button(self, text="View Oligos Bin", bg=mycolor,
+                            command = lambda : build_query_and_table('oligobin'))
+        
+        button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
+
+        button2 = tk.Button(self, text="Empty Oligos Bin",
+                            command = lambda : self.popup_password('empty'))
+
+        button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
+
+        button3 = tk.Button(self, text="Move back to Oligos Queue",
+                            command = lambda : self.controller.show_frame(##########
+                                ))
+
+        button3.grid(row=6, column=2, pady=5, padx=10, sticky="WE")
+
+        button4 = tk.Button(self, text="Back to Home",
+                         command=lambda:self.controller.show_frame("Home"))
+                            
+        button4.grid(row=9, column=3, pady=5, padx=10)
+        
+    
+    def popup_password(self, window):
+        # popup window which ask for password.
+        self.win = tk.Toplevel()
+
+        self.password = tk.StringVar()
+        self.var_message = tk.StringVar()
+
+        label = tk.Label(self.win, text = 'Enter password :')
+        label.pack(side = 'top')
+
+        entry = tk.Entry(self.win, textvariable = self.password)
+        entry.pack(side = 'top')
+
+        msg = tk.Message(self.win, textvariable = self.var_message)
+        msg.pack(side = 'top')
+        
+        button1 = tk.Button(self.win, text = 'OK',
+                            command = lambda : self.check_login(window))
+        button1.pack(side = 'top')
+
+    def check_login(self, window):
+        username = self.controller.shared_data["username"].get()
+        sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (username, self.password.get())
+        db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
+        cursor = db.cursor()
+        try:
+            cursor.execute(sql)
+            match = cursor.fetchall()
+        except MySQLdb.Error,e:
+            print e[0], e[1]
+            db.rollback()
+        cursor.close()
+        db.close()
+        if len(match) == 0:
+            self.var_message.set("Incorrect Password")
+        else:
+            if window == 'empty':
+                self.win.destroy()
+                TLQ.build_query_and_table("employee")
+            elif window == 'add':
+                self.win.destroy()
+                self.controller.show_frame('AddEmployee')
                 
 ####################################
         ##################
