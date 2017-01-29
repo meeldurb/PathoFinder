@@ -4,6 +4,9 @@ from math import floor
 import config as cfg
 import Table_Lookup_queries as TLQ
 import re
+import tkFont
+
+mycolor = '#%02x%02x%02x' % (0, 182, 195)
 
 class Spreadsheet(Frame):
 
@@ -336,6 +339,11 @@ class ButtonsFrame(Frame):
     def __init__(self, parent, sql, table_str, attributes, sortattribute, sortmethod):
         Frame.__init__(self, parent)
 
+        default_font = tkFont.nametofont("TkDefaultFont")
+        default_font.configure(family="Corbel", size=24)
+        self.tk_setPalette(background=mycolor, foreground="white",
+                           activeBackground="grey", activeForeground="black")
+
         self.master.title(table_str)
 
         # set frame in oder to be able to refresh
@@ -474,65 +482,3 @@ class ButtonsFrame(Frame):
         self.refresh(sql, table_str, attributes, sortattribute, sortmethod)
 
 
-# Stand-alone search window
-class SearchFrame(Frame):
-    def __init__(self, table):
-        Frame.__init__(self)
-
-        self.master.title("Search")
-        #self.frame = parent
-        
-        # set variables
-        self.sortattribute = StringVar()
-        self.sortattribute.set(cfg.db_tables_views[table][0])
-        self.sortmethod = StringVar()
-        self.sortmethod.set("Descending")
-        self.search_input = StringVar()
-
-        # Search Group
-        search_group = LabelFrame(text = 'Search')
-        search_group.pack(side = 'top', padx=10, pady=10)
-        
-        search_label = Label(search_group, text = 'Search for: ')
-        search_label.pack(side = 'left', padx=10, pady=10)
-
-        search_entry = Entry(search_group, width = 50)
-        search_entry['textvariable'] = self.search_input
-        search_entry.pack(side = 'left', padx=10, pady=10)
-
-
-        # Sort Group
-        sort_group = LabelFrame(text = 'Sort By')
-        sort_group.pack(side = 'top', padx=10, pady = 10)
-        
-        sortList = OptionMenu(sort_group, self.sortattribute, *cfg.db_tables_views[table])
-        sortList.pack(side=LEFT, padx=5, pady=5)
-
-        sortmethodList = OptionMenu(sort_group, self.sortmethod, 'Ascending', 'Descending')
-        sortmethodList.pack(side=LEFT, padx=5, pady=5)
-
-
-        # Action Buttons
-        action_group = LabelFrame(padx = 50)
-        action_group.pack(side = 'top', padx = 10, pady = 10)
-
-        # Go
-        sortbutton = Button(action_group, text = 'GO', padx = 20, pady = 10)
-        sortbutton['command'] = lambda : self.search_button_go(table, self.search_input.get(), self.sortattribute.get(), self.sortmethod.get())
-        sortbutton.pack(side = 'left' , padx=5, pady=10)
-
-        # Cancel
-        cancelbutton = Button(action_group, text = 'Cancel', padx = 20, pady = 5)
-        cancelbutton['command'] = lambda : self.destroy()
-        cancelbutton.pack(side = 'right', padx = 5, pady = 10)
-
-    def search_button_go(self, table_str, search_input, sortattribute, sortmethod):
-        sql, attributes = TLQ.search(table_str, search_input, sortattribute, sortmethod)
-        self.pack_forget()
-        TLQ.build_table_window(sql, table_str, attributes, sortattribute, sortmethod)
-
-
-
-if __name__ == "__main__":
-    gui = SearchFrame('oligo')
-    gui.mainloop()
