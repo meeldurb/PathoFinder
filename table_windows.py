@@ -338,9 +338,10 @@ class Row(list):
 class ButtonsFrame(Frame):
     def __init__(self, parent, sql, table_str, attributes, sortattribute, sortmethod):
         Frame.__init__(self, parent)
-
-        default_font = tkFont.nametofont("TkDefaultFont")
-        default_font.configure(family="Corbel", size=24)
+        
+        # set font
+        self.default_font = tkFont.nametofont("TkDefaultFont")
+        self.default_font.configure(family="Corbel", size=24)
         self.tk_setPalette(background=mycolor, foreground="white",
                            activeBackground="grey", activeForeground="black")
 
