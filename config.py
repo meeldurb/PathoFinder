@@ -19,7 +19,7 @@ db_tables_views = { #dictionary containing all tables and table-views and their 
     'supplier' : ['supplier_ID', 'supplier_name'],
     'oligo_oder_list' : ['.oligo_orderlist_PK', 'batch_number', 'supplier_ID',
                              'oligo_ID', 'employee_ID'],
-    'employee' : ['employee_ID', 'emp_name'],
+    'employee' : ['employee_ID', 'emp_name', 'password'],
     'lab_report' : ['lab_report_PK', 'lab_report_location'],
     'experiment' : ['experiment_ID', 'lab_report_PK', 'experiment_date'],
     'approval' : ['experiment_ID', 'test_number', 'oligo_ID_1',
