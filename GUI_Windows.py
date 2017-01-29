@@ -19,11 +19,10 @@ import config as cfg
 import Table_Lookup_queries as TLQ
 import table_windows as tw
 import Table_update_queries as TUQ
+from import_oligo_parser import new_emp_ID
 
 
 mycolor = '#%02x%02x%02x' % (0, 182, 195)
-#username = ""
-table = ""
 
 class OligoDatabase(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -53,10 +52,9 @@ class OligoDatabase(tk.Tk):
             "table" : tk.StringVar(),
             "search" : tk.StringVar()
             }
-        # initialize username
 
         for F in (Login, Home, TableViews, OrderStatus, Import, Experiment, ChangePassword,
-                  Experiment, SearchPage):
+                  Experiment, SearchPage, Admin, Employees, AddEmployee):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -73,13 +71,14 @@ class OligoDatabase(tk.Tk):
             frame.grid(row=0, column=0,  sticky="NSEW")
 
         self.title("PathoFinder Oligo DB")
-        self.show_frame("Home")
+        self.show_frame("Login")
 
     def show_frame(self, page_name):
         """ Raises the frame of the given page name to the top
         """
         frame = self.frames[page_name]
-        frame.tkraise() 
+        frame.tkraise()
+        
 
 class Login(tk.Frame):
     def __init__(self, parent, controller):
@@ -188,15 +187,15 @@ class Home(tk.Frame):
         button6.grid(row=4, column=14, pady=5, padx=10, sticky="EW")
 
         button7 = tk.Button(self, text = "Admin",
-                            command = lambda : controllor.show_frame("Admin"))
+                            command = lambda : controller.show_frame("Admin"))
         button7.grid(row=4, column=12, pady=5, padx=10, sticky="EW")
         
 
-        button8 = tk.Button(self, text="Quit", command=controller.destroy)
+        button8 = tk.Button(self, text="Log off & Quit", command=controller.destroy)
                             # Close the program
         button8.grid(row=12, column=10, pady=5, padx=10, columnspan=2)
 
-        button9 = tk.Button(self, text="Log Out",
+        button9 = tk.Button(self, text="Log off",
                             command=lambda : controller.show_frame("Login"))
                             # Close the program
         button9.grid(row=12, column=8, pady=5, padx=10, columnspan=2)
@@ -331,7 +330,7 @@ class ChangePassword(tk.Frame):
         cpwlabel = tk.Label(self, text = "Current Password: ")
         cpwlabel.grid(row = 3, column = 2, pady=10)
 
-        cpw = tk.Entry(self, show = "*", bg='white', fg='black')
+        cpw = tk.Entry(self, show = "*")
         cpw['textvariable'] = self.cpassword
         cpw.grid(row = 3, column = 4, columnspan = 4, pady = 10)
 
@@ -339,7 +338,7 @@ class ChangePassword(tk.Frame):
         npwlabel = tk.Label(self, text = "New Password: ")
         npwlabel.grid(row = 4, column = 2, pady=10)
 
-        npw = tk.Entry(self, show = "*", bg='white', fg='black')
+        npw = tk.Entry(self, show = "*")
         npw['textvariable'] = self.npassword
         npw.grid(row = 4, column = 4, columnspan = 4, pady = 10)
 
@@ -347,7 +346,7 @@ class ChangePassword(tk.Frame):
         rnlabel = tk.Label(self, text = "Repeat New Password: ")
         rnlabel.grid(row = 5, column = 2, pady=10)
 
-        rnpw = tk.Entry(self, show = "*", bg='white', fg='black')
+        rnpw = tk.Entry(self, show = "*")
         rnpw['textvariable'] = self.rnpassword
         rnpw.grid(row = 5, column = 4, columnspan = 4, pady = 10)
 
@@ -370,10 +369,7 @@ class ChangePassword(tk.Frame):
         """Change Password"""
         
         # check new and repeat new are equel
-        print self.npassword.get()
-        print self.rnpassword.get()
-        print self.cpassword.get()
-        
+       
         if self.npassword.get() != self.rnpassword.get():
             self.var_message.set("New password is not entered correctly")
         else:
@@ -409,7 +405,8 @@ class SearchPage(tk.Frame):
         self.controller = controller
 
         self.frame = parent
-        self.tables = cfg.db_tables_views.keys()   
+        self.tables = cfg.db_tables_views.keys()
+        del self.tables[9]
 
         self.table = tk.StringVar()
         self.table.set(self.tables[0])
@@ -441,7 +438,7 @@ class SearchPage(tk.Frame):
         buttonsgroup.pack(side = 'top', padx = 10, pady = 10)
         
         # Cancel
-        cancelbutton = tk.Button(buttonsgroup, text = 'Cancel')
+        cancelbutton = tk.Button(buttonsgroup, text = 'Back to Home')
         cancelbutton['command'] = lambda: self.cancelbutton()
         cancelbutton.pack(side = 'right', padx = 5, pady = 10)
         
@@ -471,7 +468,6 @@ class SearchPage(tk.Frame):
 class SearchRest(tk.Frame):
     def __init__(self, controller):
         tk.Frame.__init__(self)
-        #win = tk.Toplevel()
 
         self.controller = controller
 
@@ -501,11 +497,188 @@ class SearchRest(tk.Frame):
 
     def search_button_go(self, table_str, search_input, sortattribute, sortmethod):
         sql, attributes = TLQ.search(table_str, search_input, sortattribute, sortmethod)
+        print sql
         self.destroy()
         TLQ.build_table_window(sql, table_str, attributes, sortattribute, sortmethod)
         
 
+class Admin(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
 
+        self.controller = controller
+
+        label = tk.Label(self, text="Admin")
+        label.grid(row = 1, column = 1, columnspan=3, pady=10)
+
+        button1 = tk.Button(self, text="Oligo Bin", bg=mycolor)
+        
+        button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
+
+        button2 = tk.Button(self, text="Employees",
+                         command = lambda : self.controller.show_frame("Employees"))
+
+        button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
+
+        button3 = tk.Button(self, text="Back to Home",
+                         command=lambda:self.controller.show_frame("Home"))
+                            
+        button3.grid(row=7, column=3, pady=5, padx=10)
+
+class Employees(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        self.controller = controller
+
+        label = tk.Label(self, text="Employees")
+        label.grid(row = 1, column = 1, columnspan=3, pady=10)
+
+        button1 = tk.Button(self, text="View", bg=mycolor,
+                            command = lambda : self.popup_password('view'))
+        
+        button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
+
+        button2 = tk.Button(self, text="Add",
+                            command = lambda : self.popup_password('add'))
+
+        button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
+
+        button3 = tk.Button(self, text="Back to Home",
+                         command=lambda:self.controller.show_frame("Home"))
+                            
+        button3.grid(row=7, column=3, pady=5, padx=10)
+
+    def show_view(self):
+        self.password()
+        
+    
+    def popup_password(self, window):
+        self.win = tk.Toplevel()
+
+        self.password = tk.StringVar()
+        self.var_message = tk.StringVar()
+
+        label = tk.Label(self.win, text = 'Enter password :')
+        label.pack(side = 'top')
+
+        entry = tk.Entry(self.win, textvariable = self.password)
+        entry.pack(side = 'top')
+
+        msg = tk.Message(self.win, textvariable = self.var_message)
+        msg.pack(side = 'top')
+        
+        button1 = tk.Button(self.win, text = 'OK',
+                            command = lambda : self.check_login(window))
+        button1.pack(side = 'top')
+
+    def check_login(self, window):
+        username = self.controller.shared_data["username"].get()
+        sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (username, self.password.get())
+        db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
+        cursor = db.cursor()
+        try:
+            cursor.execute(sql)
+            match = cursor.fetchall()
+        except MySQLdb.Error,e:
+            print e[0], e[1]
+            db.rollback()
+        cursor.close()
+        db.close()
+        if len(match) == 0:
+            self.var_message.set("Incorrect Password")
+        else:
+            if window == 'view':
+                self.win.destroy()
+                TLQ.build_query_and_table("employee")
+            elif window == 'add':
+                self.win.destroy()
+                self.controller.show_frame('AddEmployee')
+
+                
+class AddEmployee(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+        self.username = tk.StringVar()
+        self.npassword = tk.StringVar()
+        self.rnpassword = tk.StringVar()
+        self.var_message = tk.StringVar()
+        
+        label = tk.Label(self, text="Add an Employee")
+        label.grid(row = 1, column = 1, columnspan=8, pady=10)
+
+        # currrent password
+        usernamelabel = tk.Label(self, text = "Username: ")
+        usernamelabel.grid(row = 3, column = 2, pady=10)
+
+        username = tk.Entry(self)
+        username['textvariable'] = self.username
+        username.grid(row = 3, column = 4, columnspan = 4, pady = 10)
+
+        # new password
+        npwlabel = tk.Label(self, text = "New Password: ")
+        npwlabel.grid(row = 4, column = 2, pady=10)
+
+        npw = tk.Entry(self, show = "*")
+        npw['textvariable'] = self.npassword
+        npw.grid(row = 4, column = 4, columnspan = 4, pady = 10)
+
+        # repeat password
+        rnlabel = tk.Label(self, text = "Repeat New Password: ")
+        rnlabel.grid(row = 5, column = 2, pady=10)
+
+        rnpw = tk.Entry(self, show = "*")
+        rnpw['textvariable'] = self.rnpassword
+        rnpw.grid(row = 5, column = 4, columnspan = 4, pady = 10)
+
+        # Message
+        msg = tk.Message(self, width=280)
+        msg['textvariable'] = self.var_message
+        msg.grid(row=6, column=2, columnspan=4, pady = 10)
+
+        # Button
+        changpass = tk.Button(self, text = "Confirm")
+        changpass['command'] = lambda: self.insert_user()
+        changpass.grid(row = 7, column = 4, pady = 10)
+
+
+        button2 = tk.Button(self, text="Back to Home",
+                         command=lambda:controller.show_frame("Home"))
+        button2.grid(row=9, column=9, pady=5, padx=10, sticky="EW")
+
+    def insert_user(self):
+        """Change Password"""
+        # check new and repeat new are equel
+        
+        if self.npassword.get() != self.rnpassword.get():
+            self.var_message.set("New password is not entered correctly")
+        else:
+            # remove trailing or leading spaces
+            username = self.username.get()
+            username.strip()
+            # check whether they contain something
+            if self.username.get() == "" or self.npassword.get() == "":
+                self.var_message.set("Invalid username or password")
+            # check whether current password is correct       
+            sql = "SELECT emp_name FROM `employee` WHERE emp_name = '%s'" % (username)
+            db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
+            cursor = db.cursor()
+            try:
+                cursor.execute(sql)
+                match = cursor.fetchall()
+            except MySQLdb.Error,e:
+                print e[0], e[1]
+                db.rollback()
+            cursor.close()
+            db.close()
+            if len(match) == 0:
+                # execute update of password
+                TUQ.insert_row('Employee', {'employee_ID' : new_emp_ID('employee'), 'emp_name' : username, 'password' : self.npassword.get()})
+                self.var_message.set("Succesfully added the new Employee")
+                
 ####################################
         ##################
         ############
