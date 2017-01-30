@@ -140,32 +140,9 @@ def process_to_db(queue_ID_list):
                                                             label3, labelm,
                                                             labelpos)
         
+        importtodb = False
+        while importtodb == True:
 
-        if sequece_duplicated == False:
-            oli_ID = make_new_ID('Oligo')
-
-
-
-        if sequence_duplicated[0] == True:
-            # when sequence is duplicated ask user whether sure to import
-            # into database, give new batchno but same olino as sequence
-            import_anyway = raw_input("The sequence (with labels) is duplicated, \
-                                        import anyway? The seq will get a new \
-                                        batchnumber. y/n: ")
-            if import_anyway == "y":
-                # do not make new oligono
-                oli_ID = sequence_duplicated[1]
-                # 
-            else:
-                print "this sequence will not be imported"
-
-            
-        if sequence_duplicated[0] != True:                    
-            ## retrieve information from the database (and convert)                     
-
-            ## put everything in dictionaries to be appropriate for import
-            # make a new oligonumber
-            oli_ID = make_new_ID('Oligo')
             # for Oligo table
             import_oli_dict["oligo_ID"] = oli_ID
             import_oli_dict["oligo_name"] = oli_name
@@ -212,6 +189,113 @@ def process_to_db(queue_ID_list):
             import_supplier_dict["supplier_ID"] = supp_ID
             import_supplier_dict["supplier_name"] = supp_name
 
+            # for every row insert the information into the specified tables
+            # for import_oli_dict, import_supplier_dict, import_batch_dict in parse_importfile(filename)
+            
+            insert_row("Oligo", import_oli_dict)
+            insert_row("Batch", import_batch_dict)
+            insert_row("Project_Oligo", import_projoli_dict)
+            insert_row("Project", import_project_dict)
+            #insert_row("Supplier", import_supplier_dict)
+            #insert_row("Order", import_order_dict)
+            #insert_row("Employee", import_emp_dict)
+
+
+
+            
+        if sequence_duplicated[0] == True:
+                # when sequence is duplicated ask user whether sure to import
+                # into database, give new batchno but same olino as sequence
+            import_anyway = raw_input("The sequence (with labels) is duplicated, \
+                                            import anyway? The seq will get a new \
+                                            batchnumber. y/n: ")
+            if import_anyway == "y":
+                    # do not make new oligono
+                    oli_ID = sequence_duplicated[1]
+                    importtodb = True
+            else:
+                    print "this sequence will not be imported"
+                    importtodb = False
+
+        if sequence_duplicated[0] == False:
+            oli_ID = make_new_ID('Oligo')
+            importtodb = True
+                
+            
+                
+
+
+##        if sequence_duplicated == False:
+##            oli_ID = make_new_ID('Oligo')
+##
+##
+##
+##        if sequence_duplicated[0] == True:
+##            # when sequence is duplicated ask user whether sure to import
+##            # into database, give new batchno but same olino as sequence
+##            import_anyway = raw_input("The sequence (with labels) is duplicated, \
+##                                        import anyway? The seq will get a new \
+##                                        batchnumber. y/n: ")
+##            if import_anyway == "y":
+##                # do not make new oligono
+##                oli_ID = sequence_duplicated[1]
+##                # 
+##            else:
+##                print "this sequence will not be imported"
+##
+##            
+##        if sequence_duplicated[0] == False:                    
+##            ## retrieve information from the database (and convert)                     
+##
+##            ## put everything in dictionaries to be appropriate for import
+##            # make a new oligonumber
+##            oli_ID = make_new_ID('Oligo')
+##            # for Oligo table
+##            import_oli_dict["oligo_ID"] = oli_ID
+##            import_oli_dict["oligo_name"] = oli_name
+##            import_oli_dict["oligo_type"] = oli_type
+##            import_oli_dict["sequence"] = oli_seq
+##            import_oli_dict["description"] = descr
+##            import_oli_dict["entry_date"] = entry_date
+##            # creator needs to be imported from the log-in
+##            # import_oli_dict["creator"] = emp_loggedin
+##            # when an update is done also needs to be imported still, not here
+##            import_oli_dict["label5prime"] = label5
+##            import_oli_dict["label3prime"] = label3
+##            import_oli_dict["labelM1"] = labelm
+##            import_oli_dict["labelM1position"] = labelpos
+##            import_oli_dict["pathogen_name"] = path_name
+##            import_oli_dict["target"] = target
+##            import_oli_dict["notes"] = notes
+##
+##            # for Batch table
+##            # make new batch number
+##            batch_no = make_new_ID('Batch')
+##            import_batch_dict["batch_number"] = batch_no
+##            import_batch_dict["oligo_ID"] = oli_ID
+##            import_batch_dict["synthesis_level_ordered"] = syn_lev
+##            import_batch_dict["purification_method"] = pur_met
+##            import_batch_dict["order_status"] = "not ordered"
+##
+##            # for Employee table
+##            # Employee table is already filled, just need to transfer
+##            # when importing/updating
+##
+##            # for project_oligo table
+##            import_projoli_dict["oligo_ID"] = oli_ID
+##            proj_ID = get_project_ID(proj_name)
+##            import_projoli_dict["project_ID"] = proj_ID
+##                
+##            # for project table
+##            proj_ID = get_project_ID(proj_name)
+##            import_project_dict["project_ID"] = proj_ID
+##            import_project_dict["project_name"] = proj_name
+##
+##            # for Supplier table
+##            supp_ID = get_supplier_ID(supp_name)
+##            import_supplier_dict["supplier_ID"] = supp_ID
+##            import_supplier_dict["supplier_name"] = supp_name
+##
     
 def old_parse_importfile(filename): #need to split in parsing and importing
     """ Returns the cells of the oligo import file to a dictionary and import into sql database
@@ -567,6 +651,7 @@ def new_queue_no(table):
         A new queue ID number
     """
     max_ID = get_max_ID(table)
+    print max_ID
     if max_ID:
         int_queueno = int(max_ID)
         new_queueno = int_queueno + 1
@@ -717,10 +802,11 @@ if __name__ == "__main__":
 ##    dicts = parse_importfile("Importfileoligos_new.csv")
 ##    for i in dicts:
 ##        print(i)
-##    import_to_queue("order_queue", "Importfileoligos_new.csv")
+    import_to_queue("order_queue", "Importfileoligos_new.csv")
     #get_from_orderqueue([1,2,3,4,5])
     #process_to_db([1,2,3,4,5,6,7,8,9])
-
+    new_queue_no("order_queue")
+    
 
     #test1=check_sequence_duplicated("AATCACGAGGACCAAAGCACTGAATAACATTTTCCTCTCTGGTAGGGG")
     #test2=check_sequence_duplicated("AATCATCATGCCTCTTACGAGTG")
@@ -737,4 +823,4 @@ if __name__ == "__main__":
 ##    check_sequence_duplicated('TTTCCCTTCCTAACCTGGACAT', 'FAM', '', 'TAMRA', '23')
 ##    check_sequence_duplicated('TTTCCCTTCCTAACCTGGACAT', 'YY', 'BHQ1', 'TAMRA', '23')
 
-    print new_emp_ID('employee')
+##    print new_emp_ID('employee')
