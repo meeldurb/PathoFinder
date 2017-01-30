@@ -133,16 +133,37 @@ def process_to_db(queue_ID_list):
         queue_ID, oli_name, oli_type, oli_seq, descr, entry_date, \
         crea, label5, label3, labelm, labelpos, path_name, target, \
         notes, syn_lev, pur_met, orderst, \
-        proid, proname, supid, supname = orderqueue_tuple
+        proj_ID, proj_name, supp_ID, supp_name = orderqueue_tuple
+        print orderqueue_tuple
         # if sequence == sequence in db, raise error/frame
         sequence_duplicated = check_sequence_duplicated(oli_seq,
                                                             label5,
                                                             label3, labelm,
                                                             labelpos)
         
-        importtodb = False
-        while importtodb == True:
+        importtodb = True
+        if importtodb == True:
+            print "importing..."
 
+            if sequence_duplicated[0] == True:
+                # when sequence is duplicated ask user whether sure to import
+                # into database, give new batchno but same olino as sequence
+                import_anyway = raw_input("The sequence (with labels) is duplicated, \
+                                            import anyway? The seq will get a new \
+                                            batchnumber. y/n: ")
+                if import_anyway == "y":
+                    # do not make new oligono
+                    oli_ID = sequence_duplicated[1]
+                    importtodb = True
+                else:
+                    print "this sequence will not be imported"
+                    importtodb = False
+
+            if sequence_duplicated[0] == False:
+                oli_ID = make_new_ID('Oligo')
+                importtodb = True
+
+                
             # for Oligo table
             import_oli_dict["oligo_ID"] = oli_ID
             import_oli_dict["oligo_name"] = oli_name
@@ -166,9 +187,10 @@ def process_to_db(queue_ID_list):
             batch_no = make_new_ID('Batch')
             import_batch_dict["batch_number"] = batch_no
             import_batch_dict["oligo_ID"] = oli_ID
+            syn_lev = int(syn_lev)
             import_batch_dict["synthesis_level_ordered"] = syn_lev
             import_batch_dict["purification_method"] = pur_met
-            import_batch_dict["order_status"] = "not ordered"
+            import_batch_dict["order_status"] = "processed"
 
             # for Employee table
             # Employee table is already filled, just need to transfer
@@ -203,23 +225,7 @@ def process_to_db(queue_ID_list):
 
 
             
-        if sequence_duplicated[0] == True:
-                # when sequence is duplicated ask user whether sure to import
-                # into database, give new batchno but same olino as sequence
-            import_anyway = raw_input("The sequence (with labels) is duplicated, \
-                                            import anyway? The seq will get a new \
-                                            batchnumber. y/n: ")
-            if import_anyway == "y":
-                    # do not make new oligono
-                    oli_ID = sequence_duplicated[1]
-                    importtodb = True
-            else:
-                    print "this sequence will not be imported"
-                    importtodb = False
-
-        if sequence_duplicated[0] == False:
-            oli_ID = make_new_ID('Oligo')
-            importtodb = True
+            
                 
             
                 
@@ -546,6 +552,7 @@ def check_sequence_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos='')
         # we need to retrieve also oligoID for when user wants to re-order oligo
         # the oligo gets a new batch, but keeps the oligoID
         sequence, oligoID = seq_tuple[0]
+        print oligoID
         # when tuple is filled, means that sequence is inside database
         # we also need to check whether the labels are the same 
         if check_labels_duplicated(seq, fiveprime, threeprime, M1, M1pos):
@@ -802,10 +809,11 @@ if __name__ == "__main__":
 ##    dicts = parse_importfile("Importfileoligos_new.csv")
 ##    for i in dicts:
 ##        print(i)
-    import_to_queue("order_queue", "Importfileoligos_new.csv")
+    #import_to_queue("order_queue", "Importfileoligos_new.csv")
+    
     #get_from_orderqueue([1,2,3,4,5])
-    #process_to_db([1,2,3,4,5,6,7,8,9])
-    new_queue_no("order_queue")
+    process_to_db([1,2,3,4,5, 6, 7, 8, 9])
+    #new_queue_no("order_queue")
     
 
     #test1=check_sequence_duplicated("AATCACGAGGACCAAAGCACTGAATAACATTTTCCTCTCTGGTAGGGG")
