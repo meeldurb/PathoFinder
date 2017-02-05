@@ -547,6 +547,10 @@ class Employees(tk.Frame):
                          command=lambda:self.controller.show_frame("Home"))
                             
         button3.grid(row=7, column=3, pady=5, padx=10)
+
+        button4 = tk.Button(self, text = "Back to Admin",
+                            command = lambda : self.controllor.show_frame("Admin"))
+        button4.grid(row=7, column=4, pady=5, padx=10)
         
     
     def popup_password(self, window):
@@ -602,6 +606,7 @@ class AddEmployee(tk.Frame):
         self.npassword = tk.StringVar()
         self.rnpassword = tk.StringVar()
         self.var_message = tk.StringVar()
+        self.adminvalid = tk.IntVar()
         
         label = tk.Label(self, text="Add an Employee")
         label.grid(row = 1, column = 1, columnspan=8, pady=10)
@@ -630,20 +635,24 @@ class AddEmployee(tk.Frame):
         rnpw['textvariable'] = self.rnpassword
         rnpw.grid(row = 5, column = 4, columnspan = 4, pady = 10)
 
+        admin = tk.Checkbutton(self, text = 'Admin', onvalue = 1, offvalue = 0, selectcolor = 'black')
+        admin['variable'] = self.adminvalid
+        admin.grid(row = 6, column = 2, pady = 10)
+
         # Message
         msg = tk.Message(self, width=280)
         msg['textvariable'] = self.var_message
-        msg.grid(row=6, column=2, columnspan=4, pady = 10)
+        msg.grid(row=7, column=2, columnspan=4, pady = 10)
 
         # Button
         changpass = tk.Button(self, text = "Confirm")
         changpass['command'] = lambda: self.insert_user()
-        changpass.grid(row = 7, column = 4, pady = 10)
+        changpass.grid(row = 8, column = 4, pady = 10)
 
 
         button2 = tk.Button(self, text="Back to Home",
                          command=lambda:controller.show_frame("Home"))
-        button2.grid(row=9, column=9, pady=5, padx=10, sticky="EW")
+        button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
 
     def insert_user(self):
         """Inserts a new employee"""
@@ -685,7 +694,7 @@ class OligosBin(tk.Frame):
         label.grid(row = 1, column = 1, columnspan=3, pady=10)
 
         button1 = tk.Button(self, text="View Oligos Bin", bg=mycolor,
-                            command = lambda : build_query_and_table('oligobin'))
+                            command = lambda : TLQ.build_query_and_table('oligo_bin'))
         
         button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
 
@@ -704,6 +713,10 @@ class OligosBin(tk.Frame):
                          command=lambda:self.controller.show_frame("Home"))
                             
         button4.grid(row=9, column=3, pady=5, padx=10)
+
+        button5 = tk.Button(self, text = "Back to Admin",
+                            command = lambda : self.controllor.show_frame("Admin"))
+        button5.grid(row=7, column=4, pady=5, padx=10)
         
     
     def popup_password(self, window):
