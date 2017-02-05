@@ -366,11 +366,9 @@ class ButtonsFrame(Frame):
         searchButton['command'] = lambda : self.open_search_window(table_str, attributes, self.sortattribute.get(), self.sortmethod.get())
         searchButton.pack(side=LEFT, padx=5, pady=5)
         
-        previousButton = Button(parent, text="Back")
-        previousButton.pack(side=RIGHT, padx=5, pady=5)
-        
-        homeButton = Button(parent, text = "Home")
-        homeButton.pack(side= RIGHT, padx=5, pady=5)
+        quitButton = Button(parent, text="Quit")
+        quitButton['command'] = lambda : parent.destroy()
+        quitButton.pack(side=RIGHT, padx=5, pady=5)
 
         # Setup a Frame which contains all the sort widgets
         sort_group = LabelFrame(parent)
