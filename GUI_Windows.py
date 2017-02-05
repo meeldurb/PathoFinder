@@ -228,7 +228,7 @@ class TableViews(tk.Frame):
         button3.grid(row=3, column=1, pady=5, padx=10, sticky="WE")
 
         button4 = tk.Button(self, text="Supplier analytics",
-                        command=lambda: TLQ.build_query_and_table('supplier_analysis'))
+                        command=lambda: TLQ.build_query_and_table('suppliers_analysis'))
                         
         button4.grid(row=4, column=1, pady=5, padx=10, sticky="EW")
 
