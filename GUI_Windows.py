@@ -54,7 +54,7 @@ class OligoDatabase(tk.Tk):
             }
 
         for F in (Login, Home, TableViews, OrderStatus, Import, Experiment, ChangePassword,
-                  Experiment, SearchPage, Admin, Employees, AddEmployee):
+                  Experiment, SearchPage, Admin, Employees, AddEmployee, OligosBin):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -510,7 +510,8 @@ class Admin(tk.Frame):
         label = tk.Label(self, text="Admin")
         label.grid(row = 1, column = 1, columnspan=3, pady=10)
 
-        button1 = tk.Button(self, text="Oligos Bin")
+        button1 = tk.Button(self, text="Oligos Bin",
+                            command = lambda : self.controller.show_frame("OligosBin"))
         
         button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
 
