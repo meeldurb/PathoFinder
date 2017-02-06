@@ -537,7 +537,7 @@ def get_max_ID(table):
     # when a typo occurs in table naming
     table = table.lower()
     # makes a choice between which table is selected
-    sql = """SELECT MAX(%s) FROM pathofinder_db.%s """ % (cfg.db_tables_views[table][0], table)
+    sql = """SELECT MAX(%s) FROM pathofinder_db.`%s`  """ % (cfg.db_tables_views[table][0], table)
     # the sql query retuns a tuple, we only want to take the number
     max_ID = execute_select_queries(sql)[0][0]
     return max_ID
@@ -562,6 +562,7 @@ def make_new_ID(table):
         return new_batch_ID
     if table == "order":
         new_order_ID = new_order_no(table)
+        return new_order_ID
     if table == "order_queue":
         new_queue_ID = new_queue_no(table)
         return new_queue_ID
@@ -693,14 +694,15 @@ def new_order_no(table): #should only create one per import
             new_order_number = ordno + actual_year + "0001"
         else:
             new_order_number = ordno + year + complete_orderno
+        #print new_order_number
+        #return new_order_number
 
-        return new_order_number
-
-    if matcher == None:
+    elif matcher == None:
         actual_year = get_date_stamp()[6:]
-        new_order_number = "ORDNO" + actual_year + "0001"
+        print actual_year
+        new_order_number = "ORDNO" + str(actual_year) + "0001"
 
-        return new_order_number
+    return new_order_number
 
 def new_emp_ID(table):
     """ Converts the max employee_ID in the database to the following up ID.
@@ -743,8 +745,9 @@ if __name__ == "__main__":
     #get_from_orderqueue([1,2,3,4,5])
     process_to_db([1,2,3,4,5, 6, 7, 8, 9])
     #new_queue_no("order_queue")
-    #new_order_no("Order")
-
+    ##no = new_order_no("Order")
+    #print no
+    #no = make_new_ID("order")
     #test1=check_sequence_duplicated("AATCACGAGGACCAAAGCACTGAATAACATTTTCCTCTCTGGTAGGGG")
     #test2=check_sequence_duplicated("AATCATCATGCCTCTTACGAGTG")
     #print test1
