@@ -54,7 +54,7 @@ class OligoDatabase(tk.Tk):
             }
 
         for F in (Login, Home, TableViews, OrderStatus, Import, Experiment, ChangePassword,
-                  Experiment, SearchPage, Admin, Employees, AddEmployee, OrderBin):
+                  Experiment, SearchPage, Admin, Employees, AddEmployee, OrderBin, MoveOrders):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -201,9 +201,6 @@ class Home(tk.Frame):
         button9.grid(row=12, column=8, pady=5, padx=10, columnspan=2)
         
 
-
-
-        
 class TableViews(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -550,7 +547,7 @@ class Employees(tk.Frame):
         button3.grid(row=7, column=3, pady=5, padx=10)
 
         button4 = tk.Button(self, text = "Back to Admin",
-                            command = lambda : self.controllor.show_frame("Admin"))
+                            command = lambda : self.controller.show_frame("Admin"))
         button4.grid(row=7, column=4, pady=5, padx=10)
         
     
@@ -705,8 +702,7 @@ class OrderBin(tk.Frame):
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
         button3 = tk.Button(self, text="Move back to Oligos Queue",
-                            command = lambda : self.controller.show_frame(##########
-                                ))
+                            command = lambda : self.controller.show_frame("MoveOrders"))
 
         button3.grid(row=6, column=2, pady=5, padx=10, sticky="WE")
 
@@ -761,8 +757,49 @@ class OrderBin(tk.Frame):
         else:
             self.win.destroy()
             TUQ.empty_bin()
+            
+class MoveOrders(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        
+        self.controller = controller
+        self.Text = None
+        self.message = tk.StringVar()
 
-                
+        label = tk.Label(self, text="Move from Bin to Queue")
+        label.pack(side = 'top', pady=10)
+
+
+        label1 = tk.Label(self, text="Enter the ID('s) : ")
+        label1.pack(side = 'top', pady=5)
+
+        self.Text = tk.Text(self, width = 30, height = 10)
+        self.Text.pack(side = 'top', pady = 5)
+
+        message = tk.Message(self, textvariable = self.message, width = 50)
+        message.pack(side = 'top')
+
+        button = tk.Button(self, text = 'Move order(s)')
+        button['command'] = lambda : self.move()
+        button.pack(side = 'top')
+
+
+    def move(self):
+        text = self.gettext()
+        text = text.split()
+        for id_ in text:
+            TUQ.move_row(id_, 'order_bin', 'order_queue')
+        self.message.set('completed computation')
+
+
+    def gettext(self):
+        text = self.Text.get(1.0, tk.END)
+        if text is not None:
+            text = text.strip()
+        if  text == "":
+            text = None
+        return text
+                    
 ####################################
         ##################
         ############
