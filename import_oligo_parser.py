@@ -132,6 +132,7 @@ def process_to_db(queue_ID_list):
     #import_project_dict = {}
     import_projoli_dict = {}
     import_order_dict = {}
+    
 
     for orderqueue_tuple in get_from_orderqueue(queue_ID_list):
         queue_ID, oli_name, oli_type, oli_seq, descr, entry_date, \
@@ -140,14 +141,46 @@ def process_to_db(queue_ID_list):
         proj_ID, proj_name, supp_ID, supp_name = orderqueue_tuple
 
         print orderqueue_tuple
+
         
         # if sequence == sequence in db, raise error/frame
         sequence_duplicated = check_sequence_duplicated(oli_seq,
                                                             label5,
                                                             label3, labelm,
                                                             labelpos)
-        
-        importtodb = False
+        # make all dictionaries first
+        # oligo table dictionary
+        import_oli_dict["oligo_name"] = oli_name
+        import_oli_dict["oligo_type"] = oli_type
+        import_oli_dict["sequence"] = oli_seq
+        import_oli_dict["description"] = descr
+        import_oli_dict["entry_date"] = entry_date
+        # creator needs to be imported from the log-in
+        # import_oli_dict["creator"] = emp_loggedin
+        # when an update is done also needs to be imported still, not here
+        import_oli_dict["label5prime"] = label5
+        import_oli_dict["label3prime"] = label3
+        import_oli_dict["labelM1"] = labelm
+        import_oli_dict["labelM1position"] = labelpos
+        import_oli_dict["pathogen_name"] = path_name
+        import_oli_dict["target"] = target
+        import_oli_dict["notes"] = notes
+
+        # batch table dictionary
+  
+        syn_lev = int(syn_lev)
+        import_batch_dict["synthesis_level_ordered"] = syn_lev
+        import_batch_dict["purification_method"] = pur_met
+        import_batch_dict["order_number"] = order_number
+        import_batch_dict["order_status"] = "processed"
+
+        # project_oligo table dictionary
+        import_projoli_dict["oligo_ID"] = oli_ID
+        proj_ID = get_project_ID(proj_name)
+        import_projoli_dict["project_ID"] = proj_ID
+
+            
+        #import2order = False
         if sequence_duplicated[0] == True:
             # when sequence is duplicated ask user whether sure to import
             # into database, give new batchno but same olino as sequence
@@ -156,247 +189,63 @@ def process_to_db(queue_ID_list):
                                             batchnumber. y/n: ")
             if import_anyway == "y":
                 # do not make new oligono
+                # get oligo_ID from check_sequence_duplicated function
+                # at 2nd position in returned list the oliID is contained
+                print "only importing new batch..."
                 oli_ID = sequence_duplicated[1]
-                importtodb = True
-            else:
-                print "this sequence will not be imported"
-                importtodb = False
-
-        if sequence_duplicated[0] == False:
-            oli_ID = make_new_ID('Oligo')
-            importtodb = True
-
-        if importtodb == True:
-            print "importing..."
-            # for Oligo table
-            import_oli_dict["oligo_ID"] = oli_ID
-            import_oli_dict["oligo_name"] = oli_name
-            import_oli_dict["oligo_type"] = oli_type
-            import_oli_dict["sequence"] = oli_seq
-            import_oli_dict["description"] = descr
-            import_oli_dict["entry_date"] = entry_date
-            # creator needs to be imported from the log-in
-            # import_oli_dict["creator"] = emp_loggedin
-            # when an update is done also needs to be imported still, not here
-            import_oli_dict["label5prime"] = label5
-            import_oli_dict["label3prime"] = label3
-            import_oli_dict["labelM1"] = labelm
-            import_oli_dict["labelM1position"] = labelpos
-            import_oli_dict["pathogen_name"] = path_name
-            import_oli_dict["target"] = target
-            import_oli_dict["notes"] = notes
-
-            # for Batch table
-            # make new batch number
-            batch_no = make_new_ID('Batch')
-            import_batch_dict["batch_number"] = batch_no
-            import_batch_dict["oligo_ID"] = oli_ID
-            syn_lev = int(syn_lev)
-            import_batch_dict["synthesis_level_ordered"] = syn_lev
-            
-            import_batch_dict["purification_method"] = pur_met
-            import_batch_dict["order_number"] = order_number
-            import_batch_dict["order_status"] = "processed"
-
-            # for Employee table
-            # Employee table is already filled, just need to transfer
-            # when importing/updating
-
-            # for project_oligo table
-            import_projoli_dict["oligo_ID"] = oli_ID
-            proj_ID = get_project_ID(proj_name)
-            import_projoli_dict["project_ID"] = proj_ID
+                import_batch_dict["oligo_ID"] = oli_ID
+                batch_no = make_new_ID('Batch')
+                import_batch_dict["batch_number"] = batch_no
                 
 
-            # for Order table
-            # deze moet echter pas gecreerd worden na het processen van de oligos
-            # make new order number
-            import_order_dict["order_number"] = order_number
-            supp_ID = get_supplier_ID(supp_name)
-            import_order_dict["supplier_ID"] = supp_ID
-            ord_date = get_date_stamp()
-            import_order_dict["order_date"] = ord_date
-            # creator needs to be imported from the log-in
-            # import_order_dict["employee_ID"] = emp_loggedin
-            # when an update is done also needs to be imported still, not here
-            
-            #supplier_ID is taken from Supplier table
-            #order_date is entered when ordered
-            #employee_ID is for later when reaching to using log ins
+                insert_row("Batch", import_batch_dict)
+                insert_row("Project_Oligo", import_projoli_dict)
 
-            
+            else:
+                print "not importing..."
+
+        if sequence_duplicated[0] == False:
+            # Make new oli_ID and add to dictionary
+            oli_ID = make_new_ID('Oligo')
+            import_oli_dict["oligo_ID"] = oli_ID
+
+            # Make new batchno and add to dict
+            # also add oli_ID to dict
+            import_batch_dict["oligo_ID"] = oli_ID
+            batch_no = make_new_ID('Batch')
+            import_batch_dict["batch_number"] = batch_no
+            # order needs to be imported outside the for-loop,
+            # only for every process once
+            import2order = True
+
+            print "importing everything..."      
+                
+            # when an update is done also needs to be imported still, not here            
 
             # for every row insert the information into the specified tables
-            # for import_oli_dict, import_supplier_dict, import_batch_dict in parse_importfile(filename)
-
             insert_row("Oligo", import_oli_dict)
             insert_row("Batch", import_batch_dict)
             insert_row("Project_Oligo", import_projoli_dict)
-            #insert_row("Project", import_project_dict)
-            #insert_row("Supplier", import_supplier_dict)
-            insert_row("Order", import_order_dict)
-            #insert_row("Employee", import_emp_dict)
 
-            
-def old_parse_importfile(filename): #need to split in parsing and importing
-    """ Returns the cells of the oligo import file to a dictionary and import into sql database
-
-    Keyword arguments:
-        filename -- string, the filename of the import oligo file
-    """
-    import_data = open_importfile(filename)
-    # get current date
-    entry_date = get_date_stamp()
-    # initialize empty dictionaries
-    import_oli_dict = {}
-    import_batch_dict = {}
-    import_supplier_dict = {}
-    import_project_dict = {}
-    import_projoli_dict = {}
-    # keep a rowcount, because first row with headers needs to be excluded
-    rowcount = 0
-    # for every single row import the data into the correct dictionaries
-    for row in import_data:
-        if rowcount > 0:
-            oli_name, oli_type, oli_seq, descr, label5, label3, \
-                    labelm, labelpos, path_name, target, notes, syn_lev, \
-                    pur_met, supp_name, proj_name = row.strip().split(";")
-            # if sequence == sequence in db, raise error/frame
-            sequence_duplicated = check_sequence_duplicated(oli_seq,
-                                                            label5,
-                                                            label3, labelm,
-                                                            labelpos)
-            print sequence_duplicated
-            if sequence_duplicated[0] == True:
-                # when sequence is duplicated ask user whether sure to import
-                # into database, give new batchno but same olino as sequence
-                import_anyway = raw_input("The sequence (with labels) is duplicated, \
-                                            import anyway? The seq will get a new \
-                                            batchnumber. y/n: ")
-                if import_anyway == "y":
-                    # do not make new oligono
-                    oli_ID = sequence_duplicated[1]
-                    # Batch table
-                    # make new batch number
-                    batch_no = make_new_ID('Batch')
-                    import_batch_dict["batch_number"] = batch_no
-                    import_batch_dict["oligo_ID"] = oli_ID
-                    import_batch_dict["synthesis_level_ordered"] = syn_lev
-                    import_batch_dict["purification_method"] = pur_met
-                    import_batch_dict["order_status"] = "not ordered"
-
-                    # for Employee table
-                    # Employee table is already filled, just need to transfer
-                    # when importing/updating
-
-                    # for project_oligo table
-                    import_projoli_dict["oligo_ID"] = oli_ID
-                    proj_ID = get_project_ID(proj_name)
-                    import_projoli_dict["project_ID"] = proj_ID
-                    
-                    # for project table
-                    import_project_dict["project_ID"] = proj_ID
-                    import_project_dict["project_name"] = proj_name
-
-                    # for Supplier table
-                    supp_ID = get_supplier_ID(supp_name)
-                    import_supplier_dict["supplier_ID"] = supp_ID
-                    import_supplier_dict["supplier_name"] = supp_name
-
-                    insert_row("Oligo", import_oli_dict)
-                    insert_row("Batch", import_batch_dict)
-                    insert_row("Project_Oligo", import_projoli_dict)
-                    insert_row("Project", import_project_dict)
-                    insert_row("Supplier", import_supplier_dict)
-                else:
-                    rowcount += 1             
-                
-            if sequence_duplicated[0] != True:                    
-                ## retrieve information from the database (and convert)                     
-
-                ## put everything in dictionaries to be appropriate for import
-                # make a new oligonumber
-                oli_ID = make_new_ID('Oligo')
-                # for Oligo table
-                import_oli_dict["oligo_ID"] = oli_ID
-                import_oli_dict["oligo_name"] = oli_name
-                import_oli_dict["oligo_type"] = oli_type
-                import_oli_dict["sequence"] = oli_seq
-                import_oli_dict["description"] = descr
-                import_oli_dict["entry_date"] = entry_date
-                # creator needs to be imported from the log-in
-                # import_oli_dict["creator"] = emp_loggedin
-                # when an update is done also needs to be imported still, not here
-                import_oli_dict["label5prime"] = label5
-                import_oli_dict["label3prime"] = label3
-                import_oli_dict["labelM1"] = labelm
-                import_oli_dict["labelM1position"] = labelpos
-                import_oli_dict["pathogen_name"] = path_name
-                import_oli_dict["target"] = target
-                import_oli_dict["notes"] = notes
-
-                # for Batch table
-                # make new batch number
-                batch_no = make_new_ID('Batch')
-                import_batch_dict["batch_number"] = batch_no
-                import_batch_dict["oligo_ID"] = oli_ID
-                import_batch_dict["synthesis_level_ordered"] = syn_lev
-                import_batch_dict["purification_method"] = pur_met
-                import_batch_dict["order_status"] = "not ordered"
-
-                # for Employee table
-                # Employee table is already filled, just need to transfer
-                # when importing/updating
-
-                # for project_oligo table
-                import_projoli_dict["oligo_ID"] = oli_ID
-                proj_ID = get_project_ID(proj_name)
-                import_projoli_dict["project_ID"] = proj_ID
-                    
-                # for project table
-                proj_ID = get_project_ID(proj_name)
-                import_project_dict["project_ID"] = proj_ID
-                import_project_dict["project_name"] = proj_name
-
-                # for Supplier table
-                supp_ID = get_supplier_ID(supp_name)
-                import_supplier_dict["supplier_ID"] = supp_ID
-                import_supplier_dict["supplier_name"] = supp_name
-                
-            
-##              yield import_oli_dict, import_batch_dict, import_projoli_dict,
-##              import_project_dict, import_supplier_dict, import_employee_dict                
-##              import_oli_dict = {}
-##              import_batch_dict = {}
-##              import_projoli_dict = {}
-##              import_project_dict = {}
-##              import_supplier_dict = {}
-##              import_employee_dict = {}
+    # order needs to be imported outside the for-loop,
+    # only for every process once
+    if import2order == True:
+        # for Order table
+        # deze moet echter pas gecreerd worden na het processen van de oligos
+        # make new order number
+        import_order_dict["order_number"] = order_number
+        #supplier_ID is taken from Supplier table
+        supp_ID = get_supplier_ID(supp_name)
+        import_order_dict["supplier_ID"] = supp_ID
+        #order_date is entered when processed
+        ord_date = get_date_stamp()
+        import_order_dict["order_date"] = ord_date
+        # creator needs to be imported from the log-in
+        # import_order_dict["employee_ID"] = emp_loggedin
+        insert_row("Order", import_order_dict)
 
 
-
-                # for every row insert the information into the specified tables
-                # for import_oli_dict, import_supplier_dict, import_batch_dict in parse_importfile(filename)
-            
-                insert_row("Oligo", import_oli_dict)
-                insert_row("Batch", import_batch_dict)
-                insert_row("Project_Oligo", import_projoli_dict)
-                insert_row("Project", import_project_dict)
-                insert_row("Supplier", import_supplier_dict)
-                insert_row("Order", import_order_dict)
-                #insert_row("Employee", import_emp_dict)
-                
-                
-            
-
-                rowcount += 1
-        else:
-            rowcount += 1
-
-
-
-
-            
+    
 def get_date_stamp():
     """Returns a string of the current date in format DD-MM-YYYY
     """
@@ -673,11 +522,11 @@ def new_order_no(table): #should only create one per import
     # first 4 digits are constant per year, need to be sliced off
     string_max_ID = str(max_ID)
     # search for pattern, when found proceed
-    pattern = re.compile(r'ORDNO([0-9][0-9][0-9][0-9])([0-9]+)')
+    pattern = re.compile(r'(ORDNO)([0-9][0-9][0-9][0-9])([0-9]+)')
     matcher = pattern.search(string_max_ID)
     print matcher
     if matcher != None:
-        # split 2 groups
+        # split 3 groups
         ordno = matcher.group(1)
         year = matcher.group(2)
         orderno = matcher.group(3)
