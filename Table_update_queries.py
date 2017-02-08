@@ -7,6 +7,7 @@ Script for executing queries to the groupwork database
 import MySQLdb
 import config as cfg
 import query_functies_dict
+import Table_Lookup_queries as TLQ
 
 def execute_edit_queries(query): #works
     """Executes queries that edit the database somehow (insert, update, delete)
@@ -135,7 +136,7 @@ def update_row(table_str, attribute_value_dict, keys_dict): #works
     sql = make_update_row(table_str, attribute_value_dict, keys_dict)
     execute_edit_queries(sql)
 
-def oligo_to_temp_bin(oligo_ID): # works
+def orderqueue_to_bin(oligo_ID): # works
     """Moves an oligo from the oligo table to the Oligo bin.
 
     Keyword Arguments:
@@ -170,6 +171,28 @@ def oligo_to_temp_bin(oligo_ID): # works
     except MySQLdb.Error,e: # Rollback in case there is any error
         print e[0], e[1]
         db.rollback()
+    cursor.close()
+    db.close() #disconnect from server
+
+def empty_bin(): # works
+    """Empties the Order Bin."""
+
+    db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database']) # open connection
+    cursor = db.cursor() # prepare a cursor object
+
+    pkeys = TLQ.all_pks_table('order_bin')
+    if len(pkeys) == 0:
+        raise ValueError("Table is already empty")
+    
+    # per id make sql and execute deletion
+    for i in range(len(pkeys)):
+        delete_sql = make_delete_row('order_bin', {'bin_ID' : pkeys[i][0]})
+        try:
+            cursor.execute(delete_sql)
+            db.commit()
+        except MySQLdb.Error,e: # Rollback in case there is any error
+            print e[0], e[1]
+            db.rollback()
     cursor.close()
     db.close() #disconnect from server
 
