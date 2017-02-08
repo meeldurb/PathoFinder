@@ -160,9 +160,17 @@ def build_query_and_table(table, sort_attribute = 0, sort = 'Descending'):
     # show the results in the window
     build_table_window(query, table, attributes, sort_attribute, sort)
 
-   
+def search_in_single_attribute(table_str, attribute, search_input): #works
+    """Performs a search query on the database, returns all matches in a tuple
+
+    Keyword Arguments:
+    table_str       -- string, a table
+    attribute       -- string, names of the attribute to search
+    search_input    -- string, the word to look for"""
+    sql = """SELECT * FROM %s WHERE %s REGEXP '%s'""" % (table_str, attribute, search_input)
+    return execute_select_queries(sql)   
             
 if __name__ == "__main__":
     #build_query_and_table("oligo")
-    #print all_pks_table('oligo')
+    print all_pks_table('order_bin')
 
