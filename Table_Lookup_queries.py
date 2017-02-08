@@ -1,7 +1,7 @@
 
 """
 Author: Jorn van der Ent
-Script for executing queries to the groupwork database
+Script for executing queries to the database
 """
 
 import MySQLdb
@@ -24,6 +24,15 @@ def execute_select_queries(query): #works
     cursor.close()
     db.close()
     return results
+
+def all_pks_table(table):
+    """Returns a tuple with all primary keys in a table
+    format : ((key,),(key2,))
+
+    table -- string, the table to find all keys for"""
+    sql = "SELECT %s FROM %s" % (cfg.db_tables_views[table][0], table)
+    pkeys = execute_select_queries(sql)
+    return pkeys
 
 def build_table_window(sql, table_str, attributes, sortattribute, sortmethod):
     """Builds up the table window
@@ -154,5 +163,6 @@ def build_query_and_table(table, sort_attribute = 0, sort = 'Descending'):
    
             
 if __name__ == "__main__":
-    build_query_and_table("oligo")
+    #build_query_and_table("oligo")
+    #print all_pks_table('oligo')
 
