@@ -54,7 +54,7 @@ class OligoDatabase(tk.Tk):
             }
 
         for F in (Login, Home, TableViews, OrderStatus, Import, Experiment, ChangePassword,
-                  Experiment, SearchPage, Admin, Employees, AddEmployee, OligosBin):
+                  Experiment, SearchPage, Admin, Employees, AddEmployee, OrderBin):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -510,8 +510,8 @@ class Admin(tk.Frame):
         label = tk.Label(self, text="Admin")
         label.grid(row = 1, column = 1, columnspan=3, pady=10)
 
-        button1 = tk.Button(self, text="Oligos Bin",
-                            command = lambda : self.controller.show_frame("OligosBin"))
+        button1 = tk.Button(self, text="Order Bin",
+                            command = lambda : self.controller.show_frame("OrderBin"))
         
         button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
 
@@ -563,7 +563,7 @@ class Employees(tk.Frame):
         label = tk.Label(self.win, text = 'Enter password :')
         label.pack(side = 'top')
 
-        entry = tk.Entry(self.win, textvariable = self.password)
+        entry = tk.Entry(self.win, textvariable = self.password, show = "*")
         entry.pack(side = 'top')
 
         msg = tk.Message(self.win, textvariable = self.var_message)
@@ -685,22 +685,22 @@ class AddEmployee(tk.Frame):
                 TUQ.insert_row('Employee', {'employee_ID' : new_emp_ID('employee'), 'emp_name' : username, 'password' : self.npassword.get()})
                 self.var_message.set("Succesfully added the new Employee")
 
-class OligosBin(tk.Frame):
+class OrderBin(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
         self.controller = controller
 
-        label = tk.Label(self, text="Oligos Bin")
+        label = tk.Label(self, text="Order Bin")
         label.grid(row = 1, column = 1, columnspan=3, pady=10)
 
-        button1 = tk.Button(self, text="View Oligos Bin", bg=mycolor,
-                            command = lambda : TLQ.build_query_and_table('oligo_bin'))
+        button1 = tk.Button(self, text="View Order Bin", bg=mycolor,
+                            command = lambda : TLQ.build_query_and_table('order_bin'))
         
         button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
 
-        button2 = tk.Button(self, text="Empty Oligos Bin",
-                            command = lambda : self.popup_password('empty'))
+        button2 = tk.Button(self, text="Empty Order Bin",
+                            command = lambda : self.popup_password())
 
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
@@ -720,27 +720,30 @@ class OligosBin(tk.Frame):
         button5.grid(row=7, column=4, pady=5, padx=10)
         
     
-    def popup_password(self, window):
+    def popup_password(self):
         # popup window which ask for password.
         self.win = tk.Toplevel()
 
         self.password = tk.StringVar()
         self.var_message = tk.StringVar()
 
+        label0 = tk.Label(self.win, text = "Are you sure you want to remove all data from the Order-Bin?")
+        label0.pack(side = 'top', pady = 5)
+
         label = tk.Label(self.win, text = 'Enter password :')
         label.pack(side = 'top')
 
-        entry = tk.Entry(self.win, textvariable = self.password)
+        entry = tk.Entry(self.win, textvariable = self.password, show = "*")
         entry.pack(side = 'top')
 
         msg = tk.Message(self.win, textvariable = self.var_message)
         msg.pack(side = 'top')
         
-        button1 = tk.Button(self.win, text = 'OK',
-                            command = lambda : self.check_login(window))
+        button1 = tk.Button(self.win, text = 'Confirm',
+                            command = lambda : self.check_and_empty())
         button1.pack(side = 'top')
 
-    def check_login(self, window):
+    def check_and_empty(self):
         username = self.controller.shared_data["username"].get()
         sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (username, self.password.get())
         db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
@@ -756,12 +759,9 @@ class OligosBin(tk.Frame):
         if len(match) == 0:
             self.var_message.set("Incorrect Password")
         else:
-            if window == 'empty':
-                self.win.destroy()
-                TLQ.build_query_and_table("employee")
-            elif window == 'add':
-                self.win.destroy()
-                self.controller.show_frame('AddEmployee')
+            self.win.destroy()
+            TUQ.empty_bin()
+
                 
 ####################################
         ##################
