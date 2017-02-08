@@ -8,6 +8,7 @@ import MySQLdb
 import config as cfg
 import query_functies_dict
 import Table_Lookup_queries as TLQ
+import import_oligo_parser as iop
 
 def execute_edit_queries(query): #works
     """Executes queries that edit the database somehow (insert, update, delete)
@@ -136,34 +137,41 @@ def update_row(table_str, attribute_value_dict, keys_dict): #works
     sql = make_update_row(table_str, attribute_value_dict, keys_dict)
     execute_edit_queries(sql)
 
-def orderqueue_to_bin(oligo_ID): # works
+def move_row(pk_ID, source, target): # works
     """Moves an oligo from the oligo table to the Oligo bin.
 
     Keyword Arguments:
-    oligo_ID    -- string, the key-value of the oligo you want to remove"""
+    pk_ID    -- string, the primary key of the row to move
+    source   -- string, tablename of the table the row is in
+    target   -- string, tablename of the table the row has to move to"""
     db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database']) # open connection
     cursor = db.cursor() # prepare a cursor object
 
     #locate the oligo in the table, retrieve values
-    oligo = search_in_single_attribute('Oligo', 'oligo_ID', oligo_ID)
-    if len(oligo) == 0:
-        raise ValueError("Could not find oligo_ID")
+    row = TLQ.search_in_single_attribute(source, cfg.db_tables_views[source][0], pk_ID)
+    if len(row) == 0:
+        raise ValueError("Could not find ID")
     #convert to list, for indexing purposes
-    oligo = list(oligo[0])
+    row = list(row[0])
     #initialize attributes and dictionary
-    oligo_attributes = ['oligo_ID', 'oligo_name', 'oligo_type', 'sequence',
-                        'description', 'entry_date', 'creator', 'update_date',
-                        'modifier', 'label5prime', 'label3prime', 'labelM1',
-                        'labelM1position', 'pathogen_name', 'target','notes']
-    oligo_dict = {}
+    attributes = cfg.db_tables_views[source]
+    insertdict = {}
     #create dictionary for function inputs
-    for i in range(len(oligo_attributes)):
-        if oligo[i] == None:
-            oligo[i] = ''
-        oligo_dict[oligo_attributes[i]] = oligo[i]
+    for i in range(len(attributes)):
+        if row[i] == None:
+            row[i] = ''
+        if type(row[i]) == long:
+            row[i] = float(row[i])
+        insertdict[attributes[i]] = row[i]
+    
+    # Replace source key-attribute with target key-attribute and value
+    del insertdict[cfg.db_tables_views[source][0]]
+    insertdict[cfg.db_tables_views[target][0]] = iop.make_new_ID(target)
+    
     # get the queries
-    insert_sql = make_insert_row('Oligo_bin', oligo_dict)
-    delete_sql = make_delete_row('Oligo', {'oligo_ID' : oligo_ID})
+    insert_sql = make_insert_row(target, insertdict)
+    delete_sql = make_delete_row(source, {cfg.db_tables_views[source][0] : pk_ID})
+
     try:
         cursor.execute(insert_sql)
         cursor.execute(delete_sql)
@@ -201,3 +209,4 @@ if __name__ == "__main__":
     #insert_row('Oligo', { 'oligo_ID' : 'OlI0012', 'oligo_name' : 'test', 'oligo_type': '', 'sequence' : 'J', 'description':'',  'entry_date':'', 'creator':'EMP0000', 'update_date':'', 'modifier':'EMP0000', 'label5prime':'', 'label3prime':'', 'labelM1':'', 'labelM1position':'', 'pathogen_name':'', 'target':'', 'notes':''})
     #delete_row('Employee', { 'employee_ID' : 'EMP0066', 'emp_name' : 'test20'})
     #update_row('Employee', { 'password' : 'test'}, { 'emp_name' : 'test'})
+    # move_row(1, 'order_bin', 'order_queue')
