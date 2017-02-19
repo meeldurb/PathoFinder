@@ -8,3 +8,4 @@ Mycoplasma_16S_1A_Rev2;primer;CGGTGTGTACAAGACCCGA;Adjusted Mycoplasma Rev primer
 probe_test;probe;AATCATCATGCCTCTTACGAGTG;test probe;FAM;BHQ1;;;E. Coli;hypothetical gene;;100;HPLC;IDT;blablabla
 boundarie_case;primer;AATCATCATGCCTCTTACGAGTG;boudary testing;;;;;E. Coli;hypothetical gene;;200;HPLC;IDT;something
 duplicated_seq;primer;AGATCAACTTCTGTCATCCAGCAA;duplicated_seq for testing;;;;;;;;200;HPLC;IDT;something
+actually_oli6;primer;GAGCATGCATGGACTGACTTACTAGACTAACTGCAAAAGCAATGTTAGGGCATGTGTCAGAAAGATATGTGAGTCTCCCC;duplicated_seq for testing;;;;;E.coli;;;200;HPLC;IDT;Amaryllis Environmental
