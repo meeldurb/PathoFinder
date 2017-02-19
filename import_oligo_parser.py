@@ -218,14 +218,21 @@ def process_to_db(queue_ID_list):
                     batch_no = make_new_ID('Batch')
                     import_batch_dict["batch_number"] = batch_no
                     import_batch_dict["order_number"] = order_number
-                    
-                    
+                    # also import project belonging to oligo
+                    # may be a new project belonging to the oli
+                    import_projoli_dict["oligo_ID"] = oli_ID
+                    proj_ID = get_project_ID(proj_name)
+                    import_projoli_dict["project_ID"] = proj_ID
 
                     insert_row("Batch", import_batch_dict)
                     insert_row("Project_Oligo", import_projoli_dict)
 
+                    delete_row("Order_queue", {"queue_ID": queue_ID})
+
                 else:
                     print "not importing..."
+                    delete_row("Order_queue", {"queue_ID": queue_ID})
+
 
             if sequence_duplicated[0] == False:
                 # Make new oli_ID and add to dictionary
@@ -239,7 +246,7 @@ def process_to_db(queue_ID_list):
                 import_batch_dict["batch_number"] = batch_no
                 import_batch_dict["order_number"] = order_number
 
-                # only import new proj_ID and oli_ID when unique oli is added
+                # import proj_ID and oli_ID 
                 import_projoli_dict["oligo_ID"] = oli_ID
                 proj_ID = get_project_ID(proj_name)
                 import_projoli_dict["project_ID"] = proj_ID
@@ -256,24 +263,11 @@ def process_to_db(queue_ID_list):
                 insert_row("Batch", import_batch_dict)
                 insert_row("Project_Oligo", import_projoli_dict)
 
+                delete_row("Order_queue", {"queue_ID": queue_ID})
     else:
         print 'two or more suppliers provided, not able to process'
-##    # order needs to be imported outside the for-loop,
-##    # only for every process once
-##    if import2order == True:
-##        # for Order table
-##        # deze moet echter pas gecreerd worden na het processen van de oligos
-##        # make new order number
-##        import_order_dict["order_number"] = order_number
-##        #supplier_ID is taken from Supplier table
-##        supp_ID = get_supplier_ID(supp_name)
-##        import_order_dict["supplier_ID"] = supp_ID
-##        #order_date is entered when processed
-##        ord_date = get_date_stamp()
-##        import_order_dict["order_date"] = ord_date
-##        # creator needs to be imported from the log-in
-##        # import_order_dict["employee_ID"] = emp_loggedin
-##        insert_row("Order", import_order_dict)
+
+
 
 
     
@@ -368,24 +362,25 @@ def check_sequence_duplicated(seq, fiveprime='', threeprime='',
     # or choose to abort
     sql = """SELECT sequence, oligo_ID FROM pathofinder_db.oligo WHERE
             sequence = "%s" """ %(seq)
-    seq_tuple = execute_select_queries(sql)
-    print seq_tuple
-    if len(seq_tuple) > 1:
-        print "more sequences found"
-    # not unpacking tuple yet, just checking whether something is inside
-    if seq_tuple:
-        # we need to retrieve also oligoID for when user wants to re-order oligo
+    seq_tuples = execute_select_queries(sql)
+    print "seq tuples is: ", seq_tuples
+    if seq_tuples:
+        # we loop trough all tuples, because sometimes more oli_ID's are
+        # associated to same sequence
+        print "duplicate sequences found"
+        # not unpacking tuple yet, checking whether something is inside
+        # need to retrieve oligoID for when user wants to re-order oligo
         # the oligo gets a new batch, but keeps the oligoID
-        sequence, oligoID = seq_tuple[0]
-        print oligoID
         # when tuple is filled, means that sequence is inside database
         # we also need to check whether the labels are the same 
-        if check_labels_duplicated(seq, fiveprime, threeprime, M1, M1pos):
-            duplicated = True
+        dupl_label, oligoID = check_labels_duplicated(seq, fiveprime,
+                                                     threeprime, M1, M1pos)
+        if dupl_label == True:
             print "sequence and labels duplicated"
+            duplicated = True
         else:
-            duplicated = False
             print "only sequence duplicated labels not"
+            duplicated = False
     else:
         # when tuple is found empty, we can proceed importing the oligo
         duplicated = False
@@ -408,24 +403,32 @@ def check_labels_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos=''):
         duplicated -- boolean, True when the labels are duplicated, false when unique
     """
 
-    sql = """SELECT sequence, label5prime, label3prime, labelM1, labelM1position
+    sql = """SELECT sequence, oligo_ID, label5prime, label3prime, labelM1, labelM1position
         FROM pathofinder_db.oligo WHERE sequence = "%s" """ %(seq)
     
-   
-    sequence, labelfive, labelthree, labelM1, labelM1pos = execute_select_queries(sql)[0]
-        
-    if (
+    all_tuples = execute_select_queries(sql)
+    print (seq, fiveprime, threeprime, M1, M1pos)
+    print "all tuple for labels is: ", all_tuples
+    for one_tuple in all_tuples:
+        print "separate tuple for labels: ", one_tuple
+
+        sequence, oli_ID, labelfive, labelthree, labelM1, labelM1pos = one_tuple
+    
+    
+        if (
             fiveprime == labelfive and threeprime == labelthree and
             M1pos == labelM1pos 
 
-        ): 
-        duplicated = True
-        print "labels are duplicated"
-    else:
-        duplicated = False
-        print "unique labels"
+            ): 
+            duplicated = True
+            return duplicated, oli_ID
+            print "labels are duplicated"
+        else:
+            duplicated = False
+            print "unique labels"
 
-    return duplicated
+
+    return duplicated, oli_ID
 
 
 
@@ -642,12 +645,12 @@ if __name__ == "__main__":
 ##    dicts = parse_importfile("Importfileoligos_new.csv")
 ##    for i in dicts:
 ##        print(i)
-    #import_to_queue("order_queue", "Importfileoligos_new.csv")
+    import_to_queue("order_queue", "Importfileoligos_new.csv")
     
     #get_from_orderqueue([1,2,3,4,5])
-    #process_to_db([1,2,3,4,5, 6, 7, 8, 9])
+    process_to_db([1,2,3,4,5, 6, 7, 8, 9])
     process_to_db([1,2,3,4,5,6])
-    process_to_db([7,8,9])
+    process_to_db([7,8,9,10])
 
     #supplierlist_check([1,2,3,4,5, 6, 7, 8, 9])
     #supplierlist_check([1,2,3,4,5, 6])
