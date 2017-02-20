@@ -56,7 +56,7 @@ class OligoDatabase(tk.Tk):
 
         for F in (Login, Home, TableViews, OrderStatus, Import, Experiment, ChangePassword,
                   Experiment, SearchPage, Admin, Employees, AddEmployee, OrderBin, BinToQueue,
-                  OrderStatus, OrderQueue, Deliveries):
+                  OrderStatus, OrderQueue, Deliveries, OutOfStock):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -565,7 +565,7 @@ class Employees(tk.Frame):
         entry = tk.Entry(self.win, textvariable = self.password, show = "*")
         entry.pack(side = 'top')
 
-        msg = tk.Message(self.win, textvariable = self.var_message)
+        msg = tk.Message(self.win, textvariable = self.var_message, width = 280)
         msg.pack(side = 'top')
         
         button1 = tk.Button(self.win, text = 'OK',
@@ -730,7 +730,7 @@ class OrderBin(tk.Frame):
         entry = tk.Entry(self.win, textvariable = self.password, show = "*")
         entry.pack(side = 'top')
 
-        msg = tk.Message(self.win, textvariable = self.var_message)
+        msg = tk.Message(self.win, textvariable = self.var_message, width = 280)
         msg.pack(side = 'top')
         
         button1 = tk.Button(self.win, text = 'Confirm',
@@ -774,7 +774,7 @@ class BinToQueue(tk.Frame):
         self.Text = tk.Text(self, width = 30, height = 10)
         self.Text.pack(side = 'top', pady = 5)
 
-        message = tk.Message(self, textvariable = self.message, width = 50)
+        message = tk.Message(self, textvariable = self.message, width = 280)
         message.pack(side = 'top')
 
         button = tk.Button(self, text = 'Move order(s)')
@@ -827,7 +827,7 @@ class QueueToBin(tk.Frame):
         self.Text = tk.Text(self, width = 30, height = 10)
         self.Text.pack(side = 'top', pady = 5)
 
-        message = tk.Message(self, textvariable = self.message, width = 50)
+        message = tk.Message(self, textvariable = self.message, width = 280)
         message.pack(side = 'top')
 
         button = tk.Button(self, text = 'Move order(s)')
@@ -881,8 +881,9 @@ class OrderStatus(tk.Frame):
 
         button2.grid(row=3, column=2, pady=5, padx=10, sticky="WE")
 
-        button3 = tk.Button(self, text="Out of Stock")
-
+        button3 = tk.Button(self, text="Out of Stock",
+                            command = lambda : self.controller.show_frame("OutOfStock"))
+        
         button3.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
         button4 = tk.Button(self, text="Back to Home",
@@ -937,7 +938,7 @@ class Deliveries(tk.Frame):
         
         self.controller = controller
         self.batch = tk.StringVar()
-        self.synth = tk.StringVar ()
+        self.synth = tk.StringVar()
         self.message = tk.StringVar()
 
         label = tk.Label(self, text="Enter new Delivery")
@@ -959,7 +960,7 @@ class Deliveries(tk.Frame):
         synthentry = tk.Entry(self, textvariable = self.synth)
         synthentry.grid(row = 4, column = 2, pady = 5)
         
-        message = tk.Message(self, textvariable = self.message, width = 200)
+        message = tk.Message(self, textvariable = self.message, width = 280)
         message.grid(row = 5, column = 1, columnspan = 4)
 
         button = tk.Button(self, text = 'Confirm Delivery')
@@ -980,13 +981,71 @@ class Deliveries(tk.Frame):
 
     def update_status(self):
         try:
-            batchstatus = TLQ.execute_select_queries("SELECT order_status FROM `batch` WHERE batch_number = '%s'" % self.batch.get())
+            batchstatus = TLQ.execute_select_queries("SELECT order_status FROM `batch` \
+                                                     WHERE batch_number = '%s'" % self.batch.get())
             if batchstatus[0][0] == 'Ordered':
                 TUQ.update_row('batch', {'synthesis_level_delivered' : self.synth.get(), 'order_status' : 'Delivered',
                                      'delivery_date' : get_date_stamp()}, {'batch_number' : self.batch.get()})
                 self.message.set("Succesfull")
         except:
             self.message.set("An Error occured, please try again")
+
+class OutOfStock(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        
+        self.controller = controller
+        self.Text = None
+        self.message = tk.StringVar()
+
+        label = tk.Label(self, text="Set batches to be 'Out of Stock'")
+        label.pack(side = 'top', pady=10)
+
+
+        label1 = tk.Label(self, text="Enter the batchnumber('s) : ")
+        label1.pack(side = 'top', pady=5)
+
+        self.Text = tk.Text(self, width = 30, height = 10)
+        self.Text.pack(side = 'top', pady = 5)
+
+        message = tk.Message(self, textvariable = self.message, width = 280)
+        message.pack(side = 'top')
+
+        button = tk.Button(self, text = 'Confirm')
+        button['command'] = lambda : self.update_status()
+        button.pack(side = 'top', pady = 10)
+
+        buttongroup = tk.LabelFrame(self)
+        buttongroup.pack(side = 'top')
+        
+        button2 = tk.Button(buttongroup, text = 'Back to Home',
+                            command = lambda : self.controller.show_frame("Home"))
+        button2.pack(side = 'left', pady=5, padx = 5)
+
+        button3 = tk.Button(buttongroup, text = 'Back to Order Queue',
+                             command = lambda : self.controller.show_frame("OrderQueue"))
+        button3.pack(side = 'left', pady=5, padx = 5)
+      
+    def update_status(self):
+        try:
+            text = self.gettext()
+            text = text.split()
+            for batch in text:
+                batchstatus = TLQ.execute_select_queries("SELECT order_status FROM `batch` \
+                                                     WHERE batch_number = '%s'" % batch)
+                if batchstatus[0][0] == 'Delivered':
+                    TUQ.update_row('batch', {'order_status' : 'Out of Stock'}, {'batch_number' : batch})
+                    self.message.set("Succesfull")
+        except:
+            self.message.set("An Error occured, please try again")
+
+    def gettext(self):
+        text = self.Text.get(1.0, tk.END)
+        if text is not None:
+            text = text.strip()
+        if  text == "":
+            text = None
+        return text
                     
 ####################################
         ##################
