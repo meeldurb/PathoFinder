@@ -56,7 +56,7 @@ class OligoDatabase(tk.Tk):
 
         for F in (Login, Home, TableViews, OrderStatus, Import, Experiment, ChangePassword,
                   Experiment, SearchPage, Admin, Employees, AddEmployee, OrderBin, BinToQueue,
-                  OrderStatus, OrderQueue, Deliveries, OutOfStock):
+                  OrderStatus, OrderQueue, Deliveries, OutOfStock, GeneralOrderStatus):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -519,11 +519,83 @@ class Admin(tk.Frame):
 
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
-        button3 = tk.Button(self, text="Back to Home",
+        button3 = tk.Button(self, text="Order Status",
+                         command = lambda : self.controller.show_frame("GeneralOrderStatus"))
+
+        button3.grid(row=5, column=2, pady=5, padx=10, sticky="WE")
+        
+
+        button4 = tk.Button(self, text="Back to Home",
                          command=lambda:self.controller.show_frame("Home"))
                             
-        button3.grid(row=7, column=3, pady=5, padx=10)
+        button4.grid(row=7, column=3, pady=5, padx=10)
+        
+class GeneralOrderStatus(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
 
+        self.controller = controller
+        self.batch = tk.StringVar()
+        self.status = tk.StringVar()
+        self.status.set("Delivered")
+        self.message = tk.StringVar()
+
+        label = tk.Label(self, text="Change Order Status")
+        label.grid(row = 1, column = 1, columnspan=3, pady=10)
+
+        label2 = tk.Label(self, text="batchnumber: ")
+        label2.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
+
+        entry = tk.Entry(self, textvariable = self.batch)
+        entry.grid(row = 2, column = 3)
+
+        rb_ordered = tk.Radiobutton(self, text = "Ordered", activebackground = mycolor, selectcolor = 'black')
+        rb_ordered['value'] = "Ordered"
+        rb_ordered['variable'] = self.status
+        rb_ordered['indicatoron'] = 2
+        rb_ordered.grid(row=3, column=1,
+                         sticky='W', padx=8)
+
+        rb_delivery = tk.Radiobutton(self, text = "Delivered", activebackground = mycolor, selectcolor = 'black')
+        rb_delivery['value'] = "Delivered"
+        rb_delivery['variable'] = self.status
+        rb_delivery['indicatoron'] = 2
+        rb_delivery.grid(row=3, column=2,
+                         sticky='W', padx=8)
+
+        rb_stock = tk.Radiobutton(self, text = "Out of Stock", activebackground = mycolor, selectcolor = 'black')
+        rb_stock['value'] = "Out of Stock"
+        rb_stock['variable'] = self.status
+        rb_stock['indicatoron'] = 2
+        rb_stock.grid(row=3, column=3,
+                         sticky='W', padx=8)
+        
+        msg = tk.Message(self, textvariable = self.message, width = 280)
+        msg.grid(row=4, column = 2)
+
+        button1 = tk.Button(self, text = "Confirm",
+                           command = lambda : self.update_status())
+        button1.grid(row = 5, column = 2, pady=5, padx=10)
+
+        button2 = tk.Button(self, text="Back to Home",
+                         command=lambda:self.controller.show_frame("Home"))
+                            
+        button2.grid(row=7, column=3, pady=5, padx=10)
+
+        button3 = tk.Button(self, text = "Back to Admin",
+                            command = lambda : self.controller.show_frame("Admin"))
+        button3.grid(row=7, column=4, pady=5, padx=10)
+
+    def update_status(self):
+        try:
+            batchstatus = TLQ.execute_select_queries("SELECT order_status FROM `batch` \
+                                                     WHERE batch_number = '%s'" % self.batch.get())
+            if batchstatus[0][0] != self.status.get():
+                TUQ.update_row('batch', {'order_status' : self.status.get()}, {'batch_number' : self.batch.get()})
+                self.message.set("Succesfull")
+        except:
+            self.message.set("An Error occured, please try again")
+        
 class Employees(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
