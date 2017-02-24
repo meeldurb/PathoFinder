@@ -189,7 +189,7 @@ class Home(tk.Frame):
         button6.grid(row=4, column=14, pady=5, padx=10, sticky="EW")
 
         button7 = tk.Button(self, text = "Admin",
-                            command = lambda : controller.show_frame("Admin"))
+                            command = lambda : self.popup_password())
         button7.grid(row=4, column=12, pady=5, padx=10, sticky="EW")
         
 
@@ -201,7 +201,45 @@ class Home(tk.Frame):
                             command=lambda : controller.show_frame("Login"))
                             # Close the program
         button9.grid(row=12, column=8, pady=5, padx=10, columnspan=2)
+
+    def popup_password(self):
+        self.win = tk.Toplevel()
+
+        self.password = tk.StringVar()
+        self.var_message = tk.StringVar()
+
+        label = tk.Label(self.win, text = 'Enter password :')
+        label.pack(side = 'top')
+
+        entry = tk.Entry(self.win, textvariable = self.password, show = "*")
+        entry.pack(side = 'top')
+
+        msg = tk.Message(self.win, textvariable = self.var_message, width = 280)
+        msg.pack(side = 'top')
         
+        button1 = tk.Button(self.win, text = 'OK',
+                            command = lambda : self.check_login())
+        button1.pack(side = 'top')
+
+    def check_login(self):
+        username = self.controller.shared_data["username"].get()
+        sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (username, self.password.get())
+        db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
+        cursor = db.cursor()
+        try:
+            cursor.execute(sql)
+            match = cursor.fetchall()
+        except MySQLdb.Error,e:
+            print e[0], e[1]
+            db.rollback()
+        cursor.close()
+        db.close()
+        if len(match) == 0:
+            self.var_message.set("Incorrect Password")
+        else:
+            self.win.destroy()
+            self.controller.show_frame('Admin')
+
 
 class TableViews(tk.Frame):
     def __init__(self, parent, controller):
@@ -606,12 +644,12 @@ class Employees(tk.Frame):
         label.grid(row = 1, column = 1, columnspan=3, pady=10)
 
         button1 = tk.Button(self, text="View", bg=mycolor,
-                            command = lambda : self.popup_password('view'))
+                            command = lambda : TLQ.build_query_and_table("employee"))
         
         button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
 
         button2 = tk.Button(self, text="Add",
-                            command = lambda : self.popup_password('add'))
+                            command = lambda : self.controller.show_frame('AddEmployee'))
 
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
@@ -624,50 +662,7 @@ class Employees(tk.Frame):
                             command = lambda : self.controller.show_frame("Admin"))
         button4.grid(row=7, column=4, pady=5, padx=10)
         
-    
-    def popup_password(self, window):
-        self.win = tk.Toplevel()
-
-        self.password = tk.StringVar()
-        self.var_message = tk.StringVar()
-
-        label = tk.Label(self.win, text = 'Enter password :')
-        label.pack(side = 'top')
-
-        entry = tk.Entry(self.win, textvariable = self.password, show = "*")
-        entry.pack(side = 'top')
-
-        msg = tk.Message(self.win, textvariable = self.var_message, width = 280)
-        msg.pack(side = 'top')
-        
-        button1 = tk.Button(self.win, text = 'OK',
-                            command = lambda : self.check_login(window))
-        button1.pack(side = 'top')
-
-    def check_login(self, window):
-        username = self.controller.shared_data["username"].get()
-        sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (username, self.password.get())
-        db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
-        cursor = db.cursor()
-        try:
-            cursor.execute(sql)
-            match = cursor.fetchall()
-        except MySQLdb.Error,e:
-            print e[0], e[1]
-            db.rollback()
-        cursor.close()
-        db.close()
-        if len(match) == 0:
-            self.var_message.set("Incorrect Password")
-        else:
-            if window == 'view':
-                self.win.destroy()
-                TLQ.build_query_and_table("employee")
-            elif window == 'add':
-                self.win.destroy()
-                self.controller.show_frame('AddEmployee')
-
-                
+                  
 class AddEmployee(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -771,7 +766,7 @@ class OrderBin(tk.Frame):
         button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
 
         button2 = tk.Button(self, text="Empty Order Bin",
-                            command = lambda : self.popup_password())
+                            command = lambda : self.popup())
 
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
@@ -786,7 +781,7 @@ class OrderBin(tk.Frame):
         button5.grid(row=9, column=4, pady=5, padx=10)
         
     
-    def popup_password(self):
+    def popup(self):
         # popup window which ask for password.
         self.win = tk.Toplevel()
 
@@ -796,18 +791,16 @@ class OrderBin(tk.Frame):
         label0 = tk.Label(self.win, text = "Are you sure you want to remove all data from the Order-Bin?")
         label0.pack(side = 'top', pady = 5)
 
-        label = tk.Label(self.win, text = 'Enter password :')
-        label.pack(side = 'top')
-
-        entry = tk.Entry(self.win, textvariable = self.password, show = "*")
-        entry.pack(side = 'top')
-
-        msg = tk.Message(self.win, textvariable = self.var_message, width = 280)
-        msg.pack(side = 'top')
-        
-        button1 = tk.Button(self.win, text = 'Confirm',
+        buttongroup = tk.LabelFrame(self.win)
+        buttongroup.pack(side = 'top')
+      
+        button1 = tk.Button(buttongroup, text = 'Confirm',
                             command = lambda : self.check_and_empty())
-        button1.pack(side = 'top')
+        button1.pack(side = 'left', padx = 5, pady = 10)
+
+        button2 = tk.Button(buttongroup, text = 'Cancel',
+                            command = lambda : self.win.destroy())
+        button2.pack(side = 'left', padx = 5, pady = 10)
 
     def check_and_empty(self):
         username = self.controller.shared_data["username"].get()
