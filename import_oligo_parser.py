@@ -2,8 +2,7 @@
 """
 Author: Melanie van den Bosch
 Script for parsing import oligos into dictionary
-Script "query_functies_as_dictionary.py" puts these inside
-SQL database
+and importing the data into the PF database
 """
 
 import MySQLdb
@@ -13,7 +12,6 @@ import re
 import config as cfg
 from Table_update_queries import *
 from Table_Lookup_queries import execute_select_queries
-import config as cfg
 
  
 def open_importfile(filename):
@@ -100,13 +98,13 @@ def import_to_queue(table, filename):
 
 
 def get_from_orderqueue(queue_ID_list):
-    """ Retrieves information from order_queue table 
+    """ Yields the rows from order_queue table in a tuple
 
     Keyword Arguments:
         queue_ID_list -- numeric list, a list that contains the queue_ID
         of the information that we want to import in the db
     Yields:
-        yields a tuple for every separate queue_ID
+        yields a tuple for every separate queue_ID row in the db
     """
     # open connection
     db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'],
@@ -645,7 +643,7 @@ if __name__ == "__main__":
 ##    dicts = parse_importfile("Importfileoligos_new.csv")
 ##    for i in dicts:
 ##        print(i)
-    import_to_queue("order_queue", "Importfileoligos_new.csv")
+    #import_to_queue("order_queue", "Importfileoligos_new.csv")
     
     #get_from_orderqueue([1,2,3,4,5])
     process_to_db([1,2,3,4,5, 6, 7, 8, 9])
