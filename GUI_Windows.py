@@ -20,6 +20,7 @@ import Table_Lookup_queries as TLQ
 import table_windows as tw
 import Table_update_queries as TUQ
 from import_oligo_parser import new_emp_ID
+from import_oligo_parser import get_date_stamp
 
 
 mycolor = '#%02x%02x%02x' % (0, 182, 195)
@@ -54,7 +55,8 @@ class OligoDatabase(tk.Tk):
             }
 
         for F in (Login, Home, TableViews, OrderStatus, Import, Experiment, ChangePassword,
-                  Experiment, SearchPage, Admin, Employees, AddEmployee, OrderBin, MoveOrders):
+                  Experiment, SearchPage, Admin, Employees, AddEmployee, OrderBin, BinToQueue,
+                  OrderStatus, OrderQueue, Deliveries, OutOfStock, GeneralOrderStatus):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -187,7 +189,7 @@ class Home(tk.Frame):
         button6.grid(row=4, column=14, pady=5, padx=10, sticky="EW")
 
         button7 = tk.Button(self, text = "Admin",
-                            command = lambda : controller.show_frame("Admin"))
+                            command = lambda : self.popup_password())
         button7.grid(row=4, column=12, pady=5, padx=10, sticky="EW")
         
 
@@ -199,7 +201,45 @@ class Home(tk.Frame):
                             command=lambda : controller.show_frame("Login"))
                             # Close the program
         button9.grid(row=12, column=8, pady=5, padx=10, columnspan=2)
+
+    def popup_password(self):
+        self.win = tk.Toplevel()
+
+        self.password = tk.StringVar()
+        self.var_message = tk.StringVar()
+
+        label = tk.Label(self.win, text = 'Enter password :')
+        label.pack(side = 'top')
+
+        entry = tk.Entry(self.win, textvariable = self.password, show = "*")
+        entry.pack(side = 'top')
+
+        msg = tk.Message(self.win, textvariable = self.var_message, width = 280)
+        msg.pack(side = 'top')
         
+        button1 = tk.Button(self.win, text = 'OK',
+                            command = lambda : self.check_login())
+        button1.pack(side = 'top')
+
+    def check_login(self):
+        username = self.controller.shared_data["username"].get()
+        sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (username, self.password.get())
+        db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
+        cursor = db.cursor()
+        try:
+            cursor.execute(sql)
+            match = cursor.fetchall()
+        except MySQLdb.Error,e:
+            print e[0], e[1]
+            db.rollback()
+        cursor.close()
+        db.close()
+        if len(match) == 0:
+            self.var_message.set("Incorrect Password")
+        else:
+            self.win.destroy()
+            self.controller.show_frame('Admin')
+
 
 class TableViews(tk.Frame):
     def __init__(self, parent, controller):
@@ -517,11 +557,83 @@ class Admin(tk.Frame):
 
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
-        button3 = tk.Button(self, text="Back to Home",
+        button3 = tk.Button(self, text="Order Status",
+                         command = lambda : self.controller.show_frame("GeneralOrderStatus"))
+
+        button3.grid(row=5, column=2, pady=5, padx=10, sticky="WE")
+        
+
+        button4 = tk.Button(self, text="Back to Home",
                          command=lambda:self.controller.show_frame("Home"))
                             
-        button3.grid(row=7, column=3, pady=5, padx=10)
+        button4.grid(row=7, column=3, pady=5, padx=10)
+        
+class GeneralOrderStatus(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
 
+        self.controller = controller
+        self.batch = tk.StringVar()
+        self.status = tk.StringVar()
+        self.status.set("Delivered")
+        self.message = tk.StringVar()
+
+        label = tk.Label(self, text="Change Order Status")
+        label.grid(row = 1, column = 1, columnspan=3, pady=10)
+
+        label2 = tk.Label(self, text="batchnumber: ")
+        label2.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
+
+        entry = tk.Entry(self, textvariable = self.batch)
+        entry.grid(row = 2, column = 3)
+
+        rb_ordered = tk.Radiobutton(self, text = "Ordered", activebackground = mycolor, selectcolor = 'black')
+        rb_ordered['value'] = "Ordered"
+        rb_ordered['variable'] = self.status
+        rb_ordered['indicatoron'] = 2
+        rb_ordered.grid(row=3, column=1,
+                         sticky='W', padx=8)
+
+        rb_delivery = tk.Radiobutton(self, text = "Delivered", activebackground = mycolor, selectcolor = 'black')
+        rb_delivery['value'] = "Delivered"
+        rb_delivery['variable'] = self.status
+        rb_delivery['indicatoron'] = 2
+        rb_delivery.grid(row=3, column=2,
+                         sticky='W', padx=8)
+
+        rb_stock = tk.Radiobutton(self, text = "Out of Stock", activebackground = mycolor, selectcolor = 'black')
+        rb_stock['value'] = "Out of Stock"
+        rb_stock['variable'] = self.status
+        rb_stock['indicatoron'] = 2
+        rb_stock.grid(row=3, column=3,
+                         sticky='W', padx=8)
+        
+        msg = tk.Message(self, textvariable = self.message, width = 280)
+        msg.grid(row=4, column = 2)
+
+        button1 = tk.Button(self, text = "Confirm",
+                           command = lambda : self.update_status())
+        button1.grid(row = 5, column = 2, pady=5, padx=10)
+
+        button2 = tk.Button(self, text="Back to Home",
+                         command=lambda:self.controller.show_frame("Home"))
+                            
+        button2.grid(row=7, column=3, pady=5, padx=10)
+
+        button3 = tk.Button(self, text = "Back to Admin",
+                            command = lambda : self.controller.show_frame("Admin"))
+        button3.grid(row=7, column=4, pady=5, padx=10)
+
+    def update_status(self):
+        try:
+            batchstatus = TLQ.execute_select_queries("SELECT order_status FROM `batch` \
+                                                     WHERE batch_number = '%s'" % self.batch.get())
+            if batchstatus[0][0] != self.status.get():
+                TUQ.update_row('batch', {'order_status' : self.status.get()}, {'batch_number' : self.batch.get()})
+                self.message.set("Succesfull")
+        except:
+            self.message.set("An Error occured, please try again")
+        
 class Employees(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -532,12 +644,12 @@ class Employees(tk.Frame):
         label.grid(row = 1, column = 1, columnspan=3, pady=10)
 
         button1 = tk.Button(self, text="View", bg=mycolor,
-                            command = lambda : self.popup_password('view'))
+                            command = lambda : TLQ.build_query_and_table("employee"))
         
         button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
 
         button2 = tk.Button(self, text="Add",
-                            command = lambda : self.popup_password('add'))
+                            command = lambda : self.controller.show_frame('AddEmployee'))
 
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
@@ -550,50 +662,7 @@ class Employees(tk.Frame):
                             command = lambda : self.controller.show_frame("Admin"))
         button4.grid(row=7, column=4, pady=5, padx=10)
         
-    
-    def popup_password(self, window):
-        self.win = tk.Toplevel()
-
-        self.password = tk.StringVar()
-        self.var_message = tk.StringVar()
-
-        label = tk.Label(self.win, text = 'Enter password :')
-        label.pack(side = 'top')
-
-        entry = tk.Entry(self.win, textvariable = self.password, show = "*")
-        entry.pack(side = 'top')
-
-        msg = tk.Message(self.win, textvariable = self.var_message)
-        msg.pack(side = 'top')
-        
-        button1 = tk.Button(self.win, text = 'OK',
-                            command = lambda : self.check_login(window))
-        button1.pack(side = 'top')
-
-    def check_login(self, window):
-        username = self.controller.shared_data["username"].get()
-        sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (username, self.password.get())
-        db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
-        cursor = db.cursor()
-        try:
-            cursor.execute(sql)
-            match = cursor.fetchall()
-        except MySQLdb.Error,e:
-            print e[0], e[1]
-            db.rollback()
-        cursor.close()
-        db.close()
-        if len(match) == 0:
-            self.var_message.set("Incorrect Password")
-        else:
-            if window == 'view':
-                self.win.destroy()
-                TLQ.build_query_and_table("employee")
-            elif window == 'add':
-                self.win.destroy()
-                self.controller.show_frame('AddEmployee')
-
-                
+                  
 class AddEmployee(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -697,14 +766,10 @@ class OrderBin(tk.Frame):
         button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
 
         button2 = tk.Button(self, text="Empty Order Bin",
-                            command = lambda : self.popup_password())
+                            command = lambda : self.popup())
 
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
-        button3 = tk.Button(self, text="Move back to Oligos Queue",
-                            command = lambda : self.controller.show_frame("MoveOrders"))
-
-        button3.grid(row=6, column=2, pady=5, padx=10, sticky="WE")
 
         button4 = tk.Button(self, text="Back to Home",
                          command=lambda:self.controller.show_frame("Home"))
@@ -712,11 +777,11 @@ class OrderBin(tk.Frame):
         button4.grid(row=9, column=3, pady=5, padx=10)
 
         button5 = tk.Button(self, text = "Back to Admin",
-                            command = lambda : self.controllor.show_frame("Admin"))
-        button5.grid(row=7, column=4, pady=5, padx=10)
+                            command = lambda : self.controller.show_frame("Admin"))
+        button5.grid(row=9, column=4, pady=5, padx=10)
         
     
-    def popup_password(self):
+    def popup(self):
         # popup window which ask for password.
         self.win = tk.Toplevel()
 
@@ -726,18 +791,16 @@ class OrderBin(tk.Frame):
         label0 = tk.Label(self.win, text = "Are you sure you want to remove all data from the Order-Bin?")
         label0.pack(side = 'top', pady = 5)
 
-        label = tk.Label(self.win, text = 'Enter password :')
-        label.pack(side = 'top')
-
-        entry = tk.Entry(self.win, textvariable = self.password, show = "*")
-        entry.pack(side = 'top')
-
-        msg = tk.Message(self.win, textvariable = self.var_message)
-        msg.pack(side = 'top')
-        
-        button1 = tk.Button(self.win, text = 'Confirm',
+        buttongroup = tk.LabelFrame(self.win)
+        buttongroup.pack(side = 'top')
+      
+        button1 = tk.Button(buttongroup, text = 'Confirm',
                             command = lambda : self.check_and_empty())
-        button1.pack(side = 'top')
+        button1.pack(side = 'left', padx = 5, pady = 10)
+
+        button2 = tk.Button(buttongroup, text = 'Cancel',
+                            command = lambda : self.win.destroy())
+        button2.pack(side = 'left', padx = 5, pady = 10)
 
     def check_and_empty(self):
         username = self.controller.shared_data["username"].get()
@@ -758,7 +821,7 @@ class OrderBin(tk.Frame):
             self.win.destroy()
             TUQ.empty_bin()
             
-class MoveOrders(tk.Frame):
+class BinToQueue(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         
@@ -776,12 +839,23 @@ class MoveOrders(tk.Frame):
         self.Text = tk.Text(self, width = 30, height = 10)
         self.Text.pack(side = 'top', pady = 5)
 
-        message = tk.Message(self, textvariable = self.message, width = 50)
+        message = tk.Message(self, textvariable = self.message, width = 280)
         message.pack(side = 'top')
 
         button = tk.Button(self, text = 'Move order(s)')
         button['command'] = lambda : self.move()
-        button.pack(side = 'top')
+        button.pack(side = 'top', pady = 10)
+
+        buttongroup = tk.LabelFrame(self)
+        buttongroup.pack(side = 'top')
+        
+        button2 = tk.Button(buttongroup, text = 'Back to Home',
+                            command = lambda : self.controller.show_frame("Home"))
+        button2.pack(side = 'left', pady=5, padx = 5)
+
+        button3 = tk.Button(buttongroup, text = 'Back to Order Queue',
+                             command = lambda : self.controller.show_frame("OrderQueue"))
+        button3.pack(side = 'left', pady=5, padx = 5)
 
 
     def move(self):
@@ -791,6 +865,244 @@ class MoveOrders(tk.Frame):
             TUQ.move_row(id_, 'order_bin', 'order_queue')
         self.message.set('completed computation')
 
+
+    def gettext(self):
+        text = self.Text.get(1.0, tk.END)
+        if text is not None:
+            text = text.strip()
+        if  text == "":
+            text = None
+        return text
+
+class QueueToBin(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        
+        self.controller = controller
+        self.Text = None
+        self.message = tk.StringVar()
+
+        label = tk.Label(self, text="Move from Queue to Bin")
+        label.pack(side = 'top', pady=10)
+
+
+        label1 = tk.Label(self, text="Enter the ID('s) : ")
+        label1.pack(side = 'top', pady=5)
+
+        self.Text = tk.Text(self, width = 30, height = 10)
+        self.Text.pack(side = 'top', pady = 5)
+
+        message = tk.Message(self, textvariable = self.message, width = 280)
+        message.pack(side = 'top')
+
+        button = tk.Button(self, text = 'Move order(s)')
+        button['command'] = lambda : self.move()
+        button.pack(side = 'top', pady = 10)
+
+        buttongroup = tk.LabelFrame(self)
+        buttongroup.pack(side = 'top')
+        
+        button2 = tk.Button(buttongroup, text = 'Back to Home',
+                            command = lambda : self.controller.show_frame("Home"))
+        button2.pack(side = 'left', pady=5, padx = 5)
+
+        button3 = tk.Button(buttongroup, text = 'Back to Order Queue',
+                             command = lambda : self.controller.show_frame("OrderQueue"))
+        button3.pack(side = 'left', pady=5, padx = 5)
+
+
+    def move(self):
+        text = self.gettext()
+        text = text.split()
+        for id_ in text:
+            TUQ.move_row(id_, 'order_queue', 'order_bin')
+        self.message.set('completed computation')
+
+
+    def gettext(self):
+        text = self.Text.get(1.0, tk.END)
+        if text is not None:
+            text = text.strip()
+        if  text == "":
+            text = None
+        return text
+
+class OrderStatus(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        
+        self.controller = controller
+
+        label = tk.Label(self, text="Order Status")
+        label.grid(row = 1, column = 1, columnspan=3, pady=10)
+
+        button1 = tk.Button(self, text="Order Queue", bg=mycolor,
+                            command = lambda : self.controller.show_frame("OrderQueue"))
+        
+        button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
+
+        button2 = tk.Button(self, text="Deliveries",
+                            command = lambda : self.controller.show_frame("Deliveries"))
+
+        button2.grid(row=3, column=2, pady=5, padx=10, sticky="WE")
+
+        button3 = tk.Button(self, text="Out of Stock",
+                            command = lambda : self.controller.show_frame("OutOfStock"))
+        
+        button3.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
+
+        button4 = tk.Button(self, text="Back to Home",
+                         command=lambda:self.controller.show_frame("Home"))
+                            
+        button4.grid(row=9, column=3, pady=5, padx=10)
+
+
+class OrderQueue(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        
+        self.controller = controller
+
+        label = tk.Label(self, text="Order Queue")
+        label.grid(row = 1, column = 1, columnspan=3, pady=10)
+
+        button1 = tk.Button(self, text="View Queue", bg=mycolor,
+                            command = lambda : TLQ.build_query_and_table('order_queue'))
+        
+        button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
+
+        button2 = tk.Button(self, text="View Bin",
+                            command = lambda : TLQ.build_query_and_table('order_bin'))
+
+        button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
+
+        button3 = tk.Button(self, text="Move to Bin",
+                            command = lambda : self.controller.show_frame("QueueToBin"))
+        button3.grid(row=2, column=3, pady=5, padx=10, sticky="WE")
+
+        button4 = tk.Button(self, text="Move to Queue",
+                            command = lambda : self.controller.show_frame("BinToQueue"))
+        button4.grid(row=4, column=3, pady=5, padx=10, sticky="WE")
+
+        button5 = tk.Button(self, text="Process Queue")
+        button5.grid(row=6, column=2, pady=5, padx=10, sticky="WE")
+
+        button6 = tk.Button(self, text="Back to Home",
+                         command=lambda:self.controller.show_frame("Home"))
+                            
+        button6.grid(row=9, column=4, pady=5, padx=10)
+
+        button7 = tk.Button(self, text="Back to Order Status",
+                         command=lambda:self.controller.show_frame("OrderStatus"))
+                            
+        button7.grid(row=9, column=5, pady=5, padx=10)
+
+class Deliveries(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        
+        self.controller = controller
+        self.batch = tk.StringVar()
+        self.synth = tk.StringVar()
+        self.message = tk.StringVar()
+
+        label = tk.Label(self, text="Enter new Delivery")
+        label.grid(row = 0, column = 2, pady=10)
+
+
+        label1 = tk.Label(self, text="Enter the Batchnumber('s) : ")
+        label1.grid(row = 1, column = 1, pady=5)
+
+        batchlabel = tk.Label(self, text = "Batchnumber: ")
+        batchlabel.grid(row = 3, column = 1, pady = 5)
+
+        batchentry = tk.Entry(self, textvariable = self.batch)
+        batchentry.grid(row = 3, column = 2, pady = 5)
+
+        synthlabel = tk.Label(self, text = "Synthesis level: ")
+        synthlabel.grid(row = 4, column = 1, pady = 5)
+        
+        synthentry = tk.Entry(self, textvariable = self.synth)
+        synthentry.grid(row = 4, column = 2, pady = 5)
+        
+        message = tk.Message(self, textvariable = self.message, width = 280)
+        message.grid(row = 5, column = 1, columnspan = 4)
+
+        button = tk.Button(self, text = 'Confirm Delivery')
+        button['command'] = lambda : self.update_status()
+        button.grid(row = 6, column = 2, pady = 10)
+
+        buttongroup = tk.LabelFrame(self)
+        buttongroup.grid(row = 7, column = 2)
+        
+        button2 = tk.Button(buttongroup, text = 'Back to Home',
+                            command = lambda : self.controller.show_frame("Home"))
+        button2.pack(side = 'left', pady=5, padx = 5)
+
+        button3 = tk.Button(buttongroup, text = 'Back to Order Status',
+                             command = lambda : self.controller.show_frame("OrderStatus"))
+        button3.pack(side = 'left', pady=5, padx = 5)
+
+
+    def update_status(self):
+        try:
+            batchstatus = TLQ.execute_select_queries("SELECT order_status FROM `batch` \
+                                                     WHERE batch_number = '%s'" % self.batch.get())
+            if batchstatus[0][0] == 'Ordered':
+                TUQ.update_row('batch', {'synthesis_level_delivered' : self.synth.get(), 'order_status' : 'Delivered',
+                                     'delivery_date' : get_date_stamp()}, {'batch_number' : self.batch.get()})
+                self.message.set("Succesfull")
+        except:
+            self.message.set("An Error occured, please try again")
+
+class OutOfStock(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        
+        self.controller = controller
+        self.Text = None
+        self.message = tk.StringVar()
+
+        label = tk.Label(self, text="Set batches to be 'Out of Stock'")
+        label.pack(side = 'top', pady=10)
+
+
+        label1 = tk.Label(self, text="Enter the batchnumber('s) : ")
+        label1.pack(side = 'top', pady=5)
+
+        self.Text = tk.Text(self, width = 30, height = 10)
+        self.Text.pack(side = 'top', pady = 5)
+
+        message = tk.Message(self, textvariable = self.message, width = 280)
+        message.pack(side = 'top')
+
+        button = tk.Button(self, text = 'Confirm')
+        button['command'] = lambda : self.update_status()
+        button.pack(side = 'top', pady = 10)
+
+        buttongroup = tk.LabelFrame(self)
+        buttongroup.pack(side = 'top')
+        
+        button2 = tk.Button(buttongroup, text = 'Back to Home',
+                            command = lambda : self.controller.show_frame("Home"))
+        button2.pack(side = 'left', pady=5, padx = 5)
+
+        button3 = tk.Button(buttongroup, text = 'Back to Order Queue',
+                             command = lambda : self.controller.show_frame("OrderQueue"))
+        button3.pack(side = 'left', pady=5, padx = 5)
+      
+    def update_status(self):
+        try:
+            text = self.gettext()
+            text = text.split()
+            for batch in text:
+                batchstatus = TLQ.execute_select_queries("SELECT order_status FROM `batch` \
+                                                     WHERE batch_number = '%s'" % batch)
+                if batchstatus[0][0] == 'Delivered':
+                    TUQ.update_row('batch', {'order_status' : 'Out of Stock'}, {'batch_number' : batch})
+                    self.message.set("Succesfull")
+        except:
+            self.message.set("An Error occured, please try again")
 
     def gettext(self):
         text = self.Text.get(1.0, tk.END)
