@@ -58,7 +58,8 @@ class OligoDatabase(tk.Tk):
 
         for F in (Login, Home, TableViews, OrderStatus, Import, Experiment, ChangePassword,
                   Experiment, SearchPage, Admin, Employees, AddEmployee, OrderBin, BinToQueue,
-                  OrderStatus, OrderQueue, Deliveries, OutOfStock, GeneralOrderStatus):
+                  OrderStatus, OrderQueue, Deliveries, OutOfStock, GeneralOrderStatus, RemoveUser,
+                  AdminRights):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -239,16 +240,18 @@ class Home(tk.Frame):
                     db.rollback()
                 cursor.close()
                 db.close()
+                if match != None:
+                    admin = False   # initialize
+                    for elem in match:     # could be more than one returns in the tuple!
+                        if "WITH GRANT OPTION" in elem[0]:
+                            admin = True
 
-                admin = False   # initialize
-                for elem in match:     # could be more than one returns in the tuple!
-                    if "WITH GRANT OPTION" in elem[0]:
-                        admin = True
-
-                # Execute when admin is true, otherwise give error
-                if admin == True:
-                    self.win.destroy()
-                    self.controller.show_frame('Admin')
+                    # Execute when admin is true, otherwise give error
+                    if admin == True:
+                        self.win.destroy()
+                        self.controller.show_frame('Admin')
+                    else:
+                        self.var_message.set("You are not authorized")
                 else:
                     self.var_message.set("You are not authorized")
 
@@ -679,14 +682,25 @@ class Employees(tk.Frame):
 
         button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
 
-        button3 = tk.Button(self, text="Back to Home",
+        button3 = tk.Button(self, text="Admin Rights",
+                            command = lambda : self.controller.show_frame('AdminRights'))
+
+        button3.grid(row=6, column=2, pady=5, padx=10, sticky="WE")
+
+
+        button4 = tk.Button(self, text="Remove User",
+                            command = lambda : self.controller.show_frame('RemoveUser'))
+
+        button4.grid(row=8, column=2, pady=5, padx=10, sticky="WE")
+
+        button5 = tk.Button(self, text="Back to Home",
                          command=lambda:self.controller.show_frame("Home"))
                             
-        button3.grid(row=7, column=3, pady=5, padx=10)
+        button5.grid(row=10, column=3, pady=5, padx=10)
 
-        button4 = tk.Button(self, text = "Back to Admin",
+        button6 = tk.Button(self, text = "Back to Admin",
                             command = lambda : self.controller.show_frame("Admin"))
-        button4.grid(row=7, column=4, pady=5, padx=10)
+        button6.grid(row=10, column=4, pady=5, padx=10)
         
                   
 class AddEmployee(tk.Frame):
@@ -796,7 +810,182 @@ class AddEmployee(tk.Frame):
                     cursor.close()
                     db.close() #disconnect from server
                 
+class RemoveUser(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
 
+        #save a reference to controller in each page:
+        self.controller = controller
+        self.username = tk.StringVar()
+        self.var_message = tk.StringVar()
+        
+        label = tk.Label(self, text="Remove User")
+        label.grid(row = 1, column = 1, columnspan=8, pady=10)
+
+        labeluser = tk.Label(self, text = 'Username: ')
+        labeluser.grid(row = 3, column = 4, pady=10)
+
+        username = tk.Entry(self)
+        username['textvariable'] = self.username
+        username.grid(row = 3, column = 6, columnspan = 4, pady = 10)
+
+        # Message
+        msg = tk.Message(self, width=280)
+        msg['textvariable'] = self.var_message
+        msg.grid(row=7, column=2, columnspan=4, pady = 10)
+
+        # Button
+        confirm = tk.Button(self, text = "Remove")
+        confirm['command'] = lambda: self.popup()
+        confirm.grid(row = 8, column = 4, pady = 10)
+
+
+        button2 = tk.Button(self, text="Back to Home",
+                         command=lambda:controller.show_frame("Home"))
+        button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
+
+
+    def popup(self):
+        """ A popup window which asks to confirm action"""
+        
+        self.win = tk.Toplevel()
+
+        self.password = tk.StringVar()
+        self.var_message = tk.StringVar()
+
+        label0 = tk.Label(self.win, text = ("Are you sure you want to remove '%s' ?" % self.username.get()))
+        label0.pack(side = 'top', pady = 5)
+
+        buttongroup = tk.LabelFrame(self.win)
+        buttongroup.pack(side = 'top')
+      
+        button1 = tk.Button(buttongroup, text = 'Confirm',
+                            command = lambda : self.remove())
+        button1.pack(side = 'left', padx = 5, pady = 10)
+
+        button2 = tk.Button(buttongroup, text = 'Cancel',
+                            command = lambda : self.win.destroy())
+        button2.pack(side = 'left', padx = 5, pady = 10)
+
+    def remove(self):
+        """Removes a User/employee login specifications, but not from the employee_table! """
+    
+        db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
+                             self.controller.shared_data["password"].get(), cfg.mysql['database']) # open connection
+        cursor = db.cursor() # prepare a cursor object
+
+        # Make a sql for creation of new user
+        drop_user_sql = "DROP USER %s@%s" % (self.username.get(), cfg.mysql['hostadress'])
+        remove_password = TUQ.make_update_row('Employee', { 'password' : "" },
+                                                       {'emp_name' : self.username.get()})
+        try:
+            cursor.execute(drop_user_sql)
+            cursor.execute(remove_password)
+            db.commit()
+            cursor.close()
+            db.close()
+            self.var_message.set("%s Removed" % self.username.get())
+            self.win.destroy()
+            
+        except MySQLdb.Error,e:# Rollback in case there is any error
+            db.rollback()
+            raise ValueError(e[0], e[1])
+            cursor.close()
+            db.close() #disconnect from server
+
+class AdminRights(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+        self.username = tk.StringVar()
+        self.var_message = tk.StringVar()
+        
+        label = tk.Label(self, text="Give or Revoke Admin Rights")
+        label.grid(row = 1, column = 1, columnspan=8, pady=10)
+
+        labeluser = tk.Label(self, text = 'Username: ')
+        labeluser.grid(row = 3, column = 4, pady=10)
+
+        username = tk.Entry(self)
+        username['textvariable'] = self.username
+        username.grid(row = 3, column = 6, columnspan = 4, pady = 10)
+
+        # Message
+        msg = tk.Message(self, width=280)
+        msg['textvariable'] = self.var_message
+        msg.grid(row=7, column=2, columnspan=4, pady = 10)
+
+        # Button
+        give = tk.Button(self, text = "Give Rights")
+        give['command'] = lambda: self.giverights()
+        give.grid(row = 8, column = 4, pady = 10)
+
+
+        revoke = tk.Button(self, text = "Revoke Rights")
+        revoke['command'] = lambda: self.revokerights()
+        revoke.grid(row = 8, column = 6, pady = 10)
+
+
+        button2 = tk.Button(self, text="Back to Home",
+                         command=lambda:controller.show_frame("Home"))
+        button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
+
+    def revokerights(self):
+        """Removes the Admin rights of a user, and gives standard rights"""
+
+        db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
+                             self.controller.shared_data["password"].get(), cfg.mysql['database']) # open connection
+        cursor = db.cursor() # prepare a cursor object
+
+        # Make a sql to revoke all
+        revoke_sql = "REVOKE ALL, GRANT OPTION FROM %s@%s" % (self.username.get(),
+                                                              cfg.mysql['hostadress'])
+
+        # Make sql to grant the other rights again
+        grant_sql = "Grant select, insert, update, delete on %s.* to %s@%s" %(cfg.mysql['database'],
+                                                                              self.username.get(), cfg.mysql['hostadress'])
+
+        try:
+            cursor.execute(revoke_sql)
+            cursor.execute(grant_sql)
+            cursor.execute("FLUSH PRIVILEGES")
+            db.commit()
+            cursor.close()
+            db.close()
+            self.var_message.set("Revoked Admin Rights of %s" % self.username.get())
+        except MySQLdb.Error,e:# Rollback in case there is any error
+            db.rollback()
+            raise ValueError(e[0], e[1])
+            cursor.close()
+            db.close() #disconnect from server
+
+    def giverights(self):
+        """Replaces standard rights with Admin Rights"""
+
+        db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
+                             self.controller.shared_data["password"].get(), cfg.mysql['database']) # open connection
+        cursor = db.cursor() # prepare a cursor object
+
+        # Make sql to grant the admin rights 
+        grant_sql = "GRANT select, insert, reload, update, delete on *.* to %s@%s WITH GRANT OPTION" %(self.username.get(),
+                                                                                               cfg.mysql['hostadress'])
+
+        try:
+            cursor.execute(grant_sql)
+            cursor.execute("FLUSH PRIVILEGES")
+            db.commit()
+            cursor.close()
+            db.close()
+            self.var_message.set("Granted Admin Rights to %s" % self.username.get())
+        except MySQLdb.Error,e:# Rollback in case there is any error
+            db.rollback()
+            raise ValueError(e[0], e[1])
+            cursor.close()
+            db.close() #disconnect from server
+
+            
 class OrderBin(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -828,7 +1017,6 @@ class OrderBin(tk.Frame):
         
     
     def popup(self):
-        # popup window which ask for password.
         self.win = tk.Toplevel()
 
         self.password = tk.StringVar()
