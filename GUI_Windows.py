@@ -21,6 +21,7 @@ import table_windows as tw
 import Table_update_queries as TUQ
 from import_oligo_parser import new_emp_ID
 from import_oligo_parser import get_date_stamp
+import users
 
 
 mycolor = '#%02x%02x%02x' % (0, 182, 195)
@@ -50,6 +51,7 @@ class OligoDatabase(tk.Tk):
         # Make a dictionary with variables which can be accessed from all the classes
         self.shared_data = {
             "username" : tk.StringVar(),
+            'password' : tk.StringVar(),
             "table" : tk.StringVar(),
             "search" : tk.StringVar()
             }
@@ -94,6 +96,8 @@ class Login(tk.Frame):
         self.controller = controller
         self.password = tk.StringVar()
         self.var_message = tk.StringVar()
+        self.username = tk.StringVar()
+        self.password = tk.StringVar()
 
         label = tk.Label(self, text="Login")
         label.grid(columnspan=8, pady=10)
@@ -104,7 +108,7 @@ class Login(tk.Frame):
         user_label.grid(row = 1, column = 1, pady = 5)
         
         user = tk.Entry(self)
-        user['textvariable'] = self.controller.shared_data["username"]
+        user['textvariable'] = self.username
         user.grid(row = 1, column = 2, columnspan = 4, pady = 5)
 
         # password
@@ -127,22 +131,14 @@ class Login(tk.Frame):
 
     def check_login(self):
         """Check whether Login details are valid, in order to continute"""
-        username = self.controller.shared_data["username"].get()
-        sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (username, self.password.get())
-        db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
-        cursor = db.cursor()
+        self.controller.shared_data["username"].set(self.username.get())
+        self.controller.shared_data["password"].set(self.password.get())
         try:
-            cursor.execute(sql)
-            match = cursor.fetchall()
-        except MySQLdb.Error,e:
-            print e[0], e[1]
-            db.rollback()
-        cursor.close()
-        db.close()
-        if len(match) == 0:
-            self.var_message.set("Invalid username or password")
-        else:
+            db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(), self.controller.shared_data["password"].get(), cfg.mysql['database'])
+            db.close()
             self.controller.show_frame("Home")
+        except:
+            self.var_message.set("Invalid username or password")
 
             
 class Home(tk.Frame):
@@ -218,27 +214,43 @@ class Home(tk.Frame):
         msg.pack(side = 'top')
         
         button1 = tk.Button(self.win, text = 'OK',
-                            command = lambda : self.check_login())
+                            command = lambda : self.check_admin())
         button1.pack(side = 'top')
 
-    def check_login(self):
-        username = self.controller.shared_data["username"].get()
-        sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (username, self.password.get())
-        db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
-        cursor = db.cursor()
-        try:
-            cursor.execute(sql)
-            match = cursor.fetchall()
-        except MySQLdb.Error,e:
-            print e[0], e[1]
-            db.rollback()
-        cursor.close()
-        db.close()
-        if len(match) == 0:
-            self.var_message.set("Incorrect Password")
-        else:
-            self.win.destroy()
-            self.controller.show_frame('Admin')
+    def check_admin(self):
+        if self.password.get() != self.controller.shared_data["password"].get():
+            self.var_message.set("You are not the current user, please Login using your own credentials")
+        else: 
+            sql = "SHOW GRANTS FOR %s@%s" % (self.controller.shared_data["username"].get(), cfg.mysql['hostadress'])
+            # Try to open connection, won't work if password is incorrect
+            try:
+                db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(), self.controller.shared_data["password"].get(), cfg.mysql['database'])
+            except:
+                self.var_message.set("Incorrect Password")
+
+            if self.var_message.get() != "Incorrect Password": # so connection succesfully established
+
+                cursor = db.cursor()
+                try:
+                    cursor.execute(sql)
+                    match = cursor.fetchall()
+                except MySQLdb.Error,e:
+                    print e[0], e[1]
+                    db.rollback()
+                cursor.close()
+                db.close()
+
+                admin = False   # initialize
+                for elem in match:     # could be more than one returns in the tuple!
+                    if "WITH GRANT OPTION" in elem[0]:
+                        admin = True
+
+                # Execute when admin is true, otherwise give error
+                if admin == True:
+                    self.win.destroy()
+                    self.controller.show_frame('Admin')
+                else:
+                    self.var_message.set("You are not authorized")
 
 
 class TableViews(tk.Frame):
@@ -408,27 +420,41 @@ class ChangePassword(tk.Frame):
         # check new and repeat new are equel
        
         if self.npassword.get() != self.rnpassword.get():
-            self.var_message.set("New password is not entered correctly")
+            self.var_message.set("New passwords are not entered correctly")
         else:
-            # check whether current password is correct       
-            sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (self.controller.shared_data["username"].get(), self.cpassword.get())
-            db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
-            cursor = db.cursor()
+            # check whether entered current password is correct       
             try:
-                cursor.execute(sql)
-                match = cursor.fetchall()
-            except MySQLdb.Error,e:
-                print e[0], e[1]
-                db.rollback()
-            cursor.close()
-            db.close()
-            if len(match) == 0:
-                self.var_message.set("Invalid password")
-            else:
-                # execute update of password
-                TUQ.update_row('Employee', { 'password' : self.npassword.get()}, {'emp_name' : self.controller.shared_data["username"].get()})
-                self.var_message.set("Password Changed Succesfully")
-                
+                db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
+                                     self.controller.shared_data["password"].get(),
+                                     cfg.mysql['database']) # open connection
+            except:
+                self.var_message.set("Current Password not correct")
+            if self.var_message.get() != "Current Password not correct":
+
+                cursor = db.cursor()
+
+                # Retrieve query to alter employee table
+                update_table_sql = TUQ.make_update_row('Employee', { 'password' : self.npassword.get()},
+                                                       {'emp_name' : self.controller.shared_data["username"].get()})
+
+                # Make a sql to change password
+                alter_pass_sql = "ALTER USER %s@%s IDENTIFIED BY '%s';" % (self.controller.shared_data["username"].get(),
+                                                                           cfg.mysql['hostadress'], self.npassword.get())
+
+                # Execute
+                try:
+                    cursor.execute(update_table_sql)
+                    cursor.execute(alter_pass_sql)
+                    db.commit()
+                    cursor.close()
+                    db.close()
+                    self.controller.shared_data["password"].set(self.npassword.get()) # Set new password into the programm
+                    self.var_message.set("Password Changed Succesfully")
+                except MySQLdb.Error,e:# Rollback in case there is any error
+                    db.rollback()
+                    raise ValueError(e[0], e[1])
+                    cursor.close()
+                    db.close() #disconnect from server
                 
 # Stand-alone search window
 class SearchPage(tk.Frame):
@@ -687,7 +713,7 @@ class AddEmployee(tk.Frame):
         username.grid(row = 3, column = 4, columnspan = 4, pady = 10)
 
         # new password
-        npwlabel = tk.Label(self, text = "New Password: ")
+        npwlabel = tk.Label(self, text = "Password: ")
         npwlabel.grid(row = 4, column = 2, pady=10)
 
         npw = tk.Entry(self, show = "*")
@@ -695,7 +721,7 @@ class AddEmployee(tk.Frame):
         npw.grid(row = 4, column = 4, columnspan = 4, pady = 10)
 
         # repeat password
-        rnlabel = tk.Label(self, text = "Repeat New Password: ")
+        rnlabel = tk.Label(self, text = "Repeat Password: ")
         rnlabel.grid(row = 5, column = 2, pady=10)
 
         rnpw = tk.Entry(self, show = "*")
@@ -723,33 +749,53 @@ class AddEmployee(tk.Frame):
 
     def insert_user(self):
         """Inserts a new employee"""
+        
         # check new and repeat new are equel
         
         if self.npassword.get() != self.rnpassword.get():
-            self.var_message.set("New password is not entered correctly")
+            self.var_message.set("Passwords are not entered correctly")
         else:
             # remove trailing or leading spaces
             username = self.username.get()
             username.strip()
             # check whether they contain something
-            if self.username.get() == "" or self.npassword.get() == "":
+            if username == "" or self.npassword.get() == "":
                 self.var_message.set("Invalid username or password")
-            # check whether current password is correct       
-            sql = "SELECT emp_name FROM `employee` WHERE emp_name = '%s'" % (username)
-            db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
-            cursor = db.cursor()
-            try:
-                cursor.execute(sql)
-                match = cursor.fetchall()
-            except MySQLdb.Error,e:
-                print e[0], e[1]
-                db.rollback()
-            cursor.close()
-            db.close()
-            if len(match) == 0:
-                # execute update of password
-                TUQ.insert_row('Employee', {'employee_ID' : new_emp_ID('employee'), 'emp_name' : username, 'password' : self.npassword.get()})
-                self.var_message.set("Succesfully added the new Employee")
+            else:
+
+                db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
+                                     self.controller.shared_data["password"].get(),
+                                     cfg.mysql['database']) # open connection
+                
+                cursor = db.cursor() # prepare a cursor object
+
+                # Make a sql for creation of new user
+                create_user_sql = "CREATE USER %s@%s IDENTIFIED BY '%s'" % (username, cfg.mysql['hostadress'], self.npassword.get())
+
+                # Make sql to grant rights/privileges to new user
+                if self.adminvalid.get() == 1:
+                    grant_sql = "Grant select, insert, reload, update, delete on *.* to %s@%s WITH GRANT OPTION" %(username, cfg.mysql['hostadress'])
+                elif self.adminvalid.get() == 0:
+                    grant_sql = "Grant select, insert, update, delete on %s.* to %s@%s" % (cfg.mysql['database'], username, cfg.mysql['hostadress'])
+
+                # Make sql to add user to employee table
+                insert_user_sql = TUQ.make_insert_row('Employee', {'employee_ID' : new_emp_ID('employee'), 'emp_name' : username, 'password' : self.npassword.get()})
+
+                try:
+                    cursor.execute(create_user_sql)
+                    cursor.execute(grant_sql)
+                    cursor.execute("FLUSH PRIVILEGES") # Refresh/save priviliges
+                    cursor.execute(insert_user_sql)
+                    db.commit()
+                    cursor.close()
+                    db.close()
+                    self.var_message.set("Succesfully added %s" % self.username.get() )
+                except MySQLdb.Error,e:# Rollback in case there is any error
+                    db.rollback()
+                    raise ValueError(e[0], e[1])
+                    cursor.close()
+                    db.close() #disconnect from server
+                
 
 class OrderBin(tk.Frame):
     def __init__(self, parent, controller):
@@ -795,31 +841,18 @@ class OrderBin(tk.Frame):
         buttongroup.pack(side = 'top')
       
         button1 = tk.Button(buttongroup, text = 'Confirm',
-                            command = lambda : self.check_and_empty())
+                            command = lambda : self.empty())
         button1.pack(side = 'left', padx = 5, pady = 10)
 
         button2 = tk.Button(buttongroup, text = 'Cancel',
                             command = lambda : self.win.destroy())
         button2.pack(side = 'left', padx = 5, pady = 10)
 
-    def check_and_empty(self):
-        username = self.controller.shared_data["username"].get()
-        sql = "SELECT emp_name, password FROM `employee` WHERE emp_name = '%s' AND password = '%s'" % (username, self.password.get())
-        db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database'])
-        cursor = db.cursor()
-        try:
-            cursor.execute(sql)
-            match = cursor.fetchall()
-        except MySQLdb.Error,e:
-            print e[0], e[1]
-            db.rollback()
-        cursor.close()
-        db.close()
-        if len(match) == 0:
-            self.var_message.set("Incorrect Password")
-        else:
-            self.win.destroy()
-            TUQ.empty_bin()
+    def empty(self):
+        TUQ.empty_bin()
+        self.var_message.set("Bin is being emptied, please wait")
+        self.win.destroy()
+            
             
 class BinToQueue(tk.Frame):
     def __init__(self, parent, controller):
