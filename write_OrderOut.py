@@ -13,6 +13,7 @@ import re
 import config as cfg
 from Table_update_queries import *
 from Table_Lookup_queries import execute_select_queries
+import csv
 
 
 def get_from_db():
@@ -42,11 +43,19 @@ def write_orderout():
         db_rows: list of rows from the PF that have to be written
         to order-out file
     """
-    with open("OrderOut.csv", "w") as order_out:
+    with open("OrderOut.csv", "wb") as csvfile:
+        writer = csv.writer(csvfile, delimiter=';')
         for db_row in get_from_db():
-            order_out.write("\n")
-            for db_cell in db_row:
-                order_out.write(",{0},".format(db_cell))
+            writer.writerow(db_row)
+            print db_row
+##        order_out.write('oligo_ID,batch_number,oligo_name,sequence,'\
+##'label5prime,label3prime,labelM1,labelM1position,synthesis_level_ordered,'\
+##'purification_method,order_status,order_number,supplier_ID,supplier_name\n')
+##        for db_row in get_from_db():
+##            order_out.write("{0}\n".format(db_row))
+##            print db_row
+##            #for db_cell in db_row:
+##                #order_out.write("{0}".format(db_cell))
             
             
 
