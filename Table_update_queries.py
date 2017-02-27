@@ -11,12 +11,15 @@ import Table_Lookup_queries as TLQ
 import import_oligo_parser as iop
 
 def execute_edit_queries(query): #works
-    """Executes queries that edit the database somehow (insert, update, delete)
+    """ Executes queries that edit the database (insert, update, delete)
         
     Keyword Arguments:
-    SQL query -- string in a SQL query format"""
-    
-    db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database']) # open connection
+        query -- string in a SQL query format
+    """
+    # open connection
+    db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'],
+                         cfg.mysql['password'], cfg.mysql['database'])
+   
     cursor = db.cursor() # prepare a cursor object
     try:
         cursor.execute(query)
@@ -34,8 +37,10 @@ def make_insert_row(table_str, attribute_value_dict): #works
     """Returns a insert row SQL statement in a string
         
     Keyword Arguments:
-    table_str               -- string, a table
-    attribute_value_dict    -- a dictionary, with the attribute as key and the value as value"""
+        table_str -- string, a table
+        attribute_value_dict-- a dictionary, with the attribute as key and
+        the value as value
+    """
     #initialize input for string formatting
     attributes_string = "("
     values_list = []
@@ -53,8 +58,10 @@ def insert_row(table_str, attribute_value_dict): #works
     """Inserts a new row
         
     Keyword Arguments:
-    table_str               -- string, a table
-    attribute_value_dict    -- a dictionary, with the attribute as key and the value as value"""
+        table_str -- string, a table
+        attribute_value_dict -- a dictionary, with the attribute as key and
+        the value as value
+    """
     sql = make_insert_row(table_str, attribute_value_dict)
     execute_edit_queries(sql)
     
@@ -62,8 +69,10 @@ def make_delete_row(table_str, key_value_dict): # works
     """Returns a delete row SQL statement in a string
         
     Keyword Arguments:
-    table_str               -- string, a table
-    attribute_value_dict    -- a dictionary, with the attribute as key and the value as value"""
+        table_str -- string, a table
+        attribute_value_dict -- a dictionary, with the attribute as key and the
+        value as value
+    """
     
     # initialize query statement and input
     sql = """DELETE FROM `%s` WHERE %s = '%s'"""
@@ -87,8 +96,10 @@ def delete_row(table_str, key_value_dict): #works
     """Deletes a row
         
     Keyword Arguments:
-    table_str               -- string, a table
-    attribute_value_dict    -- a dictionary, with the attribute as key and the value as value"""
+        table_str -- string, a table
+        attribute_value_dict-- a dictionary, with the attribute as key and
+        the value as value
+    """
     sql = make_delete_row(table_str, key_value_dict)
     execute_edit_queries(sql)
     
@@ -96,9 +107,12 @@ def make_update_row(table_str, attribute_value_dict, keys_dict): #works
     """Returns an update row SQL statement in a string
         
     Keyword Arguments:
-    table_str           -- string, a table
-    attribute_value_dict    -- a dictionary of the attributes you want to change, with the attribute as key and the value as value.
-    keys_dict               -- a dictionary of the (combination) primary key, with the attribute as key and the value as value"""
+        table_str -- string, a table of the db
+        attribute_value_dict -- a dictionary of the attributes you want to
+        change, with the attribute as key and the value as value.
+        keys_dict -- a dictionary of the (combination) primary key, with
+        the attribute as key and the value as value
+    """
 
     # initialize query statement and input
     sql = """UPDATE `%s` SET %s = '%s'"""
@@ -130,12 +144,15 @@ def make_update_row(table_str, attribute_value_dict, keys_dict): #works
 
 
 def update_row(table_str, attribute_value_dict, keys_dict): #works
-    """Updates a row
+    """ Updates a row in the db
         
     Keyword Arguments:
-    table_str           -- string, a table
-    attribute_value_dict    -- a dictionary of the attributes you want to change, with the attribute as key and the value as value.
-    keys_dict               -- a dictionary of the (combination) primary key, with the attribute as key and the value as value"""
+        table_str -- string, a table
+        attribute_value_dict -- a dictionary of the attributes you want to
+        change, with the attribute as key and the value as value.
+        keys_dict -- a dictionary of the (combination) primary key, with
+        the attribute as key and the value as value
+    """
     sql = make_update_row(table_str, attribute_value_dict, keys_dict)
     execute_edit_queries(sql)
 
@@ -143,9 +160,10 @@ def move_row(pk_ID, source, target): # works
     """Moves an oligo from the oligo table to the Oligo bin.
 
     Keyword Arguments:
-    pk_ID    -- string, the primary key of the row to move
-    source   -- string, tablename of the table the row is in
-    target   -- string, tablename of the table the row has to move to"""
+        pk_ID -- string, the primary key of the row to move
+        source -- string, tablename of the table the row is in
+        target -- string, tablename of the table the row has to move to
+    """
     db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database']) # open connection
     cursor = db.cursor() # prepare a cursor object
 
@@ -185,7 +203,8 @@ def move_row(pk_ID, source, target): # works
     db.close() #disconnect from server
 
 def empty_bin(): # works
-    """Empties the Order Bin."""
+    """ Empties the Order Bin.
+    """
 
     db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'], cfg.mysql['password'], cfg.mysql['database']) # open connection
     cursor = db.cursor() # prepare a cursor object
