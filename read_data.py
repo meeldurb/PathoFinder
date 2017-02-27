@@ -112,6 +112,6 @@ def convertdate(datetimestamp):
     
 if __name__ == "__main__":
     filename  = "../PathoFinder db/2016-09-21 Oligolist PF.xlsx - Sheet1.tsv"
-    read_oligolist(filename, 'OLI002118')
+    read_oligolist(filename, 'OLI000003')
     
     
