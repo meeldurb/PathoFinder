@@ -225,11 +225,11 @@ def process_to_db(queue_ID_list):
                     # also import project belonging to oligo
                     # may be a new project belonging to the oli
                     import_projoli_dict["oligo_ID"] = oli_ID
-                    proj_ID = get_project_ID(proj_name)
-                    import_projoli_dict["project_ID"] = proj_ID
+                    #proj_ID = get_project_ID(proj_name)
+                    #import_projoli_dict["project_ID"] = proj_ID
 
                     TUQ.insert_row("Batch", import_batch_dict)
-                    TUQ.insert_row("Project_Oligo", import_projoli_dict)
+                    #TUQ.insert_row("Project_Oligo", import_projoli_dict)
 
                     TUQ.delete_row("Order_queue", {"queue_ID": queue_ID})
 
