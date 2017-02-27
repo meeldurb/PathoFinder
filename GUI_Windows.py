@@ -21,7 +21,6 @@ import table_windows as tw
 import Table_update_queries as TUQ
 from import_oligo_parser import new_emp_ID
 from import_oligo_parser import get_date_stamp
-import users
 
 
 mycolor = '#%02x%02x%02x' % (0, 182, 195)
@@ -102,7 +101,6 @@ class Login(tk.Frame):
 
         label = tk.Label(self, text="Login")
         label.grid(columnspan=8, pady=10)
-
 
         # username
         user_label = tk.Label(self, text = "Username: ")
@@ -658,12 +656,19 @@ class GeneralOrderStatus(tk.Frame):
             # Get current status
             batchstatus = TLQ.execute_select_queries("SELECT order_status FROM `batch` \
                                                      WHERE batch_number = '%s'" % self.batch.get())
+        # Give Error when fails
+        except:
+            self.message.set("Could not retrieve current status")
+
+        # If there is no error
+        if self.message.get() != "Could not retrieve current status":
+            
             # If current status is not equal to new status
             if batchstatus[0][0] != self.status.get():
                 TUQ.update_row('batch', {'order_status' : self.status.get()}, {'batch_number' : self.batch.get()})
                 self.message.set("Succesfull")
         except:
-            self.message.set("An Error occured, please try again")
+            self.message.set("An Error occured when trying to update Status")
         
 class Employees(tk.Frame):
     def __init__(self, parent, controller):
