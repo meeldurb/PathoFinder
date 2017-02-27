@@ -665,13 +665,15 @@ class GeneralOrderStatus(tk.Frame):
 
         # if there is no error
         if self.message.get() != "Could not retrieve current status":
-            
+            try:
             # If current status is not equal to new status
-            if batchstatus[0][0] != self.status.get():
-                TUQ.update_row('batch', {'order_status' : self.status.get()}, {'batch_number' : self.batch.get()})
-                self.message.set("Succesfull")
-        except:
-            self.message.set("An Error occured when trying to update status")
+                if batchstatus[0][0] != self.status.get():
+                
+                    TUQ.update_row('batch', {'order_status' : self.status.get()},
+                               {'batch_number' : self.batch.get()})
+                    self.message.set("Succesfull")
+            except:
+                self.message.set("An Error occured when trying to update status")
         
 class Employees(tk.Frame):
     def __init__(self, parent, controller):
