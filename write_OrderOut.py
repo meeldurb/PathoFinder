@@ -11,16 +11,17 @@ import time
 import datetime
 import re
 import config as cfg
-from Table_update_queries import *
-from Table_Lookup_queries import execute_select_queries
+import Table_update_queries as TUQ 
+import Table_Lookup_queries as TLQ
 import csv
 
 empty = True
 
-def get_from_db():
-    """ Yields the rows from the db that were not ordered yet
+def get_from_db(table):
+    """ Yields the rows that have order status processed from specified table
 
-    
+    Keyword Arguments:
+        table: string, the table where oligos need to be taken from
     """
     # open connection
     db = MySQLdb.connect(cfg.mysql['host'], cfg.mysql['user'],
@@ -30,9 +31,9 @@ def get_from_db():
     # lookup and retrieve values
     # get a boolean here, that checks which oligos were selected for processing
     # if process = selected:
-    sql = """SELECT * FROM pathofinder_db.order_out
-                WHERE order_status = "processed";"""         
-    db_rows_tuple = execute_select_queries(sql)
+    sql = """SELECT * FROM pathofinder_db.%s
+                WHERE order_status = "processed";"""%(table)        
+    db_rows_tuple = TLQ.execute_select_queries(sql)
     if db_rows_tuple:
         for db_row in db_rows_tuple:
             yield db_row
@@ -55,7 +56,7 @@ def write_orderout():
                   'synthesis_level_ordered','purification_method','order_status',
                   'order_number','supplier_ID','supplier_name')
         writer.writerow(header)
-        for db_row in get_from_db():
+        for db_row in get_from_db("order_out"):
             if db_row:
                 writer.writerow(db_row)
             else:
@@ -67,13 +68,17 @@ def change_status():
 
     Checks if order-out file was written and then changes order status
     """
-    update_row("Batch", { "order_status":"processed"},
-                   {"batch_number": "20170005", "order_status":"ordered"})
-    #print "No oligo's found with order_status 'processed'"
+    write_orderout()
+    for db_row in get_from_db("batch"):
+        if db_row:
+            batchnumber = db_row[0]
+            TUQ.update_row("Batch", { "order_status":"ordered"},
+                          {"batch_number": batchnumber, "order_status":"processed"})
+        else:
+            print "No oligo's found with order_status 'processed'"
             
 
 if __name__ == "__main__":
-    write_orderout()
     change_status()
     
     
