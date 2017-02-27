@@ -649,7 +649,7 @@ if __name__ == "__main__":
 ##    dicts = parse_importfile("Importfileoligos_new.csv")
 ##    for i in dicts:
 ##        print(i)
-   # import_to_queue("order_queue", "Importfileoligos_new.csv")
+    #import_to_queue("order_queue", "Importfileoligos_new.csv")
     
     #get_from_orderqueue([2,3,4,5])
     process_to_db([1,2,3,4,5, 6, 7, 8, 9])
