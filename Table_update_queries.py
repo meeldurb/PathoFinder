@@ -230,5 +230,5 @@ if __name__ == "__main__":
     print ""
     #insert_row('Oligo', { 'oligo_ID' : 'OlI0012', 'oligo_name' : 'test', 'oligo_type': '', 'sequence' : 'J', 'description':'',  'entry_date':'', 'creator':'EMP0000', 'update_date':'', 'modifier':'EMP0000', 'label5prime':'', 'label3prime':'', 'labelM1':'', 'labelM1position':'', 'pathogen_name':'', 'target':'', 'notes':''})
     #delete_row('Employee', { 'employee_ID' : 'EMP0066', 'emp_name' : 'test20'})
-    update_row('Employee', { 'password' : 'test'}, { 'emp_name' : 'test'})
+    #update_row('Employee', { 'password' : 'test'}, { 'emp_name' : 'test'})
     #move_row(1, 'order_bin', 'order_queue')
