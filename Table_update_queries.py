@@ -64,6 +64,7 @@ def insert_row(table_str, attribute_value_dict): #works
         the value as value
     """
     sql = make_insert_row(table_str, attribute_value_dict)
+    #print sql
     execute_edit_queries(sql)
     
 def make_delete_row(table_str, key_value_dict): # works
