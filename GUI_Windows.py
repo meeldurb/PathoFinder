@@ -655,8 +655,10 @@ class GeneralOrderStatus(tk.Frame):
 
     def update_status(self):
         try:
+            # Get current status
             batchstatus = TLQ.execute_select_queries("SELECT order_status FROM `batch` \
                                                      WHERE batch_number = '%s'" % self.batch.get())
+            # If current status is not equal to new status
             if batchstatus[0][0] != self.status.get():
                 TUQ.update_row('batch', {'order_status' : self.status.get()}, {'batch_number' : self.batch.get()})
                 self.message.set("Succesfull")
