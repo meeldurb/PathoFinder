@@ -10,8 +10,8 @@ import time
 import datetime
 import re
 import config as cfg
-from Table_update_queries import *
-from Table_Lookup_queries import execute_select_queries
+import Table_update_queries as TUQ
+import Table_Lookup_queries as TLQ
 
  
 def open_importfile(filename):
@@ -89,7 +89,7 @@ def import_to_queue(table, filename):
         table -- string, the table the data needs to be imported in
     """
     for import_dict in parse_importfile(filename):
-        insert_row(table, import_dict)
+        TUQ.insert_row(table, import_dict)
     
     #insert_row("Batch", import_batch_dict)
     #insert_row("Project_Oligo", import_projoli_dict)
@@ -117,7 +117,7 @@ def get_from_orderqueue(queue_ID_list):
     for queue_ID in queue_ID_list:
         sql = """SELECT * FROM pathofinder_db.order_queue
              WHERE queue_ID = "%s";""" %(queue_ID)        
-        orderqueue_tuple = execute_select_queries(sql)[0]
+        orderqueue_tuple = TLQ.execute_select_queries(sql)[0]
         yield orderqueue_tuple
 
 
@@ -197,7 +197,7 @@ def process_to_db(queue_ID_list):
             import_order_dict["order_date"] = ord_date
             # creator needs to be imported from the log-in
             # import_order_dict["employee_ID"] = emp_loggedin
-            insert_row("Order", import_order_dict)
+            TUQ.insert_row("Order", import_order_dict)
                 
             #import2order = False
             if sequence_duplicated[0] == True:
@@ -222,14 +222,14 @@ def process_to_db(queue_ID_list):
                     proj_ID = get_project_ID(proj_name)
                     import_projoli_dict["project_ID"] = proj_ID
 
-                    insert_row("Batch", import_batch_dict)
-                    insert_row("Project_Oligo", import_projoli_dict)
+                    TUQ.insert_row("Batch", import_batch_dict)
+                    TUQ.insert_row("Project_Oligo", import_projoli_dict)
 
-                    delete_row("Order_queue", {"queue_ID": queue_ID})
+                    TUQ.insert_row("Order_queue", {"queue_ID": queue_ID})
 
                 else:
                     print "not importing..."
-                    delete_row("Order_queue", {"queue_ID": queue_ID})
+                    TUQ.delete_row("Order_queue", {"queue_ID": queue_ID})
 
 
             if sequence_duplicated[0] == False:
@@ -257,11 +257,11 @@ def process_to_db(queue_ID_list):
                 # when an update is done also needs to be imported still, not here            
 
                 # for every row insert the information into the specified tables
-                insert_row("Oligo", import_oli_dict)
-                insert_row("Batch", import_batch_dict)
-                insert_row("Project_Oligo", import_projoli_dict)
+                TUQ.insert_row("Oligo", import_oli_dict)
+                TUQ.insert_row("Batch", import_batch_dict)
+                TUQ.insert_row("Project_Oligo", import_projoli_dict)
 
-                delete_row("Order_queue", {"queue_ID": queue_ID})
+                TUQ.delete_row("Order_queue", {"queue_ID": queue_ID})
     else:
         print 'two or more suppliers provided, not able to process'
 
@@ -287,7 +287,7 @@ def get_supplier_ID(supplier_name): # not sure whether need to use
 
     sql = """SELECT supplier_ID FROM pathofinder_db.supplier
              WHERE supplier_name = "%s";""" %(supplier_name)
-    supplier_tuple = execute_select_queries(sql)
+    supplier_tuple = TLQ.execute_select_queries(sql)
     if supplier_tuple:
         supplier_ID = supplier_tuple[0][0]
         return supplier_ID
@@ -306,7 +306,7 @@ def get_project_ID(project_name):
     """
     sql = """SELECT project_ID FROM pathofinder_db.project
              WHERE project_name = "%s";""" %(project_name)
-    project_tuple = execute_select_queries(sql)
+    project_tuple = TLQ.execute_select_queries(sql)
     if project_tuple:
         project_ID = project_tuple[0][0]
         return project_ID
@@ -360,7 +360,7 @@ def check_sequence_duplicated(seq, fiveprime='', threeprime='',
     # or choose to abort
     sql = """SELECT sequence, oligo_ID FROM pathofinder_db.oligo WHERE
             sequence = "%s" """ %(seq)
-    seq_tuples = execute_select_queries(sql)
+    seq_tuples = TLQ.execute_select_queries(sql)
     print "seq tuples is: ", seq_tuples
     if seq_tuples:
         # we loop trough all tuples, because sometimes more oli_ID's are
@@ -404,7 +404,7 @@ def check_labels_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos=''):
     sql = """SELECT sequence, oligo_ID, label5prime, label3prime, labelM1, labelM1position
         FROM pathofinder_db.oligo WHERE sequence = "%s" """ %(seq)
     
-    all_tuples = execute_select_queries(sql)
+    all_tuples = TLQ.execute_select_queries(sql)
     print (seq, fiveprime, threeprime, M1, M1pos)
     print "all tuple for labels is: ", all_tuples
     for one_tuple in all_tuples:
@@ -442,7 +442,7 @@ def get_max_ID(table):
     # makes a choice between which table is selected
     sql = """SELECT MAX(%s) FROM pathofinder_db.`%s`  """ % (cfg.db_tables_views[table][0], table)
     # the sql query retuns a tuple, we only want to take the number
-    max_ID = execute_select_queries(sql)[0][0]
+    max_ID = TLQ.execute_select_queries(sql)[0][0]
     return max_ID
 
 def make_new_ID(table):
@@ -643,7 +643,7 @@ if __name__ == "__main__":
 ##    dicts = parse_importfile("Importfileoligos_new.csv")
 ##    for i in dicts:
 ##        print(i)
-    #import_to_queue("order_queue", "Importfileoligos_new.csv")
+   # import_to_queue("order_queue", "Importfileoligos_new.csv")
     
     #get_from_orderqueue([1,2,3,4,5])
     process_to_db([1,2,3,4,5, 6, 7, 8, 9])
