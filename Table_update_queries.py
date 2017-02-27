@@ -20,12 +20,14 @@ def execute_edit_queries(query): #works
     cursor = db.cursor() # prepare a cursor object
     try:
         cursor.execute(query)
-        db.commit()   
+        db.commit()
+        cursor.close()
+        db.close()
     except MySQLdb.Error,e:# Rollback in case there is any error
-        print e[0], e[1]
         db.rollback()
-    cursor.close()
-    db.close() #disconnect from server
+        raise ValueError(e[0], e[1])
+        cursor.close()
+        db.close() #disconnect from server
 
 def make_insert_row(table_str, attribute_value_dict): #works
 #Aanpassen zodat query niet uitgevoerd wordt als pk al bestaat
