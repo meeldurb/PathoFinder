@@ -156,6 +156,7 @@ def update_row(table_str, attribute_value_dict, keys_dict): #works
         the attribute as key and the value as value
     """
     sql = make_update_row(table_str, attribute_value_dict, keys_dict)
+    #print sql
     execute_edit_queries(sql)
 
 def move_row(pk_ID, source, target): # works
