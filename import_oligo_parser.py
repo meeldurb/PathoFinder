@@ -10,8 +10,8 @@ import time
 import datetime
 import re
 import config as cfg
-from Table_update_queries import *
-from Table_Lookup_queries import execute_select_queries
+import Table_update_queries as TUQ
+import Table_Lookup_queries as TLQ
 
  
 def open_importfile(filename):
@@ -89,7 +89,7 @@ def import_to_queue(table, filename):
         table -- string, the table the data needs to be imported in
     """
     for import_dict in parse_importfile(filename):
-        insert_row(table, import_dict)
+        TUQ.insert_row(table, import_dict)
     
     #insert_row("Batch", import_batch_dict)
     #insert_row("Project_Oligo", import_projoli_dict)
@@ -117,7 +117,7 @@ def get_from_orderqueue(queue_ID_list):
     for queue_ID in queue_ID_list:
         sql = """SELECT * FROM pathofinder_db.order_queue
              WHERE queue_ID = "%s";""" %(queue_ID)        
-        orderqueue_tuple = execute_select_queries(sql)[0]
+        orderqueue_tuple = TLQ.execute_select_queries(sql)[0]
         yield orderqueue_tuple
 
 
@@ -129,8 +129,7 @@ def process_to_db(queue_ID_list):
         queue_ID_list -- numeric list, a list that contains the queue_ID
         of the information that we want to import in the db
     """
-    order_number = make_new_ID("order")
-    print order_number
+    
     import_oli_dict = {}
     import_batch_dict = {}
     #import_supplier_dict = {}
@@ -143,6 +142,27 @@ def process_to_db(queue_ID_list):
     
     if supplierlist_check(queue_ID_list) == True:
         print 'suppliers are the same, starting process'
+
+        for orderqueue_tuple in get_from_orderqueue(queue_ID_list):
+            supplier_ID = orderqueue_tuple[19]
+
+        # order needs to be imported outside the for-loop,
+        # only for every process once
+        # for Order table
+        # deze moet echter pas gecreerd worden na het processen van de oligos
+        # make new order number
+        order_number = make_new_ID("order")
+        print order_number
+        import_order_dict["order_number"] = order_number
+        #supplier_ID is taken from Supplier table
+        import_order_dict["supplier_ID"] = supplier_ID
+        #order_date is entered when processed
+        ord_date = get_date_stamp()
+        import_order_dict["order_date"] = ord_date
+        # creator needs to be imported from the log-in
+        # import_order_dict["employee_ID"] = emp_loggedin
+        TUQ.insert_row("Order", import_order_dict)
+
         
         for orderqueue_tuple in get_from_orderqueue(queue_ID_list):
             queue_ID, oli_name, oli_type, oli_seq, descr, entry_date, \
@@ -183,21 +203,7 @@ def process_to_db(queue_ID_list):
             import_batch_dict["order_status"] = "processed"
 
            
-        # order needs to be imported outside the for-loop,
-        # only for every process once
-            # for Order table
-            # deze moet echter pas gecreerd worden na het processen van de oligos
-            # make new order number
-            import_order_dict["order_number"] = order_number
-            #supplier_ID is taken from Supplier table
-            supp_ID = get_supplier_ID(supp_name)
-            import_order_dict["supplier_ID"] = supp_ID
-            #order_date is entered when processed
-            ord_date = get_date_stamp()
-            import_order_dict["order_date"] = ord_date
-            # creator needs to be imported from the log-in
-            # import_order_dict["employee_ID"] = emp_loggedin
-            insert_row("Order", import_order_dict)
+        
                 
             #import2order = False
             if sequence_duplicated[0] == True:
@@ -219,17 +225,17 @@ def process_to_db(queue_ID_list):
                     # also import project belonging to oligo
                     # may be a new project belonging to the oli
                     import_projoli_dict["oligo_ID"] = oli_ID
-                    proj_ID = get_project_ID(proj_name)
-                    import_projoli_dict["project_ID"] = proj_ID
+                    #proj_ID = get_project_ID(proj_name)
+                    #import_projoli_dict["project_ID"] = proj_ID
 
-                    insert_row("Batch", import_batch_dict)
-                    insert_row("Project_Oligo", import_projoli_dict)
+                    TUQ.insert_row("Batch", import_batch_dict)
+                    #TUQ.insert_row("Project_Oligo", import_projoli_dict)
 
-                    delete_row("Order_queue", {"queue_ID": queue_ID})
+                    TUQ.delete_row("Order_queue", {"queue_ID": queue_ID})
 
                 else:
                     print "not importing..."
-                    delete_row("Order_queue", {"queue_ID": queue_ID})
+                    TUQ.delete_row("Order_queue", {"queue_ID": queue_ID})
 
 
             if sequence_duplicated[0] == False:
@@ -257,11 +263,11 @@ def process_to_db(queue_ID_list):
                 # when an update is done also needs to be imported still, not here            
 
                 # for every row insert the information into the specified tables
-                insert_row("Oligo", import_oli_dict)
-                insert_row("Batch", import_batch_dict)
-                insert_row("Project_Oligo", import_projoli_dict)
+                TUQ.insert_row("Oligo", import_oli_dict)
+                TUQ.insert_row("Batch", import_batch_dict)
+                TUQ.insert_row("Project_Oligo", import_projoli_dict)
 
-                delete_row("Order_queue", {"queue_ID": queue_ID})
+                TUQ.delete_row("Order_queue", {"queue_ID": queue_ID})
     else:
         print 'two or more suppliers provided, not able to process'
 
@@ -287,7 +293,7 @@ def get_supplier_ID(supplier_name): # not sure whether need to use
 
     sql = """SELECT supplier_ID FROM pathofinder_db.supplier
              WHERE supplier_name = "%s";""" %(supplier_name)
-    supplier_tuple = execute_select_queries(sql)
+    supplier_tuple = TLQ.execute_select_queries(sql)
     if supplier_tuple:
         supplier_ID = supplier_tuple[0][0]
         return supplier_ID
@@ -306,7 +312,7 @@ def get_project_ID(project_name):
     """
     sql = """SELECT project_ID FROM pathofinder_db.project
              WHERE project_name = "%s";""" %(project_name)
-    project_tuple = execute_select_queries(sql)
+    project_tuple = TLQ.execute_select_queries(sql)
     if project_tuple:
         project_ID = project_tuple[0][0]
         return project_ID
@@ -360,7 +366,7 @@ def check_sequence_duplicated(seq, fiveprime='', threeprime='',
     # or choose to abort
     sql = """SELECT sequence, oligo_ID FROM pathofinder_db.oligo WHERE
             sequence = "%s" """ %(seq)
-    seq_tuples = execute_select_queries(sql)
+    seq_tuples = TLQ.execute_select_queries(sql)
     print "seq tuples is: ", seq_tuples
     if seq_tuples:
         # we loop trough all tuples, because sometimes more oli_ID's are
@@ -404,7 +410,7 @@ def check_labels_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos=''):
     sql = """SELECT sequence, oligo_ID, label5prime, label3prime, labelM1, labelM1position
         FROM pathofinder_db.oligo WHERE sequence = "%s" """ %(seq)
     
-    all_tuples = execute_select_queries(sql)
+    all_tuples = TLQ.execute_select_queries(sql)
     print (seq, fiveprime, threeprime, M1, M1pos)
     print "all tuple for labels is: ", all_tuples
     for one_tuple in all_tuples:
@@ -442,7 +448,7 @@ def get_max_ID(table):
     # makes a choice between which table is selected
     sql = """SELECT MAX(%s) FROM pathofinder_db.`%s`  """ % (cfg.db_tables_views[table][0], table)
     # the sql query retuns a tuple, we only want to take the number
-    max_ID = execute_select_queries(sql)[0][0]
+    max_ID = TLQ.execute_select_queries(sql)[0][0]
     return max_ID
 
 def make_new_ID(table):
@@ -643,9 +649,9 @@ if __name__ == "__main__":
 ##    dicts = parse_importfile("Importfileoligos_new.csv")
 ##    for i in dicts:
 ##        print(i)
-    #import_to_queue("order_queue", "Importfileoligos_new.csv")
+   # import_to_queue("order_queue", "Importfileoligos_new.csv")
     
-    #get_from_orderqueue([1,2,3,4,5])
+    #get_from_orderqueue([2,3,4,5])
     process_to_db([1,2,3,4,5, 6, 7, 8, 9])
     process_to_db([1,2,3,4,5,6])
     process_to_db([7,8,9,10])

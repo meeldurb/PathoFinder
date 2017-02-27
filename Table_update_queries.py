@@ -27,6 +27,7 @@ def execute_edit_queries(query): #works
         cursor.close()
         db.close()
     except MySQLdb.Error,e:# Rollback in case there is any error
+        #print e[0], e[1]
         db.rollback()
         raise ValueError(e[0], e[1])
         cursor.close()
@@ -63,6 +64,7 @@ def insert_row(table_str, attribute_value_dict): #works
         the value as value
     """
     sql = make_insert_row(table_str, attribute_value_dict)
+    #print sql
     execute_edit_queries(sql)
     
 def make_delete_row(table_str, key_value_dict): # works
