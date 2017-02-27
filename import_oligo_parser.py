@@ -129,8 +129,7 @@ def process_to_db(queue_ID_list):
         queue_ID_list -- numeric list, a list that contains the queue_ID
         of the information that we want to import in the db
     """
-    order_number = make_new_ID("order")
-    print order_number
+    
     import_oli_dict = {}
     import_batch_dict = {}
     #import_supplier_dict = {}
@@ -143,6 +142,27 @@ def process_to_db(queue_ID_list):
     
     if supplierlist_check(queue_ID_list) == True:
         print 'suppliers are the same, starting process'
+
+        for orderqueue_tuple in get_from_orderqueue(queue_ID_list):
+            supplier_ID = orderqueue_tuple[19]
+
+        # order needs to be imported outside the for-loop,
+        # only for every process once
+        # for Order table
+        # deze moet echter pas gecreerd worden na het processen van de oligos
+        # make new order number
+        order_number = make_new_ID("order")
+        print order_number
+        import_order_dict["order_number"] = order_number
+        #supplier_ID is taken from Supplier table
+        import_order_dict["supplier_ID"] = supplier_ID
+        #order_date is entered when processed
+        ord_date = get_date_stamp()
+        import_order_dict["order_date"] = ord_date
+        # creator needs to be imported from the log-in
+        # import_order_dict["employee_ID"] = emp_loggedin
+        TUQ.insert_row("Order", import_order_dict)
+
         
         for orderqueue_tuple in get_from_orderqueue(queue_ID_list):
             queue_ID, oli_name, oli_type, oli_seq, descr, entry_date, \
@@ -183,21 +203,7 @@ def process_to_db(queue_ID_list):
             import_batch_dict["order_status"] = "processed"
 
            
-        # order needs to be imported outside the for-loop,
-        # only for every process once
-            # for Order table
-            # deze moet echter pas gecreerd worden na het processen van de oligos
-            # make new order number
-            import_order_dict["order_number"] = order_number
-            #supplier_ID is taken from Supplier table
-            supp_ID = get_supplier_ID(supp_name)
-            import_order_dict["supplier_ID"] = supp_ID
-            #order_date is entered when processed
-            ord_date = get_date_stamp()
-            import_order_dict["order_date"] = ord_date
-            # creator needs to be imported from the log-in
-            # import_order_dict["employee_ID"] = emp_loggedin
-            TUQ.insert_row("Order", import_order_dict)
+        
                 
             #import2order = False
             if sequence_duplicated[0] == True:
@@ -225,7 +231,7 @@ def process_to_db(queue_ID_list):
                     TUQ.insert_row("Batch", import_batch_dict)
                     TUQ.insert_row("Project_Oligo", import_projoli_dict)
 
-                    TUQ.insert_row("Order_queue", {"queue_ID": queue_ID})
+                    TUQ.delete_row("Order_queue", {"queue_ID": queue_ID})
 
                 else:
                     print "not importing..."
@@ -645,7 +651,7 @@ if __name__ == "__main__":
 ##        print(i)
    # import_to_queue("order_queue", "Importfileoligos_new.csv")
     
-    #get_from_orderqueue([1,2,3,4,5])
+    #get_from_orderqueue([2,3,4,5])
     process_to_db([1,2,3,4,5, 6, 7, 8, 9])
     process_to_db([1,2,3,4,5,6])
     process_to_db([7,8,9,10])
