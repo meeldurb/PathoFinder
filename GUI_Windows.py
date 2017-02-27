@@ -21,6 +21,8 @@ import table_windows as tw
 import Table_update_queries as TUQ
 from import_oligo_parser import new_emp_ID
 from import_oligo_parser import get_date_stamp
+from import_oligo_parser import import_to_queue
+
 
 
 mycolor = '#%02x%02x%02x' % (0, 182, 195)
@@ -317,7 +319,7 @@ class Import(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
-        path_var = tk.StringVar()
+        self.path_var = tk.StringVar()
         #save a reference to controller in each page:
         self.controller = controller
 
@@ -334,15 +336,17 @@ class Import(tk.Frame):
         label2.grid(row=8, column=1, pady=5, padx=10)
 
         text_path = tk.Entry(self, bg='white', fg='black', width=50,
-                             textvariable=path_var, justify="left" )
+                             textvariable=self.path_var, justify="left" )
                                 # add feature that it will expand upon selection
         text_path.grid(row=8, column=3, columnspan=4)
 
         button3 = tk.Button(self, text="Browse",
-                            command=lambda:path_var.set(askopenfilename()))
+                            command=lambda:self.path_var.set(askopenfilename()))
         button3.grid(row=8, column=7)
 
-        button4 = tk.Button(self, text="Upload")
+        button4 = tk.Button(self, text="Upload",
+                            command=lambda:import_to_queue("order_queue",
+                                                           self.path_var.get()))
                             #command = Uploads the file in the path into the
                             # specified columns of the db
         button4.grid(row=8, column=8)
@@ -653,14 +657,13 @@ class GeneralOrderStatus(tk.Frame):
 
     def update_status(self):
         try:
-            # Get current status
+            # get current status
             batchstatus = TLQ.execute_select_queries("SELECT order_status FROM `batch` \
                                                      WHERE batch_number = '%s'" % self.batch.get())
-        # Give Error when fails
         except:
             self.message.set("Could not retrieve current status")
 
-        # If there is no error
+        # if there is no error
         if self.message.get() != "Could not retrieve current status":
             
             # If current status is not equal to new status
@@ -668,7 +671,7 @@ class GeneralOrderStatus(tk.Frame):
                 TUQ.update_row('batch', {'order_status' : self.status.get()}, {'batch_number' : self.batch.get()})
                 self.message.set("Succesfull")
         except:
-            self.message.set("An Error occured when trying to update Status")
+            self.message.set("An Error occured when trying to update status")
         
 class Employees(tk.Frame):
     def __init__(self, parent, controller):
@@ -1061,7 +1064,7 @@ class BinToQueue(tk.Frame):
         label.pack(side = 'top', pady=10)
 
 
-        label1 = tk.Label(self, text="Enter the ID('s) : ")
+        label1 = tk.Label(self, text="Enter the bin_ID('s) : ")
         label1.pack(side = 'top', pady=5)
 
         self.Text = tk.Text(self, width = 30, height = 10)
@@ -1114,7 +1117,7 @@ class QueueToBin(tk.Frame):
         label.pack(side = 'top', pady=10)
 
 
-        label1 = tk.Label(self, text="Enter the ID('s) : ")
+        label1 = tk.Label(self, text="Enter the queue ID('s) : ")
         label1.pack(side = 'top', pady=5)
 
         self.Text = tk.Text(self, width = 30, height = 10)
@@ -1247,7 +1250,7 @@ class Deliveries(tk.Frame):
         batchentry = tk.Entry(self, textvariable = self.batch)
         batchentry.grid(row = 3, column = 2, pady = 5)
 
-        synthlabel = tk.Label(self, text = "Synthesis level: ")
+        synthlabel = tk.Label(self, text = "Delivery synthesis level: ")
         synthlabel.grid(row = 4, column = 1, pady = 5)
         
         synthentry = tk.Entry(self, textvariable = self.synth)
