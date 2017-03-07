@@ -479,14 +479,14 @@ def make_new_ID(table):
         new_emp_ID = new_emp_ID(table)
         return new_emp_ID
     if table == "project":
-        new_project_ID = new_project_ID(table)
+        new_project_ID = new_project_no(table)
         return new_project_ID
     if table == "supplier":
-        new_supplier_ID = new_supplier_ID(table)
+        new_supplier_ID = new_supplier_no(table)
         return new_supplier_ID
 
 
-def new_supplier_ID(table):
+def new_supplier_no(table):
     """ Converts the max supplier_ID in the database to the following up ID.
         When no supplier it starts with 1
 
@@ -504,7 +504,7 @@ def new_supplier_ID(table):
         new_proj_ID = "1"
     return new_proj_ID
 
-def new_project_ID(table):
+def new_project_no(table):
     """ Converts the max project_ID in the database to the following up ID.
         When no project it starts with 1
 
