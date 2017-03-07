@@ -478,7 +478,49 @@ def make_new_ID(table):
     if table == 'employee':
         new_emp_ID = new_emp_ID(table)
         return new_emp_ID
-        
+    if table == "project":
+        new_project_ID = new_project_ID(table)
+        return new_project_ID
+    if table == "supplier":
+        new_supplier_ID = new_supplier_ID(table)
+        return new_supplier_ID
+
+
+def new_supplier_ID(table):
+    """ Converts the max supplier_ID in the database to the following up ID.
+        When no supplier it starts with 1
+
+    Keyword Arguments:
+        table -- string, the name of the table that information need to be taken from
+    Returns:
+        A new project ID number
+    """
+    max_ID = get_max_ID(table)
+    if max_ID:
+        int_projno = int(max_ID)
+        new_projno = int_projno + 1
+        new_proj_ID = str(new_projno)
+    else:
+        new_proj_ID = "1"
+    return new_proj_ID
+
+def new_project_ID(table):
+    """ Converts the max project_ID in the database to the following up ID.
+        When no project it starts with 1
+
+    Keyword Arguments:
+        table -- string, the name of the table that information need to be taken from
+    Returns:
+        A new project ID number
+    """
+    max_ID = get_max_ID(table)
+    if max_ID:
+        int_projno = int(max_ID)
+        new_projno = int_projno + 1
+        new_proj_ID = str(new_projno)
+    else:
+        new_proj_ID = "1"
+    return new_proj_ID        
 
 def new_queue_no(table):
     """ Converts the max queue_ID in the database to the following up ID.
