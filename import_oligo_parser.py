@@ -513,14 +513,24 @@ def new_project_no(table):
     Returns:
         A new project ID number
     """
+    # retrieve only the number part
     max_ID = get_max_ID(table)
-    if max_ID:
-        int_projno = int(max_ID)
-        new_projno = int_projno + 1
-        new_proj_ID = str(new_projno)
-    else:
-        new_proj_ID = "1"
-    return new_proj_ID        
+    # retaining the same length of the oligo_ID's (6 digits)
+    # 2 groups in pattern
+    pattern = re.compile(r'(D&D)([0-9]+)')
+    matcher = pattern.search(max_ID)
+    # if matcher is found proceed
+    if matcher != None:
+        # split the 2 groups
+        proj = matcher.group(1)
+        proj_no = matcher.group(2)
+        # convert oligo number and add 1
+        int_proj_no = int(proj_no)
+        new_proj_no = int_proj_no + 100
+        convert_proj_no = str(new_proj_no)
+        # make complete oligoID 
+        new_projID = proj + convert_proj_no
+        return new_projID       
 
 def new_queue_no(table):
     """ Converts the max queue_ID in the database to the following up ID.
@@ -685,6 +695,7 @@ def new_emp_ID(table):
         return new_empID
 
 if __name__ == "__main__":
+
 ##    new_batch_number("batch")
 ##    get_supplier_ID("IDT")
 ##    new_batch_number("batch")
