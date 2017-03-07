@@ -22,6 +22,7 @@ import Table_update_queries as TUQ
 from import_oligo_parser import new_emp_ID
 from import_oligo_parser import get_date_stamp
 from import_oligo_parser import import_to_queue
+from import_oligo_parser import make_new_ID
 
 
 
@@ -60,7 +61,7 @@ class OligoDatabase(tk.Tk):
         for F in (Login, Home, TableViews, OrderStatus, Import, Experiment, ChangePassword,
                   Experiment, SearchPage, Admin, Employees, AddEmployee, OrderBin, BinToQueue,
                   OrderStatus, OrderQueue, Deliveries, OutOfStock, GeneralOrderStatus, RemoveUser,
-                  AdminRights):
+                  AdminRights, AddSupplier):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -576,29 +577,137 @@ class Admin(tk.Frame):
         self.controller = controller
 
         label = tk.Label(self, text="Admin")
-        label.grid(row = 1, column = 1, columnspan=3, pady=10)
+        label.pack(side = 'top', pady=10)
 
-        button1 = tk.Button(self, text="Order Bin",
+        groupmain = tk.LabelFrame(self, relief = 'flat')
+        groupmain.pack(side = 'top', pady = 5, padx= 10)
+        
+        groupleft = tk.LabelFrame(groupmain, relief = 'flat')
+        groupleft.pack(side = 'left', pady = 5, padx= 10)
+        
+        button1 = tk.Button(groupleft, text="Order Bin", width = 15,
                             command = lambda : self.controller.show_frame("OrderBin"))
-        
-        button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
+        button1.pack(side = 'top', pady=5, padx=10)
 
-        button2 = tk.Button(self, text="Employees",
+        button2 = tk.Button(groupleft, text="Employees", width = 15,
                          command = lambda : self.controller.show_frame("Employees"))
+        button2.pack(side = 'top', pady=5, padx=10)
 
-        button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
-
-        button3 = tk.Button(self, text="Order Status",
+        button3 = tk.Button(groupleft, text="Order Status", width = 15,
                          command = lambda : self.controller.show_frame("GeneralOrderStatus"))
+        button3.pack(side = 'top', pady=5, padx=10)
 
-        button3.grid(row=5, column=2, pady=5, padx=10, sticky="WE")
+        groupright = tk.LabelFrame(groupmain, relief = 'flat')
+        groupright.pack(side = 'right', pady = 5, padx= 10)
         
+        button5 = tk.Button(groupright, text = 'Remove Oligo', width = 15)
+        button5.pack(side = 'top', pady = 5, padx= 10)
 
-        button4 = tk.Button(self, text="Back to Home",
+        button6 = tk.Button(groupright, text = "Add Project", width = 15)
+        button6.pack(side = 'top', pady = 5, padx = 10)
+        
+        button6 = tk.Button(groupright, text = "Add Supplier", width = 15,
+                            command = lambda : self.controller.show_frame("AddSupplier"))
+        button6.pack(side = 'top', pady = 5, padx = 10)
+
+
+        groupnav = tk.LabelFrame(self, relief = 'flat')
+        groupnav.pack(side = 'bottom', pady = 5, padx= 10)
+        
+        button4 = tk.Button(groupnav, text="Back to Home",
                          command=lambda:self.controller.show_frame("Home"))
                             
-        button4.grid(row=7, column=3, pady=5, padx=10)
+        button4.pack(side = 'left', pady=5, padx=10)
+
+class AddSupplier(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+        self.supplierid = tk.StringVar()
+        self.supplier= tk.StringVar()
+        self.var_message = tk.StringVar()
         
+        label = tk.Label(self, text="Add Supplier")
+        label.pack(side = 'top', pady=10)
+
+        group1 = tk.LabelFrame(self, relief = 'flat')
+        group1.pack(side = 'top', pady = 5, padx = 10)
+        
+        labelsupid = tk.Label(group1, text = 'SupplierID: ')
+        labelsupid.pack(side = 'left', pady=10)
+
+        supplierid = tk.Entry(group1, height = 5, width = 10)
+        supplierid['textvariable'] = self.supplierid
+        supplierid.pack(side = 'left', pady = 10)
+
+        labelsupidm = tk.Label(group1, text = 'max 10 characters')
+        labelsupidm.pack(side = 'left', pady=10)
+
+        group2 = tk.LabelFrame(self, relief = 'flat')
+        group2.pack(side = 'top', pady = 5, padx = 10)
+        
+        labelsup = tk.Label(group2, text = 'Supplier: ')
+        labelsup.pack(side = 'left', pady=10)
+
+        supplier = tk.Entry(group2, height = 5, width = 10)
+        supplier['textvariable'] = self.supplier
+        supplier.pack(side = 'left', pady = 10)
+
+        # Message
+        msg = tk.Message(self, width=280)
+        msg['textvariable'] = self.var_message
+        msg.pack(side = 'top', pady = 10)
+
+        # Button
+        confirm = tk.Button(self, text = "Add")
+        confirm['command'] = lambda: self.popup()
+        confirm.pack(side = 'top', pady = 10)
+
+
+        button2 = tk.Button(self, text="Back to Home",
+                         command=lambda:controller.show_frame("Home"))
+        button2.pack(side = 'top', pady=5, padx=10)
+
+
+    def popup(self):
+        """ A popup window which asks to confirm action"""
+        self.win = tk.Toplevel()
+
+        label0 = tk.Label(self.win, text = ("Are you sure you want to add '%s' ?" % self.supplier.get()))
+        label0.pack(side = 'top', pady = 5)
+
+        buttongroup = tk.LabelFrame(self.win)
+        buttongroup.pack(side = 'top')
+      
+        button1 = tk.Button(buttongroup, text = 'Confirm',
+                            command = lambda : self.add())
+        button1.pack(side = 'left', padx = 5, pady = 10)
+
+        button2 = tk.Button(buttongroup, text = 'Cancel',
+                            command = lambda : self.win.destroy())
+        button2.pack(side = 'left', padx = 5, pady = 10)
+
+    def add(self):
+        """Add a supplier to supplier-table """
+    
+        db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
+                             self.controller.shared_data["password"].get(), cfg.mysql['database']) # open connection
+        cursor = db.cursor() # prepare a cursor object
+
+        try:
+            self.win.destroy()
+            TUQ.insert_row('supplier', {'supplier_ID' : self.supplierid.get(), 'supplier_name' : self.supplier.get()})
+            self.var_message.set("%s Added" % self.supplier.get())
+            self.win.destroy()
+        except MySQLdb.Error,e:# Rollback in case there is any error
+            db.rollback()
+            self.win.destroy()
+            self.var_message.set("Something went wrong")
+            raise ValueError(e[0], e[1])
+
+            
 class GeneralOrderStatus(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
