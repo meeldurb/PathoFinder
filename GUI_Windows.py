@@ -61,7 +61,7 @@ class OligoDatabase(tk.Tk):
         for F in (Login, Home, TableViews, OrderStatus, Import, Experiment, ChangePassword,
                   Experiment, SearchPage, Admin, Employees, AddEmployee, OrderBin, BinToQueue,
                   OrderStatus, OrderQueue, Deliveries, OutOfStock, GeneralOrderStatus, RemoveUser,
-                  AdminRights, AddSupplier):
+                  AdminRights, AddSupplier, AddProject):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -603,7 +603,8 @@ class Admin(tk.Frame):
         button5 = tk.Button(groupright, text = 'Remove Oligo', width = 15)
         button5.pack(side = 'top', pady = 5, padx= 10)
 
-        button6 = tk.Button(groupright, text = "Add Project", width = 15)
+        button6 = tk.Button(groupright, text = "Add Project", width = 15,
+                            command = lambda : self.controller.show_frame("AddProject"))
         button6.pack(side = 'top', pady = 5, padx = 10)
         
         button6 = tk.Button(groupright, text = "Add Supplier", width = 15,
@@ -618,7 +619,107 @@ class Admin(tk.Frame):
                          command=lambda:self.controller.show_frame("Home"))
                             
         button4.pack(side = 'left', pady=5, padx=10)
+        
+class AddProject(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
 
+        #save a reference to controller in each page:
+        self.controller = controller
+        self.projectid = tk.StringVar()
+        self.project= tk.StringVar()
+        self.var_message = tk.StringVar()
+        
+        label = tk.Label(self, text="Add Project")
+        label.pack(side = 'top', pady=10)
+
+        group1 = tk.LabelFrame(self, relief = 'flat')
+        group1.pack(side = 'top', pady = 5, padx = 10)
+        
+        labelsupid = tk.Label(group1, text = 'Project_ID: ')
+        labelsupid.pack(side = 'left', pady=10)
+
+        projectid = tk.Entry(group1)
+        projectid['textvariable'] = self.projectid
+        projectid.pack(side = 'left', pady = 10)
+
+        labelsupidm = tk.Label(group1, text = 'max 15 characters')
+        labelsupidm.pack(side = 'left', pady=10)
+
+        group2 = tk.LabelFrame(self, relief = 'flat')
+        group2.pack(side = 'top', pady = 5, padx = 10)
+        
+        labelsup = tk.Label(group2, text = 'Project: ')
+        labelsup.pack(side = 'left', pady=10)
+
+        project = tk.Entry(group2)
+        project['textvariable'] = self.project
+        project.pack(side = 'left', pady = 10)
+
+        # Message
+        msg = tk.Message(self, width=500)
+        msg['textvariable'] = self.var_message
+        msg.pack(side = 'top', pady = 10)
+
+        # Button
+        confirm = tk.Button(self, text = "Add")
+        confirm['command'] = lambda: self.popup()
+        confirm.pack(side = 'top', pady = 10)
+
+        group3 = tk.LabelFrame(self, relief = 'flat')
+        group3.pack(side = 'top', pady = 5, padx = 10)
+        
+        button2 = tk.Button(group3, text="Back to Home",
+                         command=lambda:controller.show_frame("Home"))
+        button2.pack(side = 'left', pady=5, padx=10)
+
+        button3 = tk.Button(group3, text="Back to Admin",
+                         command=lambda:controller.show_frame("Admin"))
+        button3.pack(side = 'right', pady=5, padx=10)
+
+
+    def popup(self):
+        """ A popup window which asks to confirm action"""
+        self.win = tk.Toplevel()
+
+        label0 = tk.Label(self.win, text = ("Are you sure you want to add '%s' ?" % self.project.get()))
+        label0.pack(side = 'top', pady = 5)
+
+        buttongroup = tk.LabelFrame(self.win)
+        buttongroup.pack(side = 'top')
+      
+        button1 = tk.Button(buttongroup, text = 'Confirm',
+                            command = lambda : self.add())
+        button1.pack(side = 'left', padx = 5, pady = 10)
+
+        button2 = tk.Button(buttongroup, text = 'Cancel',
+                            command = lambda : self.win.destroy())
+        button2.pack(side = 'left', padx = 5, pady = 10)
+
+    def add(self):
+        """Add a supplier to supplier-table """
+        
+        db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
+                             self.controller.shared_data["password"].get(), cfg.mysql['database']) # open connection
+        cursor = db.cursor() # prepare a cursor object
+
+        # Make a sql for creation of new user
+        add_project_sql = TUQ.make_insert_row('project', {'project_ID' : self.projectid.get(), 'project_name' : self.project.get()})
+
+        try:
+            cursor.execute(add_project_sql)
+            db.commit()
+            cursor.close()
+            db.close()
+            self.var_message.set("%s Added" % self.project.get())
+            self.win.destroy()
+            
+        except MySQLdb.Error,e:# Rollback in case there is any error
+            db.rollback()
+            cursor.close()
+            db.close()
+            self.var_message.set((e[0], e[1]))
+        
 class AddSupplier(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -638,7 +739,7 @@ class AddSupplier(tk.Frame):
         labelsupid = tk.Label(group1, text = 'SupplierID: ')
         labelsupid.pack(side = 'left', pady=10)
 
-        supplierid = tk.Entry(group1, height = 5, width = 10)
+        supplierid = tk.Entry(group1)
         supplierid['textvariable'] = self.supplierid
         supplierid.pack(side = 'left', pady = 10)
 
@@ -651,12 +752,12 @@ class AddSupplier(tk.Frame):
         labelsup = tk.Label(group2, text = 'Supplier: ')
         labelsup.pack(side = 'left', pady=10)
 
-        supplier = tk.Entry(group2, height = 5, width = 10)
+        supplier = tk.Entry(group2)
         supplier['textvariable'] = self.supplier
         supplier.pack(side = 'left', pady = 10)
 
         # Message
-        msg = tk.Message(self, width=280)
+        msg = tk.Message(self, width=500)
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', pady = 10)
 
@@ -666,9 +767,16 @@ class AddSupplier(tk.Frame):
         confirm.pack(side = 'top', pady = 10)
 
 
-        button2 = tk.Button(self, text="Back to Home",
+        group3 = tk.LabelFrame(self, relief = 'flat')
+        group3.pack(side = 'top', pady = 5, padx = 10)
+        
+        button2 = tk.Button(group3, text="Back to Home",
                          command=lambda:controller.show_frame("Home"))
-        button2.pack(side = 'top', pady=5, padx=10)
+        button2.pack(side = 'left', pady=5, padx=10)
+
+        button3 = tk.Button(group3, text="Back to Admin",
+                         command=lambda:controller.show_frame("Admin"))
+        button3.pack(side = 'right', pady=5, padx=10)
 
 
     def popup(self):
@@ -691,22 +799,27 @@ class AddSupplier(tk.Frame):
 
     def add(self):
         """Add a supplier to supplier-table """
-    
+        
         db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
                              self.controller.shared_data["password"].get(), cfg.mysql['database']) # open connection
         cursor = db.cursor() # prepare a cursor object
 
+        # Make a sql for creation of new user
+        add_supp_sql = TUQ.make_insert_row('supplier', {'supplier_ID' : self.supplierid.get(), 'supplier_name' : self.supplier.get()})
+
         try:
-            self.win.destroy()
-            TUQ.insert_row('supplier', {'supplier_ID' : self.supplierid.get(), 'supplier_name' : self.supplier.get()})
+            cursor.execute(add_supp_sql)
+            db.commit()
+            cursor.close()
+            db.close()
             self.var_message.set("%s Added" % self.supplier.get())
             self.win.destroy()
+            
         except MySQLdb.Error,e:# Rollback in case there is any error
             db.rollback()
-            self.win.destroy()
-            self.var_message.set("Something went wrong")
-            raise ValueError(e[0], e[1])
-
+            cursor.close()
+            db.close()
+            self.var_message.set((e[0], e[1]))
             
 class GeneralOrderStatus(tk.Frame):
     def __init__(self, parent, controller):
