@@ -633,19 +633,6 @@ class AddProject(tk.Frame):
         label = tk.Label(self, text="Add Project")
         label.pack(side = 'top', pady=10)
 
-        group1 = tk.LabelFrame(self, relief = 'flat')
-        group1.pack(side = 'top', pady = 5, padx = 10)
-        
-        labelsupid = tk.Label(group1, text = 'Project_ID: ')
-        labelsupid.pack(side = 'left', pady=10)
-
-        projectid = tk.Entry(group1)
-        projectid['textvariable'] = self.projectid
-        projectid.pack(side = 'left', pady = 10)
-
-        labelsupidm = tk.Label(group1, text = 'max 15 characters')
-        labelsupidm.pack(side = 'left', pady=10)
-
         group2 = tk.LabelFrame(self, relief = 'flat')
         group2.pack(side = 'top', pady = 5, padx = 10)
         
@@ -697,28 +684,34 @@ class AddProject(tk.Frame):
         button2.pack(side = 'left', padx = 5, pady = 10)
 
     def add(self):
-        """Add a supplier to supplier-table """
-        
-        db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
-                             self.controller.shared_data["password"].get(), cfg.mysql['database']) # open connection
-        cursor = db.cursor() # prepare a cursor object
+        """Add a project to project-table """
 
-        # Make a sql for creation of new user
-        add_project_sql = TUQ.make_insert_row('project', {'project_ID' : self.projectid.get(), 'project_name' : self.project.get()})
+        # Get project name, check whether not empty
+        projectname = self.project.get()
+        projectname = projectname.strip()
+        if projectname == "":
+                self.var_message.set("Invalid name")
+        else:
+            db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
+                                 self.controller.shared_data["password"].get(), cfg.mysql['database']) # open connection
+            cursor = db.cursor() # prepare a cursor object
 
-        try:
-            cursor.execute(add_project_sql)
-            db.commit()
-            cursor.close()
-            db.close()
-            self.var_message.set("%s Added" % self.project.get())
-            self.win.destroy()
-            
-        except MySQLdb.Error,e:# Rollback in case there is any error
-            db.rollback()
-            cursor.close()
-            db.close()
-            self.var_message.set((e[0], e[1]))
+            # Make a sql for creation of new user
+            add_project_sql = TUQ.make_insert_row('project', {'project_ID' : make_new_ID('project'), 'project_name' : self.project.get()})
+
+            try:
+                cursor.execute(add_project_sql)
+                db.commit()
+                cursor.close()
+                db.close()
+                self.var_message.set("%s Added" % self.project.get())
+                self.win.destroy()
+                
+            except MySQLdb.Error,e:# Rollback in case there is any error
+                db.rollback()
+                cursor.close()
+                db.close()
+                self.var_message.set((e[0], e[1]))
         
 class AddSupplier(tk.Frame):
     def __init__(self, parent, controller):
@@ -732,19 +725,6 @@ class AddSupplier(tk.Frame):
         
         label = tk.Label(self, text="Add Supplier")
         label.pack(side = 'top', pady=10)
-
-        group1 = tk.LabelFrame(self, relief = 'flat')
-        group1.pack(side = 'top', pady = 5, padx = 10)
-        
-        labelsupid = tk.Label(group1, text = 'SupplierID: ')
-        labelsupid.pack(side = 'left', pady=10)
-
-        supplierid = tk.Entry(group1)
-        supplierid['textvariable'] = self.supplierid
-        supplierid.pack(side = 'left', pady = 10)
-
-        labelsupidm = tk.Label(group1, text = 'max 10 characters')
-        labelsupidm.pack(side = 'left', pady=10)
 
         group2 = tk.LabelFrame(self, relief = 'flat')
         group2.pack(side = 'top', pady = 5, padx = 10)
@@ -799,27 +779,33 @@ class AddSupplier(tk.Frame):
 
     def add(self):
         """Add a supplier to supplier-table """
-        
-        db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
-                             self.controller.shared_data["password"].get(), cfg.mysql['database']) # open connection
-        cursor = db.cursor() # prepare a cursor object
 
-        # Make a sql for creation of new user
-        add_supp_sql = TUQ.make_insert_row('supplier', {'supplier_ID' : self.supplierid.get(), 'supplier_name' : self.supplier.get()})
+        # Get supplier name, check whether not empty
+        suppliername = self.supplier.get()
+        suppliername = suppliername.strip()
+        if suppliername == "":
+                self.var_message.set("Invalid name")
+        else:
+            db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
+                                 self.controller.shared_data["password"].get(), cfg.mysql['database']) # open connection
+            cursor = db.cursor() # prepare a cursor object
 
-        try:
-            cursor.execute(add_supp_sql)
-            db.commit()
-            cursor.close()
-            db.close()
-            self.var_message.set("%s Added" % self.supplier.get())
-            self.win.destroy()
-            
-        except MySQLdb.Error,e:# Rollback in case there is any error
-            db.rollback()
-            cursor.close()
-            db.close()
-            self.var_message.set((e[0], e[1]))
+            # Make a sql for creation of new user
+            add_supp_sql = TUQ.make_insert_row('supplier', {'supplier_ID' : make_new_ID('supplier'), 'supplier_name' : suppliername})
+
+            try:
+                cursor.execute(add_supp_sql)
+                db.commit()
+                cursor.close()
+                db.close()
+                self.var_message.set("%s Added" % suppliername)
+                self.win.destroy()
+                
+            except MySQLdb.Error,e:# Rollback in case there is any error
+                db.rollback()
+                cursor.close()
+                db.close()
+                self.var_message.set((e[0], e[1]))
             
 class GeneralOrderStatus(tk.Frame):
     def __init__(self, parent, controller):
@@ -1005,7 +991,7 @@ class AddEmployee(tk.Frame):
         else:
             # remove trailing or leading spaces
             username = self.username.get()
-            username.strip()
+            username = username.strip()
             # check whether they contain something
             if username == "" or self.npassword.get() == "":
                 self.var_message.set("Invalid username or password")
