@@ -1,6 +1,8 @@
-"""Author: Melanie van den Bosch
+"""
+Author: Melanie van den Bosch
 Jorn van der Ent
 Script for having multiple windows frames in a GUI
+and functionality
 """
 
 
@@ -19,10 +21,11 @@ import config as cfg
 import Table_Lookup_queries as TLQ
 import table_windows as tw
 import Table_update_queries as TUQ
-from import_oligo_parser import new_emp_ID
-from import_oligo_parser import get_date_stamp
-from import_oligo_parser import import_to_queue
-from import_oligo_parser import make_new_ID
+#from import_oligo_parser import new_emp_ID
+#from import_oligo_parser import get_date_stamp
+#from import_oligo_parser import import_to_queue
+#from import_oligo_parser import make_new_ID
+import import_oligo_parser as IOP
 
 
 
@@ -339,6 +342,7 @@ class Import(tk.Frame):
         text_path = tk.Entry(self, bg='white', fg='black', width=50,
                              textvariable=self.path_var, justify="left" )
                                 # add feature that it will expand upon selection
+                                # add that when upload was succesfull, path dissappears
         text_path.grid(row=8, column=3, columnspan=4)
 
         button3 = tk.Button(self, text="Browse",
@@ -346,7 +350,7 @@ class Import(tk.Frame):
         button3.grid(row=8, column=7)
 
         button4 = tk.Button(self, text="Upload",
-                            command=lambda:import_to_queue("order_queue",
+                            command=lambda:IOP.import_to_queue("order_queue",
                                                            self.path_var.get()))
                             #command = Uploads the file in the path into the
                             # specified columns of the db
@@ -697,7 +701,7 @@ class AddProject(tk.Frame):
             cursor = db.cursor() # prepare a cursor object
 
             # Make a sql for creation of new user
-            add_project_sql = TUQ.make_insert_row('project', {'project_ID' : make_new_ID('project'), 'project_name' : self.project.get()})
+            add_project_sql = TUQ.make_insert_row('project', {'project_ID' : IOP.make_new_ID('project'), 'project_name' : self.project.get()})
 
             try:
                 cursor.execute(add_project_sql)
@@ -791,7 +795,7 @@ class AddSupplier(tk.Frame):
             cursor = db.cursor() # prepare a cursor object
 
             # Make a sql for creation of new user
-            add_supp_sql = TUQ.make_insert_row('supplier', {'supplier_ID' : make_new_ID('supplier'), 'supplier_name' : suppliername})
+            add_supp_sql = TUQ.make_insert_row('supplier', {'supplier_ID' : IOP.make_new_ID('supplier'), 'supplier_name' : suppliername})
 
             try:
                 cursor.execute(add_supp_sql)
@@ -1013,7 +1017,7 @@ class AddEmployee(tk.Frame):
                     grant_sql = "Grant select, insert, update, delete on %s.* to %s@%s" % (cfg.mysql['database'], username, cfg.mysql['hostadress'])
 
                 # Make sql to add user to employee table
-                insert_user_sql = TUQ.make_insert_row('Employee', {'employee_ID' : new_emp_ID('employee'), 'emp_name' : username, 'password' : self.npassword.get()})
+                insert_user_sql = TUQ.make_insert_row('Employee',{'employee_ID' : IOP.new_emp_ID('employee'), 'emp_name' : username, 'password' : self.npassword.get()})
 
                 try:
                     cursor.execute(create_user_sql)
@@ -1491,7 +1495,7 @@ class Deliveries(tk.Frame):
                                                      WHERE batch_number = '%s'" % self.batch.get())
             if batchstatus[0][0] == 'Ordered':
                 TUQ.update_row('batch', {'synthesis_level_delivered' : self.synth.get(), 'order_status' : 'Delivered',
-                                     'delivery_date' : get_date_stamp()}, {'batch_number' : self.batch.get()})
+                                     'delivery_date' : IOP.get_date_stamp()}, {'batch_number' : self.batch.get()})
                 self.message.set("Succesfull")
         except:
             self.message.set("An Error occured, please try again")
