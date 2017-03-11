@@ -1,11 +1,11 @@
 oligo_name;oligo_type;sequence;description;label5prime;label3prime;labelM1;labelM1position;pathogen_name;target;notes;synthesis_level_ordered;purification_method;supplier_name;project_name
-C.freundii_tpl_1D_RevIn;primer;GGACGCGCCAGCAAGATCCAATCTAGACCAATCGCAATCGTGGCCCTGCTCTTGCTCTTTGATA;Adjusted C.freundi RevIn primer for D&D3400 Amaryllis Environmental tpl gene;;;;;C. Freundi;tpl gene;;200;HPLC;EllaBiotech;Amaryllis Environmental
-C.freundii_tpl_1E_RevIn ;primer;GGACGCGCCAGCAAGATCCAATCTAGACCAATCGCAATCGTGGCCCTGCTCTTGCTCTTTGA;Adjusted C.freundi RevIn primer for D&D3400 Amaryllis Environmental tpl gene;;;;;C. Freundi;tpl gene;;200;HPLC;EllaBiotech;Amaryllis Environmental
-Myco_16S_1B_FwdIn7;primer;GTGGCAGGGCGCTACGTACAAGCCAGCTTGTAAAAGTGAGCA;Adjusted Mycoplasma FwdIn primer for D&D3400 Amaryllis Environmental 16S gene;;;;;Mycoplasma;16S ;;40;Standard Desalted;EllaBiotech;Amaryllis Environmental
-Mycoplasma_16S_1A_Fwd2;primer;AATCATCATGCCCCTTATGTCTA;Adjusted Mycoplasma Fwd primer for D&D3400 Amaryllis Environmental 16S gene;;;;;Mycoplasma;16S ;;40;Standard Desalted;EllaBiotech;Amaryllis Environmental
-Mycoplasma_16S_1A_Fwd3;primer;AATCATCATGCCTCTTACGAGTG;Adjusted Mycoplasma Fwd primer for D&D3400 Amaryllis Environmental 16S gene;;;;;Mycoplasma;16S ;;40;Standard Desalted;EllaBiotech;Amaryllis Environmental
-Mycoplasma_16S_1A_Rev2;primer;CGGTGTGTACAAGACCCGA;Adjusted Mycoplasma Rev primer for D&D3400 Amaryllis Environmental 16S gene;;;;;Mycoplasma;16S ;;40;Standard Desalted;EllaBiotech;Amaryllis Environmental
-probe_test;probe;AATCATCATGCCTCTTACGAGTG;test probe;FAM;BHQ1;;;E. Coli;hypothetical gene;;100;HPLC;IDT;blablabla
-boundarie_case;primer;AATCATCATGCCTCTTACGAGTG;boudary testing;;;;;E. Coli;hypothetical gene;;200;HPLC;IDT;something
-duplicated_seq;primer;AGATCAACTTCTGTCATCCAGCAA;duplicated_seq for testing;;;;;;;;200;HPLC;IDT;something
-actually_oli6;primer;GAGCATGCATGGACTGACTTACTAGACTAACTGCAAAAGCAATGTTAGGGCATGTGTCAGAAAGATATGTGAGTCTCCCC;duplicated_seq for testing;;;;;E.coli;;;200;HPLC;IDT;Amaryllis Environmental
+C.freundii_tpl_1D_RevIn;primer;GGACGCGCCAGCAAGATCCAATCTAGACCAATCGCAATCGTGGCCCTGCTCTTGCTCTTTGATA;Adjusted C.freundi RevIn primer for D&D3400 Amaryllis Environmental tpl gene;;;;;C. Freundi;tpl gene;;200;HPLC;Ella Biotech;Amaryllis_Environmental
+C.freundii_tpl_1E_RevIn ;primer;GGACGCGCCAGCAAGATCCAATCTAGACCAATCGCAATCGTGGCCCTGCTCTTGCTCTTTGA;Adjusted C.freundi RevIn primer for D&D3400 Amaryllis Environmental tpl gene;;;;;C. Freundi;tpl gene;;200;HPLC;Ella Biotech;Amaryllis_Environmental
+Myco_16S_1B_FwdIn7;primer;GTGGCAGGGCGCTACGTACAAGCCAGCTTGTAAAAGTGAGCA;Adjusted Mycoplasma FwdIn primer for D&D3400 Amaryllis Environmental 16S gene;;;;;Mycoplasma;16S ;;40;Standard Desalted;Ella Biotech;Amaryllis_Environmental
+Mycoplasma_16S_1A_Fwd2;primer;AATCATCATGCCCCTTATGTCTA;Adjusted Mycoplasma Fwd primer for D&D3400 Amaryllis Environmental 16S gene;;;;;Mycoplasma;16S ;;40;Standard Desalted;Ella Biotech;Amaryllis_Environmental
+Mycoplasma_16S_1A_Fwd3;primer;AATCATCATGCCTCTTACGAGTG;Adjusted Mycoplasma Fwd primer for D&D3400 Amaryllis Environmental 16S gene;;;;;Mycoplasma;16S ;;40;Standard Desalted;Ella Biotech;Amaryllis_Environmental
+Mycoplasma_16S_1A_Rev2;primer;CGGTGTGTACAAGACCCGA;Adjusted Mycoplasma Rev primer for D&D3400 Amaryllis Environmental 16S gene;;;;;Mycoplasma;16S ;;40;Standard Desalted;Ella Biotech;Amaryllis_Environmental
+probe_test;probe;AATCATCATGCCTCTTACGAGTG;test probe;FAM;BHQ1;;;E. Coli;hypothetical gene;;100;HPLC;IDT;Amaryllis_Environmental
+boundarie_case;primer;AATCATCATGCCTCTTACGAGTG;boudary testing;;;;;E. Coli;hypothetical gene;;200;HPLC;IDT;Amaryllis_Environmental
+duplicated_seq;primer;AGATCAACTTCTGTCATCCAGCAA;duplicated_seq for testing;;;;;;;;200;HPLC;IDT;Amaryllis_Environmental
+actually_oli6;primer;GAGCATGCATGGACTGACTTACTAGACTAACTGCAAAAGCAATGTTAGGGCATGTGTCAGAAAGATATGTGAGTCTCCCC;duplicated_seq for testing;;;;;E.coli;;;200;HPLC;IDT;Amaryllis_Environmental
