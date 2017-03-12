@@ -1499,8 +1499,7 @@ class ProcessQueue(tk.Frame):
     def move(self):
         text = self.gettext()
         text = text.split()
-        for id_ in text:
-            TUQ.move_row(id_, 'order_queue', 'order_bin')
+        IOP.process_to_db(text)
         self.message.set('completed computation')
 
 
