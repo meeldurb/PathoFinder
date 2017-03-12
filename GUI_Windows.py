@@ -1480,9 +1480,9 @@ class ProcessQueue(tk.Frame):
         message = tk.Message(self, textvariable = self.message, width = 280)
         message.pack(side = 'top')
 
-        button = tk.Button(self, text = 'Process oligo(s)')
-        button['command'] = lambda : self.move()
-        button.pack(side = 'top', pady = 10)
+        processbutton = tk.Button(self, text = 'Process oligo(s)')
+        processbutton['command'] = lambda : self.move()
+        processbutton.pack(side = 'top', pady = 10)
 
         buttongroup = tk.LabelFrame(self)
         buttongroup.pack(side = 'top')
@@ -1495,6 +1495,30 @@ class ProcessQueue(tk.Frame):
                              command = lambda : self.controller.show_frame("OrderQueue"))
         button3.pack(side = 'left', pady=5, padx = 5)
 
+        # Button
+        confirm = tk.Button(self, text = "Add")
+        confirm['command'] = lambda: self.popup()
+        confirm.pack(side = 'top', pady = 10)
+
+
+    def popup(self):
+        """ A popup window which asks to confirm action"""
+        self.win = tk.Toplevel()
+
+        label0 = tk.Label(self.win, text = " The sequence and labels are duplicated \n \
+                        Do you want to import anyway? \n A new batchno will be created")
+        label0.pack(side = 'top', pady = 5)
+
+        buttongroup = tk.LabelFrame(self.win)
+        buttongroup.pack(side = 'top')
+      
+        button1 = tk.Button(buttongroup, text = 'Confirm',
+                            command = lambda : self.move())
+        button1.pack(side = 'left', padx = 5, pady = 10)
+
+        button2 = tk.Button(buttongroup, text = 'Cancel',
+                            command = lambda : self.win.destroy())
+        button2.pack(side = 'left', padx = 5, pady = 10)
 
     def move(self):
         text = self.gettext()
@@ -1510,6 +1534,7 @@ class ProcessQueue(tk.Frame):
         if  text == "":
             text = None
         return text
+    
 
 #############################________________DELIVERIES________________#############################
 
