@@ -122,7 +122,7 @@ def get_from_orderqueue(queue_ID_list):
 
 
         
-def process_to_db(queue_ID_list):
+def process_to_db(self, queue_ID_list):
     """ Processes the information from order_queue table to the db
 
     Keyword Arguments:
@@ -141,7 +141,7 @@ def process_to_db(queue_ID_list):
     # this is for correctness of ORDNO
     
     if supplierlist_check(queue_ID_list) == True:
-        print 'suppliers are the same, starting process'
+        self.message.set('suppliers are the same, starting process')
 
         for orderqueue_tuple in get_from_orderqueue(queue_ID_list):
             supplier_ID = orderqueue_tuple[19]
@@ -269,7 +269,7 @@ def process_to_db(queue_ID_list):
 
                 TUQ.delete_row("Order_queue", {"queue_ID": queue_ID})
     else:
-        print 'two or more suppliers provided, not able to process'
+        self.message.set('two or more suppliers provided, not able to process')
 
 
 
@@ -704,7 +704,8 @@ if __name__ == "__main__":
 ##        print(i)
     #import_to_queue("order_queue", "Importfileoligos_new.csv")
     
-    #get_from_orderqueue([2,3,4,5])
+   # get_from_orderqueue([4,5,6])
+
     process_to_db([1,2,3,4,5, 6, 7, 8, 9])
     process_to_db([1,2,3,4,5,6])
     process_to_db([7,8,9,10])
