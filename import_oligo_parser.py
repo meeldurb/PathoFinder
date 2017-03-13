@@ -209,9 +209,10 @@ def process_to_db(self, queue_ID_list):
             if sequence_duplicated[0] == True:
                 # when sequence is duplicated ask user whether sure to import
                 # into database, give new batchno but same olino as sequence
-                import_anyway = raw_input("The sequence (with labels) is duplicated, \
-                                              import anyway? The seq will get a new \
-                                                batchnumber. y/n: ")
+                self.popup()
+                #import_anyway = raw_input("The sequence (with labels) is duplicated, \
+                                            #  import anyway? The seq will get a new \
+                                           #     batchnumber. y/n: ")
                 if import_anyway == "y":
                     # do not make new oligono
                     # get oligo_ID from check_sequence_duplicated function
