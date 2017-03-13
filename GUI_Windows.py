@@ -1496,9 +1496,9 @@ class ProcessQueue(tk.Frame):
         button3.pack(side = 'left', pady=5, padx = 5)
 
         # Button
-        confirm = tk.Button(self, text = "Add")
-        confirm['command'] = lambda: self.popup()
-        confirm.pack(side = 'top', pady = 10)
+        #confirm = tk.Button(self, text = "Add")
+        #confirm['command'] = lambda: self.popup()
+        #confirm.pack(side = 'top', pady = 10)
 
 
     def popup(self):
@@ -1506,17 +1506,17 @@ class ProcessQueue(tk.Frame):
         self.win = tk.Toplevel()
 
         label0 = tk.Label(self.win, text = " The sequence and labels are duplicated \n \
-                        Do you want to import anyway? \n A new batchno will be created")
+Do you want to import anyway? \n A new batchno will be created")
         label0.pack(side = 'top', pady = 5)
 
         buttongroup = tk.LabelFrame(self.win)
         buttongroup.pack(side = 'top')
       
-        button1 = tk.Button(buttongroup, text = 'Confirm',
-                            command = lambda : self.process())
+        button1 = tk.Button(buttongroup, text = 'Yes',
+                            command = lambda : import_anyway.set())
         button1.pack(side = 'left', padx = 5, pady = 10)
 
-        button2 = tk.Button(buttongroup, text = 'Cancel',
+        button2 = tk.Button(buttongroup, text = 'No',
                             command = lambda : self.win.destroy())
         button2.pack(side = 'left', padx = 5, pady = 10)
 
