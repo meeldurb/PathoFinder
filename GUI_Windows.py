@@ -1481,7 +1481,7 @@ class ProcessQueue(tk.Frame):
         message.pack(side = 'top')
 
         processbutton = tk.Button(self, text = 'Process oligo(s)')
-        processbutton['command'] = lambda : self.move()
+        processbutton['command'] = lambda : self.process()
         processbutton.pack(side = 'top', pady = 10)
 
         buttongroup = tk.LabelFrame(self)
@@ -1513,18 +1513,21 @@ class ProcessQueue(tk.Frame):
         buttongroup.pack(side = 'top')
       
         button1 = tk.Button(buttongroup, text = 'Confirm',
-                            command = lambda : self.move())
+                            command = lambda : self.process())
         button1.pack(side = 'left', padx = 5, pady = 10)
 
         button2 = tk.Button(buttongroup, text = 'Cancel',
                             command = lambda : self.win.destroy())
         button2.pack(side = 'left', padx = 5, pady = 10)
 
-    def move(self):
+    def process(self):
         text = self.gettext()
         text = text.split()
-        IOP.process_to_db(text)
-        self.message.set('completed computation')
+        #try: 
+        IOP.process_to_db(self, text)
+            #self.message.set('suppliers are the same, starting process')
+        #except:
+          #  self.message.set('two or more suppliers provided, not able to process')
 
 
     def gettext(self):
