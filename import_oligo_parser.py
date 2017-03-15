@@ -213,7 +213,8 @@ def process_to_db(self, queue_ID_list):
                 #import_anyway = raw_input("The sequence (with labels) is duplicated, \
                                             #  import anyway? The seq will get a new \
                                            #     batchnumber. y/n: ")
-                if import_anyway == "y":
+                #print self.confirm().get()
+                if self.confirm() == "y":
                     # do not make new oligono
                     # get oligo_ID from check_sequence_duplicated function
                     # at 2nd position in returned list the oliID is contained
@@ -707,9 +708,9 @@ if __name__ == "__main__":
     
    # get_from_orderqueue([4,5,6])
 
-    process_to_db([1,2,3,4,5, 6, 7, 8, 9])
+   # process_to_db([1,2,3,4,5, 6, 7, 8, 9])
     process_to_db([1,2,3,4,5,6])
-    process_to_db([7,8,9,10])
+    #process_to_db([7,8,9,10])
 
     #supplierlist_check([1,2,3,4,5, 6, 7, 8, 9])
     #supplierlist_check([1,2,3,4,5, 6])
