@@ -30,6 +30,11 @@ import import_oligo_parser as IOP
 
 
 mycolor = '#%02x%02x%02x' % (0, 182, 195)
+LARGE_FONT = ("Corbel", 20)
+LARGE_FONT = ("Corbel", 18)
+LARGE_FONT = ("Corbel", 14)
+
+
 
 class OligoDatabase(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -37,7 +42,7 @@ class OligoDatabase(tk.Tk):
 
         # setting a default font for complete GUI
         default_font = tkFont.nametofont("TkDefaultFont")
-        default_font.configure(family="Corbel", size=24)
+        default_font.configure(family="Corbel", size=20)
         self.tk_setPalette(background=mycolor, foreground="white",
                            activeBackground="grey", activeForeground="black")
         
@@ -164,9 +169,9 @@ class Home(tk.Frame):
         
 
         label = tk.Label(self, text="Home")
-        label.grid(row = 1, column = 1, columnspan=3, pady=10)
+        label.grid(row = 1, column = 1, columnspan=3, pady=10 )
 
-        button1 = tk.Button(self, text="Import oligos", bg=mycolor,
+        button1 = tk.Button(self, text="Import oligos", 
                             command=lambda:controller.show_frame("Import"))
         button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
 
@@ -1513,13 +1518,17 @@ Do you want to import anyway? \n A new batchno will be created")
         buttongroup.pack(side = 'top')
       
         button1 = tk.Button(buttongroup, text = 'Yes',
-                            command = lambda : import_anyway.set())
+                            command = lambda : self.confirm("y"))
         button1.pack(side = 'left', padx = 5, pady = 10)
 
         button2 = tk.Button(buttongroup, text = 'No',
                             command = lambda : self.win.destroy())
         button2.pack(side = 'left', padx = 5, pady = 10)
 
+    def confirm(self, yesorno):
+        answer = yesorno
+        return answer
+        
     def process(self):
         text = self.gettext()
         text = text.split()
