@@ -315,22 +315,6 @@ class TableViews(tk.Frame):
                          command=lambda:controller.show_frame("Home"))
                             
         button1.grid(row=7, column=3, pady=5, padx=10)
- 
-
-##class OrderStatus(tk.Frame):
-##    def __init__(self, parent, controller):
-##        tk.Frame.__init__(self, parent)
-##
-##        #save a reference to controller in each page:
-##        self.controller = controller
-##
-##        
-##        label = tk.Label(self, text="Change order status")
-##        label.grid(columnspan=8, pady=10)
-##
-##        button2 = tk.Button(self, text="Back to Home",
-##                         command=lambda:controller.show_frame("Home"))
-##        button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
 
 
 #############################________________IMPORT________________#############################
@@ -372,8 +356,6 @@ class Import(tk.Frame):
                             # specified columns of the db
         button4.grid(row=8, column=8)
 
-
-        
 class Experiment(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
