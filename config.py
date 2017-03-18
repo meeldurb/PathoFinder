@@ -2,7 +2,7 @@ mysql =  {'host': '127.0.0.1',
           'user': 'root',
           'password' : 'root',
           'database' : 'pathofinder_db',
-          'hostadress' : "'%'"}
+          'hostadress' : "localhost"} #"'%'"}
 
 db_tables_views = { #dictionary containing all tables and table-views and their attributes
     'oligo' : ['oligo_ID', 'oligo_name', 'oligo_type',
