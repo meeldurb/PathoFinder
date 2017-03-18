@@ -1174,6 +1174,8 @@ class AddSupplier(tk.Frame):
                 self.var_message.set((e[0], e[1]))
         # Empty entry field
         self.supplier.set("")
+
+#############################________________GENERAL ODERSTATUS________________#############################
         
 class GeneralOrderStatus(tk.Frame):
     def __init__(self, parent, controller):
@@ -1250,7 +1252,9 @@ class GeneralOrderStatus(tk.Frame):
                     self.message.set("Succesfull")
             except:
                 self.message.set("An Error occured when trying to update status")
-        
+                
+#############################________________EMPLOYEES________________#############################
+                
 class Employees(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -1304,50 +1308,65 @@ class AddEmployee(tk.Frame):
         self.adminvalid = tk.IntVar()
         
         label = tk.Label(self, text="Add an Employee")
-        label.grid(row = 1, column = 1, columnspan=8, pady=10)
+        label.pack(side = 'top', pady=10)
 
-        # currrent password
-        usernamelabel = tk.Label(self, text = "Username: ")
-        usernamelabel.grid(row = 3, column = 2, pady=10)
+        # user
+        group1 = tk.LabelFrame(self, relief = 'flat')
+        group1.pack(side = 'top', pady = 10)
+        
+        usernamelabel = tk.Label(group1, text = "Username: ")
+        usernamelabel.pack(side = 'left', padx = 5, pady=10)
 
-        username = tk.Entry(self)
+        username = tk.Entry(group1)
         username['textvariable'] = self.username
-        username.grid(row = 3, column = 4, columnspan = 4, pady = 10)
-
+        username.pack(side = 'right', padx = 5, pady = 10)
+        
         # new password
-        npwlabel = tk.Label(self, text = "Password: ")
-        npwlabel.grid(row = 4, column = 2, pady=10)
+        group2 = tk.LabelFrame(self, relief = 'flat')
+        group2.pack(side = 'top', pady = 10)
 
-        npw = tk.Entry(self, show = "*")
+        npwlabel = tk.Label(group2, text = "Password: ")
+        npwlabel.pack(side = 'left', padx = 5, pady=10)
+
+        npw = tk.Entry(group2, show = "*")
         npw['textvariable'] = self.npassword
-        npw.grid(row = 4, column = 4, columnspan = 4, pady = 10)
+        npw.pack(side = 'right', padx = 5, pady = 10)
 
         # repeat password
-        rnlabel = tk.Label(self, text = "Repeat Password: ")
-        rnlabel.grid(row = 5, column = 2, pady=10)
+        group3 = tk.LabelFrame(self, relief = 'flat')
+        group3.pack(side = 'top', pady = 10)
+        
+        rnlabel = tk.Label(group3, text = "Repeat Password: ")
+        rnlabel.pack(side = 'left', padx = 5, pady=10)
 
-        rnpw = tk.Entry(self, show = "*")
+        rnpw = tk.Entry(group3, show = "*")
         rnpw['textvariable'] = self.rnpassword
-        rnpw.grid(row = 5, column = 4, columnspan = 4, pady = 10)
+        rnpw.pack(side = 'right', padx = 5, pady = 10)
 
         admin = tk.Checkbutton(self, text = 'Admin', onvalue = 1, offvalue = 0, selectcolor = 'black')
         admin['variable'] = self.adminvalid
-        admin.grid(row = 6, column = 2, pady = 10)
+        admin.pack(side = 'top', pady = 10)
 
         # Message
         msg = tk.Message(self, width=280)
         msg['textvariable'] = self.var_message
-        msg.grid(row=7, column=2, columnspan=4, pady = 10)
+        msg.pack(side = 'top', pady = 10)
 
         # Button
         changpass = tk.Button(self, text = "Confirm")
         changpass['command'] = lambda: self.insert_user()
-        changpass.grid(row = 8, column = 4, pady = 10)
+        changpass.pack(side = 'top', pady = 10)
 
+        group4 = tk.LabelFrame(self, relief = 'flat')
+        group4.pack(side = 'top', pady = 10)
 
-        button2 = tk.Button(self, text="Back to Home",
+        button2 = tk.Button(group4, text="Back to Home",
                          command=lambda:controller.show_frame("Home"))
-        button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
+        button2.pack(side = 'left', pady = 5, padx=10)
+
+        button3 = tk.Button(group4, text="Back to Employees",
+                         command=lambda:controller.show_frame("Employees"))
+        button3.pack(side = 'right', pady=5, padx=10)
 
     def insert_user(self):
         """Inserts a new employee"""
@@ -1412,29 +1431,38 @@ class RemoveUser(tk.Frame):
         self.var_message = tk.StringVar()
         
         label = tk.Label(self, text="Remove User")
-        label.grid(row = 1, column = 1, columnspan=8, pady=10)
+        label.pack(side = 'top', pady=20)
 
-        labeluser = tk.Label(self, text = 'Username: ')
-        labeluser.grid(row = 3, column = 4, pady=10)
+        group1 = tk.LabelFrame(self, relief = 'flat')
+        group1.pack(side = 'top', padx = 5, pady = 10)
+        
+        labeluser = tk.Label(group1, text = 'Username: ')
+        labeluser.pack(side = 'left', padx = 5, pady=10)
 
-        username = tk.Entry(self)
+        username = tk.Entry(group1)
         username['textvariable'] = self.username
-        username.grid(row = 3, column = 6, columnspan = 4, pady = 10)
+        username.pack(side = 'right', padx = 5, pady = 10)
 
         # Message
         msg = tk.Message(self, width=280)
         msg['textvariable'] = self.var_message
-        msg.grid(row=7, column=2, columnspan=4, pady = 10)
+        msg.pack(side = 'top', pady = 10)
 
         # Button
         confirm = tk.Button(self, text = "Remove")
         confirm['command'] = lambda: self.popup()
-        confirm.grid(row = 8, column = 4, pady = 10)
+        confirm.pack(side = 'top', pady = 10)
 
-
-        button2 = tk.Button(self, text="Back to Home",
+        group2 = tk.LabelFrame(self, relief = 'flat')
+        group2.pack(side = 'bottom', padx = 5, pady = 10)
+        
+        button2 = tk.Button(group2, text="Back to Home",
                          command=lambda:controller.show_frame("Home"))
-        button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
+        button2.pack(side = 'left', pady=5, padx=10)
+
+        button3 = tk.Button(group2, text="Back to Employee",
+                         command=lambda:controller.show_frame("Employees"))
+        button3.pack(side = 'right', pady=5, padx=10)
 
 
     def popup(self):
@@ -1442,13 +1470,10 @@ class RemoveUser(tk.Frame):
         
         self.win = tk.Toplevel()
 
-        self.password = tk.StringVar()
-        self.var_message = tk.StringVar()
-
         label0 = tk.Label(self.win, text = ("Are you sure you want to remove '%s' ?" % self.username.get()))
         label0.pack(side = 'top', pady = 5)
 
-        buttongroup = tk.LabelFrame(self.win)
+        buttongroup = tk.LabelFrame(self.win, relief = 'flat')
         buttongroup.pack(side = 'top')
       
         button1 = tk.Button(buttongroup, text = 'Confirm',
@@ -1461,31 +1486,34 @@ class RemoveUser(tk.Frame):
 
     def remove(self):
         """Removes a User/employee login specifications, but not from the employee_table! """
-    
-        db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
-                             self.controller.shared_data["password"].get(), cfg.mysql['database']) # open connection
-        cursor = db.cursor() # prepare a cursor object
+        self.win.destroy()
+        # Exectue only when the input username is not the same as the current user       
+        if self.username.get() != self.controller.shared_data["username"].get():
+        
+            db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
+                                 self.controller.shared_data["password"].get(), cfg.mysql['database']) # open connection
+            cursor = db.cursor() # prepare a cursor object
 
-        # Make a sql for creation of new user
-        drop_user_sql = "DROP USER %s@%s" % (self.username.get(), cfg.mysql['hostadress'])
-        remove_password = TUQ.make_update_row('Employee', { 'password' : "" },
-                                                       {'emp_name' : self.username.get()})
-        try:
-            cursor.execute(drop_user_sql)
-            cursor.execute(remove_password)
-            db.commit()
-            cursor.close()
-            db.close()
-            self.var_message.set("%s Removed" % self.username.get())
-            self.win.destroy()
-            
-        except MySQLdb.Error,e:# Rollback in case there is any error
-            db.rollback()
-            raise ValueError(e[0], e[1])
-            cursor.close()
-            db.close() #disconnect from server
-        # Empty entry field
-        self.username.set("")
+            # Make a sql for creation of new user
+            drop_user_sql = "DROP USER %s@%s" % (self.username.get(), cfg.mysql['hostadress'])
+            remove_password = TUQ.make_update_row('Employee', { 'password' : "" },
+                                                           {'emp_name' : self.username.get()})
+            try:
+                cursor.execute(drop_user_sql)
+                cursor.execute(remove_password)
+                db.commit()
+                self.var_message.set("%s Removed" % self.username.get())
+                cursor.close()
+                db.close()
+                # Empty entry field
+                self.username.set("")
+            except MySQLdb.Error,e:# Rollback in case there is any error
+                db.rollback()
+                self.var_message.set(e[0], e[1])
+                cursor.close()
+                db.close() #disconnect from server
+        else:
+            self.var_message.set("Cannot remove your own user-account")
         
 class AdminRights(tk.Frame):
     def __init__(self, parent, controller):
@@ -1528,35 +1556,39 @@ class AdminRights(tk.Frame):
 
     def revokerights(self):
         """Removes the Admin rights of a user, and gives standard rights"""
+        # Exectue only when the input username is not the same as the current user       
+        if self.username.get() != self.controller.shared_data["username"].get():
+            
+            db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
+                                 self.controller.shared_data["password"].get(), cfg.mysql['database']) # open connection
+            cursor = db.cursor() # prepare a cursor object
+              
+            # Make a sql to revoke all
+            revoke_sql = "REVOKE ALL, GRANT OPTION FROM %s@%s" % (self.username.get(),
+                                                                  cfg.mysql['hostadress'])
 
-        db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
-                             self.controller.shared_data["password"].get(), cfg.mysql['database']) # open connection
-        cursor = db.cursor() # prepare a cursor object
+            # Make sql to grant the other rights again
+            grant_sql = "Grant select, insert, update, delete on %s.* to %s@%s" %(cfg.mysql['database'],
+                                                                                  self.username.get(), cfg.mysql['hostadress'])
 
-        # Make a sql to revoke all
-        revoke_sql = "REVOKE ALL, GRANT OPTION FROM %s@%s" % (self.username.get(),
-                                                              cfg.mysql['hostadress'])
+            try:
+                cursor.execute(revoke_sql)
+                cursor.execute(grant_sql)
+                cursor.execute("FLUSH PRIVILEGES")
+                db.commit()
+                cursor.close()
+                db.close()
+                self.var_message.set("Revoked Admin Rights of %s" % self.username.get())
+            except MySQLdb.Error,e:# Rollback in case there is any error
+                db.rollback()
+                raise ValueError(e[0], e[1])
+                cursor.close()
+                db.close() #disconnect from server
 
-        # Make sql to grant the other rights again
-        grant_sql = "Grant select, insert, update, delete on %s.* to %s@%s" %(cfg.mysql['database'],
-                                                                              self.username.get(), cfg.mysql['hostadress'])
-
-        try:
-            cursor.execute(revoke_sql)
-            cursor.execute(grant_sql)
-            cursor.execute("FLUSH PRIVILEGES")
-            db.commit()
-            cursor.close()
-            db.close()
-            self.var_message.set("Revoked Admin Rights of %s" % self.username.get())
-        except MySQLdb.Error,e:# Rollback in case there is any error
-            db.rollback()
-            raise ValueError(e[0], e[1])
-            cursor.close()
-            db.close() #disconnect from server
-
-        # Empty entry field
-        self.username.set("")
+            # Empty entry field
+            self.username.set("")
+        else:
+            self.var_message.set("Cannot revoke your own rights")
 
     def giverights(self):
         """Replaces standard rights with Admin Rights"""
