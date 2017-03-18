@@ -172,7 +172,9 @@ def move_row(pk_ID, source, target): # works
 
     #locate the oligo in the table, retrieve values
     row = TLQ.search_in_single_attribute(source, cfg.db_tables_views[source][0], pk_ID)
-    if len(row) == 0:
+    print type(row[0][0])
+    print type(pk_ID)
+    if len(row) == 0 or str(row[0][0]) != pk_ID:
         raise ValueError("Could not find ID")
     #convert to list, for indexing purposes
     row = list(row[0])
@@ -194,7 +196,9 @@ def move_row(pk_ID, source, target): # works
     # get the queries
     insert_sql = make_insert_row(target, insertdict)
     delete_sql = make_delete_row(source, {cfg.db_tables_views[source][0] : pk_ID})
-
+    print insert_sql
+    print delete_sql
+    
     try:
         cursor.execute(insert_sql)
         cursor.execute(delete_sql)
