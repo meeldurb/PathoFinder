@@ -70,7 +70,8 @@ class OligoDatabase(tk.Tk):
                   Experiment, SearchPage, Admin, Employees, AddEmployee, OrderBin, BinToQueue,
                   QueueToBin, ProcessQueue,
                   OrderStatus, OrderQueue, Deliveries, OutOfStock, GeneralOrderStatus, RemoveUser,
-                  AdminRights, AddSupplier, AddProject, RemoveOligo):
+                  AdminRights, AddSupplier, AddProject, RemoveOligo, Project, ModifyProject, Supplier,
+                  ModifySupplier):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -501,7 +502,8 @@ class SearchPage(tk.Frame):
 
         self.frame = parent
         self.tables = cfg.db_tables_views.keys()
-        del self.tables[9]
+        # Remove Employee table from the options
+        del self.tables[self.tables.index('employee')]
 
         self.table = tk.StringVar()
         self.table.set(self.tables[0])
@@ -512,7 +514,7 @@ class SearchPage(tk.Frame):
         self.restsearchpresence.set(False)
 
         # Search Group
-        search_group = tk.LabelFrame(self)
+        search_group = tk.LabelFrame(self, relief = 'flat')
         search_group.pack(side = 'top', padx=10, pady=10)
         
         search_label = tk.Label(search_group, text = 'Search for: ')
@@ -529,7 +531,7 @@ class SearchPage(tk.Frame):
         tablesmenu = tk.OptionMenu(self, self.table, *self.tables)
         tablesmenu.pack(side = 'top', padx = 10, pady = 10)
 
-        buttonsgroup = tk.LabelFrame(self)
+        buttonsgroup = tk.LabelFrame(self, relief = 'flat')
         buttonsgroup.pack(side = 'top', padx = 10, pady = 10)
         
         # Cancel
@@ -575,7 +577,7 @@ class SearchRest(tk.Frame):
         self.sortmethod.set("Descending")
         
         # Sort Group
-        sort_group = tk.LabelFrame(self, text = 'Sort By')
+        sort_group = tk.LabelFrame(self, text = 'Sort By', relief = 'flat')
         sort_group.pack(side = 'top', padx=10, pady = 10)
         
         sortList = tk.OptionMenu(sort_group, self.sortattribute, *cfg.db_tables_views[self.table])
@@ -589,7 +591,7 @@ class SearchRest(tk.Frame):
         sortbutton = tk.Button(self, text = 'GO', padx = 20, pady = 10)
         sortbutton['command'] = lambda : self.search_button_go(self.table, self.search_input, self.sortattribute.get(), self.sortmethod.get())
         # To clarify: for some weird reason self.search_input.get()didn't work, so had to use search_entry.get() instead.
-        sortbutton.pack(side = 'left' , padx=5, pady=10)
+        sortbutton.pack(side = 'bottom' , padx=5, pady=10)
 
     def search_button_go(self, table_str, search_input, sortattribute, sortmethod):
         sql, attributes = TLQ.search(table_str, search_input, sortattribute, sortmethod)
@@ -632,12 +634,12 @@ class Admin(tk.Frame):
                             command = lambda : self.controller.show_frame("RemoveOligo"))
         button5.pack(side = 'top', pady = 5, padx= 10)
 
-        button6 = tk.Button(groupright, text = "Add Project", width = 15,
-                            command = lambda : self.controller.show_frame("AddProject"))
+        button6 = tk.Button(groupright, text = "Projects", width = 15,
+                            command = lambda : self.controller.show_frame("Project"))
         button6.pack(side = 'top', pady = 5, padx = 10)
         
-        button6 = tk.Button(groupright, text = "Add Supplier", width = 15,
-                            command = lambda : self.controller.show_frame("AddSupplier"))
+        button6 = tk.Button(groupright, text = "Suppliers", width = 15,
+                            command = lambda : self.controller.show_frame("Supplier"))
         button6.pack(side = 'top', pady = 5, padx = 10)
 
 
@@ -792,6 +794,47 @@ class RemoveOligo(tk.Frame):
             else:
                 self.var_message.set("This oligo has been ordered before")
         self.oligo.set("")
+
+        
+#############################________________PROJECTS________________#############################
+        
+class Project(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+        
+        label = tk.Label(self, text="Projects")
+        label.pack(side = 'top', pady=20)
+
+        group1 = tk.LabelFrame(self, relief = 'flat')
+        group1.pack(side = 'top', padx = 10, pady = 5)
+        
+        button1 = tk.Button(group1, text = 'View Projects', width = 15,
+                            command = lambda : TLQ.build_query_and_table("project"))
+        button1.pack(side = 'top', pady = 5, padx = 10)
+        
+        button2 = tk.Button(group1, text = 'Add Project', width = 15,
+                            command = lambda : self.controller.show_frame("AddProject"))
+        button2.pack(side = 'top', pady = 5, padx = 10)
+
+        button3 = tk.Button(group1, text = 'Modify Project', width = 15,
+                            command = lambda : self.controller.show_frame("ModifyProject"))
+        button3.pack(side = 'top', pady = 5, padx = 10)
+
+        group2 = tk.LabelFrame(self, relief = 'flat')
+        group2.pack(side = 'bottom', pady = 5, padx = 10)
+        
+        button4 = tk.Button(group2, text="Back to Home",
+                         command=lambda:controller.show_frame("Home"))
+        button4.pack(side = 'left', pady=5, padx=10)
+
+        button5 = tk.Button(group2, text="Back to Admin",
+                         command=lambda:controller.show_frame("Admin"))
+        button5.pack(side = 'right', pady=5, padx=10)
+
+
         
 class AddProject(tk.Frame):
     def __init__(self, parent, controller):
@@ -832,8 +875,8 @@ class AddProject(tk.Frame):
                          command=lambda:controller.show_frame("Home"))
         button2.pack(side = 'left', pady=5, padx=10)
 
-        button3 = tk.Button(group3, text="Back to Admin",
-                         command=lambda:controller.show_frame("Admin"))
+        button3 = tk.Button(group3, text="Back to Projects",
+                         command=lambda:controller.show_frame("Project"))
         button3.pack(side = 'right', pady=5, padx=10)
 
 
@@ -844,7 +887,7 @@ class AddProject(tk.Frame):
         label0 = tk.Label(self.win, text = ("Are you sure you want to add '%s' ?" % self.project.get()))
         label0.pack(side = 'top', pady = 5)
 
-        buttongroup = tk.LabelFrame(self.win)
+        buttongroup = tk.LabelFrame(self.win, relief = 'flat')
         buttongroup.pack(side = 'top')
       
         button1 = tk.Button(buttongroup, text = 'Confirm',
@@ -886,7 +929,174 @@ class AddProject(tk.Frame):
                 self.var_message.set((e[0], e[1]))
         # Empty entry field
         self.project.set("")
+
         
+class ModifyProject(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+        self.oldname = tk.StringVar()
+        self.newname = tk.StringVar()
+        self.var_message = tk.StringVar()
+        
+        label = tk.Label(self, text="Modify Project")
+        label.pack(side = 'top', pady=10)
+
+        group2 = tk.LabelFrame(self, relief = 'flat')
+        group2.pack(side = 'top', pady = 5, padx = 10)
+        
+        labelold = tk.Label(group2, text = 'Current Name: ')
+        labelold.pack(side = 'left', pady=10)
+
+        old = tk.Entry(group2)
+        old['textvariable'] = self.oldname
+        old.pack(side = 'left', pady = 10)
+        
+        group1 = tk.LabelFrame(self, relief = 'flat')
+        group1.pack(side = 'top', pady = 5, padx = 10)
+        
+        labelnew = tk.Label(group1, text = 'New Name: ')
+        labelnew.pack(side = 'left', pady=10)
+
+        new = tk.Entry(group1)
+        new['textvariable'] = self.newname
+        new.pack(side = 'left', pady = 10)
+        
+        # Message
+        msg = tk.Message(self, width=500)
+        msg['textvariable'] = self.var_message
+        msg.pack(side = 'top', pady = 10)
+
+        # Button
+        confirm = tk.Button(self, text = "Confirm")
+        confirm['command'] = lambda: self.change()
+        confirm.pack(side = 'top', pady = 10)
+
+        group3 = tk.LabelFrame(self, relief = 'flat')
+        group3.pack(side = 'top', pady = 5, padx = 10)
+        
+        button2 = tk.Button(group3, text="Back to Home",
+                         command=lambda:controller.show_frame("Home"))
+        button2.pack(side = 'left', pady=5, padx=10)
+
+        button3 = tk.Button(group3, text="Back to Projects",
+                         command=lambda:controller.show_frame("Project"))
+        button3.pack(side = 'right', pady=5, padx=10)
+
+    def change(self):
+        try:
+            TUQ.update_row('project', {'project_name' : self.newname.get()}, {'project_ID' : self.oldname.get()})
+            self.var_message.set("Name of %s Updated to %s" % (self.oldname.get(), self.newname.get()))
+            # Empty the entry fields
+            self.oldname.set("")
+            self.newname.set("")
+        except:
+            self.var_message.set("An Error occured during processing, not executed")
+            
+#############################________________SUPPLIERS________________#############################
+
+class Supplier(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+        
+        label = tk.Label(self, text="Supplieres")
+        label.pack(side = 'top', pady=20)
+
+        group1 = tk.LabelFrame(self, relief = 'flat')
+        group1.pack(side = 'top', padx = 10, pady = 5)
+        
+        button1 = tk.Button(group1, text = 'View Suppliers', width = 15,
+                            command = lambda : TLQ.build_query_and_table("supplier"))
+        button1.pack(side = 'top', pady = 5, padx = 10)
+        
+        button2 = tk.Button(group1, text = 'Add Supplier', width = 15,
+                            command = lambda : self.controller.show_frame("AddSupplier"))
+        button2.pack(side = 'top', pady = 5, padx = 10)
+
+        button3 = tk.Button(group1, text = 'Modify Supplier', width = 15,
+                            command = lambda : self.controller.show_frame("ModifySupplier"))
+        button3.pack(side = 'top', pady = 5, padx = 10)
+
+        group2 = tk.LabelFrame(self, relief = 'flat')
+        group2.pack(side = 'bottom', pady = 5, padx = 10)
+        
+        button4 = tk.Button(group2, text="Back to Home",
+                         command=lambda:controller.show_frame("Home"))
+        button4.pack(side = 'left', pady=5, padx=10)
+
+        button5 = tk.Button(group2, text="Back to Admin",
+                         command=lambda:controller.show_frame("Admin"))
+        button5.pack(side = 'right', pady=5, padx=10)
+
+class ModifySupplier(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+        self.oldname = tk.StringVar()
+        self.newname = tk.StringVar()
+        self.var_message = tk.StringVar()
+        
+        label = tk.Label(self, text="Modify Supplier")
+        label.pack(side = 'top', pady=10)
+
+        group2 = tk.LabelFrame(self, relief = 'flat')
+        group2.pack(side = 'top', pady = 5, padx = 10)
+        
+        labelold = tk.Label(group2, text = 'Current name: ')
+        labelold.pack(side = 'left', pady=10)
+
+        old = tk.Entry(group2)
+        old['textvariable'] = self.oldname
+        old.pack(side = 'left', pady = 10)
+        
+        group1 = tk.LabelFrame(self, relief = 'flat')
+        group1.pack(side = 'top', pady = 5, padx = 10)
+        
+        labelnew = tk.Label(group1, text = 'New name: ')
+        labelnew.pack(side = 'left', pady=10)
+
+        new = tk.Entry(group1)
+        new['textvariable'] = self.newname
+        new.pack(side = 'left', pady = 10)
+        
+        # Message
+        msg = tk.Message(self, width=500)
+        msg['textvariable'] = self.var_message
+        msg.pack(side = 'top', pady = 10)
+
+        # Button
+        confirm = tk.Button(self, text = "Confirm")
+        confirm['command'] = lambda: self.change()
+        confirm.pack(side = 'top', pady = 10)
+
+        group3 = tk.LabelFrame(self, relief = 'flat')
+        group3.pack(side = 'top', pady = 5, padx = 10)
+        
+        button2 = tk.Button(group3, text="Back to Home",
+                         command=lambda:controller.show_frame("Home"))
+        button2.pack(side = 'left', pady=5, padx=10)
+
+        button3 = tk.Button(group3, text="Back to Suppliers",
+                         command=lambda:controller.show_frame("Supplier"))
+        button3.pack(side = 'right', pady=5, padx=10)
+
+    def change(self):
+        try:
+            TUQ.update_row('supplier', {'supplier_name' : self.newname.get()}, {'supplier_name' : self.oldname.get()})
+            self.var_message.set("Name of %s Updated to %s" % (self.oldname.get(), self.newname.get()))
+            # Empty the entry fields
+            self.oldname.set("")
+            self.newname.set("")
+        except:
+            self.var_message.set("An Error occured during processing, not executed")
+            
 class AddSupplier(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -928,8 +1138,8 @@ class AddSupplier(tk.Frame):
                          command=lambda:controller.show_frame("Home"))
         button2.pack(side = 'left', pady=5, padx=10)
 
-        button3 = tk.Button(group3, text="Back to Admin",
-                         command=lambda:controller.show_frame("Admin"))
+        button3 = tk.Button(group3, text="Back to Suppliers",
+                         command=lambda:controller.show_frame("Supplier"))
         button3.pack(side = 'right', pady=5, padx=10)
 
 
