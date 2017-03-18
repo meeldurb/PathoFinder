@@ -70,7 +70,7 @@ class OligoDatabase(tk.Tk):
                   Experiment, SearchPage, Admin, Employees, AddEmployee, OrderBin, BinToQueue,
                   QueueToBin, ProcessQueue,
                   OrderStatus, OrderQueue, Deliveries, OutOfStock, GeneralOrderStatus, RemoveUser,
-                  AdminRights, AddSupplier, AddProject):
+                  AdminRights, AddSupplier, AddProject, RemoveOligo):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -628,7 +628,8 @@ class Admin(tk.Frame):
         groupright = tk.LabelFrame(groupmain, relief = 'flat')
         groupright.pack(side = 'right', pady = 5, padx= 10)
         
-        button5 = tk.Button(groupright, text = 'Remove Oligo', width = 15)
+        button5 = tk.Button(groupright, text = 'Remove Oligo', width = 15,
+                            command = lambda : self.controller.show_frame("RemoveOligo"))
         button5.pack(side = 'top', pady = 5, padx= 10)
 
         button6 = tk.Button(groupright, text = "Add Project", width = 15,
@@ -647,6 +648,150 @@ class Admin(tk.Frame):
                          command=lambda:self.controller.show_frame("Home"))
                             
         button4.pack(side = 'left', pady=5, padx=10)
+
+class RemoveOligo(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #save a reference to controller in each page:
+        self.controller = controller
+        self.oligo = tk.StringVar()
+        self.var_message = tk.StringVar()
+        
+        label = tk.Label(self, text="Remove Oligo")
+        label.pack(side = 'top', pady=10)
+
+        group2 = tk.LabelFrame(self, relief = 'flat')
+        group2.pack(side = 'top', pady = 5, padx = 10)
+        
+        labeloli = tk.Label(group2, text = 'Oligo ID: ')
+        labeloli.pack(side = 'left', pady=10)
+
+        oligo = tk.Entry(group2)
+        oligo['textvariable'] = self.oligo
+        oligo.pack(side = 'left', pady = 10)
+
+        # Message
+        msg = tk.Message(self, width=500)
+        msg['textvariable'] = self.var_message
+        msg.pack(side = 'top', pady = 10)
+
+        # Button
+        confirm = tk.Button(self, text = "Remove")
+        confirm['command'] = lambda: self.popup()
+        confirm.pack(side = 'top', pady = 10)
+
+        group3 = tk.LabelFrame(self, relief = 'flat')
+        group3.pack(side = 'top', pady = 5, padx = 10)
+        
+        button2 = tk.Button(group3, text="Back to Home",
+                         command=lambda:controller.show_frame("Home"))
+        button2.pack(side = 'left', pady=5, padx=10)
+
+        button3 = tk.Button(group3, text="Back to Admin",
+                         command=lambda:controller.show_frame("Admin"))
+        button3.pack(side = 'right', pady=5, padx=10)
+
+
+    def popup(self):
+        """ A popup window which asks to confirm action"""
+        self.win = tk.Toplevel()
+
+        label0 = tk.Label(self.win, text = ("Are you sure you want to remove '%s' ?" % self.oligo.get()))
+        label0.pack(side = 'top', pady = 5)
+
+        buttongroup = tk.LabelFrame(self.win, relief = 'flat')
+        buttongroup.pack(side = 'top')
+      
+        button1 = tk.Button(buttongroup, text = 'Confirm',
+                            command = lambda : self.remove())
+        button1.pack(side = 'left', padx = 5, pady = 10)
+
+        button2 = tk.Button(buttongroup, text = 'Cancel',
+                            command = lambda : self.win.destroy())
+        button2.pack(side = 'left', padx = 5, pady = 10)
+
+    def remove(self):
+        """Remove an oligo completely from the database when it has not yet been delivered"""
+
+        # destroy popup window
+        self.win.destroy()
+        
+        # Get oligo_ID name, check whether not empty
+        oligo_ID = self.oligo.get()
+        oligo_ID = oligo_ID.strip()
+        if oligo_ID == "":
+                self.var_message.set("Invalid oligo_ID")
+        else:
+            db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
+                                 self.controller.shared_data["password"].get(), cfg.mysql['database']) # open connection
+            cursor = db.cursor() # prepare a cursor object
+
+            # Check whether ordered before (number of batches), if not; get batchnumber and orderstatus and ordernumber
+            batch_sql = "SELECT batch_number, order_status, order_number FROM `batch` \
+                            WHERE `batch`.oligo_ID = '%s'" % oligo_ID            
+            try:
+                cursor.execute(batch_sql)
+                batches = cursor.fetchall()
+            except MySQLdb.Error,e:
+                cursor.close()
+                db.close()
+                self.var_message.set((e[0], e[1]))
+
+            # Continue if it is the only batch
+            if len(batches) == 1:
+                batch = batches[0]
+                # check whether orderstatus is not in deleiverd or out of stoc
+                if batch[1] != 'Delivered' and batch[1] != 'Out of Stock':
+                    # Check number of batches in ordernumber
+                    no_of_batches_order_sql = "SELECT COUNT(batch_number) FROM `batch` WHERE `batch`.order_number =  '%s'" % batch[2] 
+
+                    # Make a sql for removal of oligo from oligo table
+                    del_from_oli = TUQ.make_delete_row('oligo', {'oligo_ID' : oligo_ID})
+
+                    # Make a sql for removal of batch from batch table
+                    del_from_batch = TUQ.make_delete_row('batch', {'batch_number' : batch[0]})
+
+                    # Make a sql for removal from project.oligo table
+                    del_from_oliproj = TUQ.make_delete_row('project_oligo', {'oligo_ID' : oligo_ID})
+            
+                    # Find the number of batches in the ordernumber, already remove oligo from batch and olig
+                    try:
+                        cursor.execute(no_of_batches_order_sql)
+                        count = cursor.fetchall()
+                        cursor.execute(del_from_batch)
+                        cursor.execute(del_from_oliproj)
+                        cursor.execute(del_from_oli)
+                        db.commit()
+                        self.var_message.set("Oligo %s Removed" % oligo_ID)
+                    except MySQLdb.Error,e:
+                        db.rollback()
+                        cursor.close()
+                        db.close()
+                        self.var_message.set((e[0], e[1]))
+
+                    # Continue when count equals to one
+                    if count[0][0] == 1:
+                        # Make a sql for removal of batch from batch table
+                        del_from_order = TUQ.make_delete_row('order', {'order_number' : batch[2]})
+                    
+                        # Remove order as well
+                        try:
+                            cursor.execute(del_from_order)
+                            db.commit()
+                            self.var_message.set("Oligo %s & Order %s Removed" % (oligo_ID, batch[2]))
+                        except MySQLdb.Error,e:
+                            db.rollback()
+                            cursor.close()
+                            db.close()
+                            self.var_message.set((e[0], e[1]))
+                # Don't remove when orderstatus is not in Ordererd or earlier
+                else:
+                    self.var_message.set("Order Status has advanced too far")
+            # Don't remove when multiple batchnumbers of the oligo
+            else:
+                self.var_message.set("This oligo has been ordered before")
+        self.oligo.set("")
         
 class AddProject(tk.Frame):
     def __init__(self, parent, controller):
@@ -654,8 +799,7 @@ class AddProject(tk.Frame):
 
         #save a reference to controller in each page:
         self.controller = controller
-        self.projectid = tk.StringVar()
-        self.project= tk.StringVar()
+        self.project = tk.StringVar()
         self.var_message = tk.StringVar()
         
         label = tk.Label(self, text="Add Project")
@@ -664,8 +808,8 @@ class AddProject(tk.Frame):
         group2 = tk.LabelFrame(self, relief = 'flat')
         group2.pack(side = 'top', pady = 5, padx = 10)
         
-        labelsup = tk.Label(group2, text = 'Project: ')
-        labelsup.pack(side = 'left', pady=10)
+        labelproj = tk.Label(group2, text = 'Project Name: ')
+        labelproj.pack(side = 'left', pady=10)
 
         project = tk.Entry(group2)
         project['textvariable'] = self.project
@@ -1420,9 +1564,6 @@ class BinToQueue(tk.Frame):
     def move(self):
         text = self.gettext()
         text = text.split()
-##        for id_ in text:
-##            TUQ.move_row(id_, 'order_bin', 'order_queue')
-##        self.message.set('completed computation')
         try:
             for id_ in text:
                 TUQ.move_row(id_, 'order_bin', 'order_queue')
@@ -1483,7 +1624,7 @@ class QueueToBin(tk.Frame):
                 TUQ.move_row(id_, 'order_queue', 'order_bin')
             self.message.set('Move succesfull')
         except MySQLdb.Error,e: 
-            self.var_message.set((e[0], e[1]))
+            self.var_message.set('An Error occured')
 
     def gettext(self):
         text = self.Text.get(1.0, tk.END)
