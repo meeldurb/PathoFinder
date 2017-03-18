@@ -24,7 +24,8 @@ def execute_edit_queries(query): #works
     cursor = db.cursor() # prepare a cursor object
     try:
         cursor.execute(query)
-        db.commit()   
+        db.commit()
+        return 
     except MySQLdb.Error,e:# Rollback in case there is any error
         print e[0], e[1]
         db.rollback()
