@@ -151,6 +151,9 @@ class Login(tk.Frame):
             self.controller.show_frame("Home")
         except:
             self.var_message.set("Invalid username or password")
+        # Empty the entry fields
+        self.username.set("")
+        self.password.set("")
 
 #############################________________HOME________________#############################
           
@@ -479,6 +482,10 @@ class ChangePassword(tk.Frame):
                     raise ValueError(e[0], e[1])
                     cursor.close()
                     db.close() #disconnect from server
+        # Empty the Entry fields
+        self.cpassword.set("")
+        self.npassword.set("")
+        self.rnpassword.set("")
 
 #############################________________SEARCH________________#############################
 
@@ -733,6 +740,8 @@ class AddProject(tk.Frame):
                 cursor.close()
                 db.close()
                 self.var_message.set((e[0], e[1]))
+        # Empty entry field
+        self.project.set("")
         
 class AddSupplier(tk.Frame):
     def __init__(self, parent, controller):
@@ -827,7 +836,9 @@ class AddSupplier(tk.Frame):
                 cursor.close()
                 db.close()
                 self.var_message.set((e[0], e[1]))
-            
+        # Empty entry field
+        self.supplier.set("")
+        
 class GeneralOrderStatus(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -1050,7 +1061,11 @@ class AddEmployee(tk.Frame):
                     raise ValueError(e[0], e[1])
                     cursor.close()
                     db.close() #disconnect from server
-                
+        # Empty entry field
+        self.username.set("")
+        self.npassword.set("")
+        self.rnpassword.set("")
+        
 class RemoveUser(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -1133,7 +1148,9 @@ class RemoveUser(tk.Frame):
             raise ValueError(e[0], e[1])
             cursor.close()
             db.close() #disconnect from server
-
+        # Empty entry field
+        self.username.set("")
+        
 class AdminRights(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -1202,6 +1219,9 @@ class AdminRights(tk.Frame):
             cursor.close()
             db.close() #disconnect from server
 
+        # Empty entry field
+        self.username.set("")
+
     def giverights(self):
         """Replaces standard rights with Admin Rights"""
 
@@ -1226,7 +1246,9 @@ class AdminRights(tk.Frame):
             cursor.close()
             db.close() #disconnect from server
 
-            
+        # Empty entry field
+        self.username.set("")
+
 class OrderBin(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
