@@ -477,6 +477,9 @@ def make_new_ID(table):
     if table == "order_queue":
         new_queue_ID = new_queue_no(table)
         return new_queue_ID
+    if table == "order_bin":
+        new_bin_ID = new_bin_no(table)
+        return new_bin_ID
     if table == 'employee':
         new_emp_ID = new_emp_ID(table)
         return new_emp_ID
@@ -551,7 +554,24 @@ def new_queue_no(table):
     else:
         new_queue_ID = "1"
     return new_queue_ID
-        
+
+def new_bin_no(table):
+    """ Converts the max bin_ID in the database to the following up ID.
+        When empty it starts with 1
+
+    Keyword Arguments:
+        table -- string, the name of the table that information need to be taken from
+    Returns:
+        A new bin ID number
+    """
+    max_ID = get_max_ID(table)
+    if max_ID:
+        int_binno = int(max_ID)
+        new_binno = int_binno + 1
+        new_bin_ID = str(new_binno)
+    else:
+        new_bin_ID = "1"
+    return new_bin_ID
     
 def new_oligo_ID(table):
     """ Converts the max oligo_ID in the database to the following up ID.
