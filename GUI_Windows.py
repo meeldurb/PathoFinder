@@ -1420,10 +1420,15 @@ class BinToQueue(tk.Frame):
     def move(self):
         text = self.gettext()
         text = text.split()
-        for id_ in text:
-            TUQ.move_row(id_, 'order_bin', 'order_queue')
-        self.message.set('completed computation')
-
+##        for id_ in text:
+##            TUQ.move_row(id_, 'order_bin', 'order_queue')
+##        self.message.set('completed computation')
+        try:
+            for id_ in text:
+                TUQ.move_row(id_, 'order_bin', 'order_queue')
+            self.message.set('Move succesfull')
+        except MySQLdb.Error,e: 
+            self.var_message.set((e[0], e[1]))
 
     def gettext(self):
         text = self.Text.get(1.0, tk.END)
@@ -1458,7 +1463,7 @@ class QueueToBin(tk.Frame):
         button['command'] = lambda : self.move()
         button.pack(side = 'top', pady = 10)
 
-        buttongroup = tk.LabelFrame(self)
+        buttongroup = tk.LabelFrame(self, relief = 'flat')
         buttongroup.pack(side = 'top')
         
         button2 = tk.Button(buttongroup, text = 'Back to Home',
@@ -1473,10 +1478,12 @@ class QueueToBin(tk.Frame):
     def move(self):
         text = self.gettext()
         text = text.split()
-        for id_ in text:
-            TUQ.move_row(id_, 'order_queue', 'order_bin')
-        self.message.set('completed computation')
-
+        try:
+            for id_ in text:
+                TUQ.move_row(id_, 'order_queue', 'order_bin')
+            self.message.set('Move succesfull')
+        except MySQLdb.Error,e: 
+            self.var_message.set((e[0], e[1]))
 
     def gettext(self):
         text = self.Text.get(1.0, tk.END)
