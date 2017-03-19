@@ -146,7 +146,7 @@ class Login(tk.Frame):
         msg = tk.Message(self, width=280)
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', pady = 5)
-
+        
     def check_login(self):
         """Check whether Login details are valid, in order to continute"""
         self.controller.shared_data["username"].set(self.username.get())
@@ -1760,27 +1760,26 @@ class OrderStatus(tk.Frame):
         self.controller = controller
 
         label = tk.Label(self, text="Order Status")
-        label.grid(row = 1, column = 1, columnspan=3, pady=10)
+        label.pack(side = 'top', pady=20)
 
-        button1 = tk.Button(self, text="Order Queue", bg=mycolor,
+        button1 = tk.Button(self, text="Order Queue", bg=mycolor, width = 15,
                             command = lambda : self.controller.show_frame("OrderQueue"))
-        
-        button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
+        button1.pack(side = 'top', pady = 5, padx= 10)
 
-        button2 = tk.Button(self, text="Deliveries",
+
+        button2 = tk.Button(self, text="Deliveries", width = 15,
                             command = lambda : self.controller.show_frame("Deliveries"))
+        button2.pack(side = 'top', pady = 5, padx= 10)
 
-        button2.grid(row=3, column=2, pady=5, padx=10, sticky="WE")
 
-        button3 = tk.Button(self, text="Out of Stock",
+        button3 = tk.Button(self, text="Out of Stock", width = 15,
                             command = lambda : self.controller.show_frame("OutOfStock"))
-        
-        button3.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
+        button3.pack(side = 'top', pady = 5, padx= 10)
+
 
         button4 = tk.Button(self, text="Back to Home",
                          command=lambda:self.controller.show_frame("Home"))
-                            
-        button4.grid(row=9, column=3, pady=5, padx=10)
+        button4.pack(side = 'bottom', pady = 5, padx= 10)
 
 #############################________________ORDER QUEUE________________#############################
 
@@ -1791,39 +1790,59 @@ class OrderQueue(tk.Frame):
         self.controller = controller
 
         label = tk.Label(self, text="Order Queue")
-        label.grid(row = 1, column = 1, columnspan=3, pady=10)
+        label.pack(side = 'top', pady=20)
 
-        button1 = tk.Button(self, text="View Queue", bg=mycolor,
+        # CentreGroup
+        groupmain = tk.LabelFrame(self, relief = 'flat')
+        groupmain.pack(side = 'top', pady = 5, padx= 10)
+
+        # CentreLeft Group        
+        groupleft = tk.LabelFrame(groupmain, relief = 'flat')
+        groupleft.pack(side = 'left', pady = 5, padx= 10)        
+
+        button1 = tk.Button(groupleft, text="View Queue", bg=mycolor, width = 15,
                             command = lambda : TLQ.build_query_and_table('order_queue'))
-        
-        button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
+        button1.pack(side = 'top', pady = 5, padx= 10)
 
-        button2 = tk.Button(self, text="View Bin",
+
+        button2 = tk.Button(groupleft, text="View Bin", width = 15,
                             command = lambda : TLQ.build_query_and_table('order_bin'))
+        button2.pack(side = 'top', pady = 5, padx= 10)
 
-        button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
-
-        button3 = tk.Button(self, text="Move to Bin",
-                            command = lambda : self.controller.show_frame("QueueToBin"))
-        button3.grid(row=2, column=3, pady=5, padx=10, sticky="WE")
-
-        button4 = tk.Button(self, text="Move to Queue",
-                            command = lambda : self.controller.show_frame("BinToQueue"))
-        button4.grid(row=4, column=3, pady=5, padx=10, sticky="WE")
-
-        button5 = tk.Button(self, text="Process Queue",
+        
+        button5 = tk.Button(groupleft, text="Process Queue", width = 15,
                             command = lambda: self.controller.show_frame('ProcessQueue'))
-        button5.grid(row=6, column=2, pady=5, padx=10, sticky="WE")
+        button5.pack(side = 'top', pady = 5, padx= 10)
+        
+        # CentreRight Group
+        groupright = tk.LabelFrame(groupmain, relief = 'flat')
+        groupright.pack(side = 'right', pady = 5, padx= 10)
 
-        button6 = tk.Button(self, text="Back to Home",
+        button3 = tk.Button(groupright, text="Move to Bin", width = 15,
+                            command = lambda : self.controller.show_frame("QueueToBin"))
+        button3.pack(side = 'top', pady = 5, padx= 10)
+
+
+        button4 = tk.Button(groupright, text="Move to Queue", width = 15,
+                            command = lambda : self.controller.show_frame("BinToQueue"))
+        button4.pack(side = 'top', pady = 5, padx= 10)
+
+        # Filler, needed due to unequal number of buttons on each side
+        fillbutton = tk.Button(groupright, relief = 'flat', state = 'disabled')
+        fillbutton.pack(side = 'top', pady = 5, padx= 10)
+
+        # Navigation Group
+        groupnav = tk.LabelFrame(self, relief = 'flat')
+        groupnav.pack(side = 'bottom', pady = 5, padx= 10)
+        
+        button6 = tk.Button(groupnav, text="Back to Home",
                          command=lambda:self.controller.show_frame("Home"))
-                            
-        button6.grid(row=9, column=4, pady=5, padx=10)
+        button6.pack(side = 'left', pady=5, padx=10)
 
-        button7 = tk.Button(self, text="Back to Order Status",
+
+        button7 = tk.Button(groupnav, text="Back to Order Status",
                          command=lambda:self.controller.show_frame("OrderStatus"))
-                            
-        button7.grid(row=9, column=5, pady=5, padx=10)
+        button7.pack(side = 'right', pady=5, padx=10)
 
 class BinToQueue(tk.Frame):
     def __init__(self, parent, controller):
