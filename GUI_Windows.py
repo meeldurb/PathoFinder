@@ -1967,7 +1967,6 @@ class ProcessQueue(tk.Frame):
         self.controller = controller
         self.Text = None
         self.message = tk.StringVar()
-        self.answer = tk.StringVar()
 
         label = tk.Label(self, text="Process Queue to database")
         label.pack(side = 'top', pady=20)
@@ -2007,8 +2006,8 @@ class ProcessQueue(tk.Frame):
         """ A popup window which asks to confirm action"""
         self.win = tk.Toplevel()
 
-        label0 = tk.Label(self.win, text = " The sequence and labels are duplicated \n \
-Do you want to import anyway? \n A new batchno will be created")
+        label0 = tk.Label(self.win, text = " The sequence and labels of %s are duplicated \n \
+Do you want to import anyway? \n A new batchno will be created" % queue_ID)
         label0.pack(side = 'top', pady = 5)
 
         buttongroup = tk.LabelFrame(self.win, relief = 'flat')
