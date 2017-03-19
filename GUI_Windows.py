@@ -1306,37 +1306,39 @@ class Employees(tk.Frame):
         self.controller = controller
 
         label = tk.Label(self, text="Employees")
-        label.grid(row = 1, column = 1, columnspan=3, pady=10)
+        label.pack(side = 'top', pady=20)
 
-        button1 = tk.Button(self, text="View", bg=mycolor,
+        button1 = tk.Button(self, text="View", bg=mycolor, width = 15,
                             command = lambda : TLQ.build_query_and_table("employee"))
+        button1.pack(side = 'top', pady = 5, padx= 10)
         
-        button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
 
-        button2 = tk.Button(self, text="Add",
+        button2 = tk.Button(self, text="Add",width = 15,
                             command = lambda : self.controller.show_frame('AddEmployee'))
+        button2.pack(side = 'top', pady = 5, padx= 10)
+        
 
-        button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
-
-        button3 = tk.Button(self, text="Admin Rights",
+        button3 = tk.Button(self, text="Admin Rights",width = 15,
                             command = lambda : self.controller.show_frame('AdminRights'))
+        button3.pack(side = 'top', pady = 5, padx= 10)
 
-        button3.grid(row=6, column=2, pady=5, padx=10, sticky="WE")
 
-
-        button4 = tk.Button(self, text="Remove User",
+        button4 = tk.Button(self, text="Remove User",width = 15,
                             command = lambda : self.controller.show_frame('RemoveUser'))
+        button4.pack(side = 'top', pady = 5, padx= 10)
+        
+        # Group for Navigation
+        group1 = tk.LabelFrame(self, relief = 'flat')
+        group1.pack(side = 'bottom', pady = 5, padx = 10)
+        
+        button5 = tk.Button(group1, text="Back to Home",
+                         command=lambda:self.controller.show_frame("Home"))             
+        button5.pack(side = 'left', pady = 5, padx= 10)
+        
 
-        button4.grid(row=8, column=2, pady=5, padx=10, sticky="WE")
-
-        button5 = tk.Button(self, text="Back to Home",
-                         command=lambda:self.controller.show_frame("Home"))
-                            
-        button5.grid(row=10, column=3, pady=5, padx=10)
-
-        button6 = tk.Button(self, text = "Back to Admin",
+        button6 = tk.Button(group1, text = "Back to Admin",
                             command = lambda : self.controller.show_frame("Admin"))
-        button6.grid(row=10, column=4, pady=5, padx=10)
+        button6.pack(side = 'right', pady = 5, padx= 10)
         
                   
 class AddEmployee(tk.Frame):
