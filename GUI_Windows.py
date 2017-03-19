@@ -1223,50 +1223,59 @@ class GeneralOrderStatus(tk.Frame):
         self.message = tk.StringVar()
 
         label = tk.Label(self, text="Change Order Status")
-        label.grid(row = 1, column = 1, columnspan=3, pady=10)
+        label.pack(side = 'top', pady=20)
 
-        label2 = tk.Label(self, text="batchnumber: ")
-        label2.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
+        # Group of Entry
+        group1 = tk.LabelFrame(self, relief = 'flat')
+        group1.pack(side = 'top', pady = 5, padx = 10)
+        
+        label2 = tk.Label(group1, text="BatchNumber: ")
+        label2.pack(side = 'left', pady = 5, padx= 10)
 
-        entry = tk.Entry(self, textvariable = self.batch)
-        entry.grid(row = 2, column = 3)
+        entry = tk.Entry(group1, textvariable = self.batch)
+        entry.pack(side = 'right', pady = 5, padx= 10)
 
-        rb_ordered = tk.Radiobutton(self, text = "Ordered", activebackground = mycolor, selectcolor = 'black')
+        # Group of radiobuttons for status
+        group2 = tk.LabelFrame(self, relief = 'flat')
+        group2.pack(side = 'top', pady = 5, padx = 10)
+
+        rb_ordered = tk.Radiobutton(group2, text = "Ordered", activebackground = mycolor, selectcolor = 'black')
         rb_ordered['value'] = "Ordered"
         rb_ordered['variable'] = self.status
         rb_ordered['indicatoron'] = 2
-        rb_ordered.grid(row=3, column=1,
-                         sticky='W', padx=8)
+        rb_ordered.pack(side = 'left', pady = 5, padx = 10)
 
-        rb_delivery = tk.Radiobutton(self, text = "Delivered", activebackground = mycolor, selectcolor = 'black')
+        rb_delivery = tk.Radiobutton(group2, text = "Delivered", activebackground = mycolor, selectcolor = 'black')
         rb_delivery['value'] = "Delivered"
         rb_delivery['variable'] = self.status
         rb_delivery['indicatoron'] = 2
-        rb_delivery.grid(row=3, column=2,
-                         sticky='W', padx=8)
+        rb_delivery.pack(side = 'left', pady = 5, padx = 10)
 
-        rb_stock = tk.Radiobutton(self, text = "Out of Stock", activebackground = mycolor, selectcolor = 'black')
+        rb_stock = tk.Radiobutton(group2, text = "Out of Stock", activebackground = mycolor, selectcolor = 'black')
         rb_stock['value'] = "Out of Stock"
         rb_stock['variable'] = self.status
         rb_stock['indicatoron'] = 2
-        rb_stock.grid(row=3, column=3,
-                         sticky='W', padx=8)
+        rb_stock.pack(side = 'left', pady = 5, padx = 10)
         
-        msg = tk.Message(self, textvariable = self.message, width = 280)
-        msg.grid(row=4, column = 2)
-
-        button1 = tk.Button(self, text = "Confirm",
+        button1 = tk.Button(self, text = "Confirm", width = 15,
                            command = lambda : self.update_status())
-        button1.grid(row = 5, column = 2, pady=5, padx=10)
+        button1.pack(side = 'top', pady = 5, padx = 10)
 
-        button2 = tk.Button(self, text="Back to Home",
+        msg = tk.Message(self, textvariable = self.message, width = 280)
+        msg.pack(side = 'top', pady = 5, padx = 10)
+
+
+        # Group for Navigation
+        group3 = tk.LabelFrame(self, relief = 'flat')
+        group3.pack(side = 'bottom', pady = 5, padx = 10)
+        
+        button2 = tk.Button(group3, text="Back to Home",
                          command=lambda:self.controller.show_frame("Home"))
-                            
-        button2.grid(row=7, column=3, pady=5, padx=10)
+        button2.pack(side = 'left', pady = 5, padx = 10)
 
-        button3 = tk.Button(self, text = "Back to Admin",
+        button3 = tk.Button(group3, text = "Back to Admin",
                             command = lambda : self.controller.show_frame("Admin"))
-        button3.grid(row=7, column=4, pady=5, padx=10)
+        button3.pack(side = 'right', pady = 5, padx = 10)
 
     def update_status(self):
         try:
