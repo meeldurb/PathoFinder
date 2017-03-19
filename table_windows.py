@@ -358,75 +358,81 @@ class ButtonsFrame(Frame):
         self.search_input = StringVar()
 
         # Set Buttons
-        refreshButton = Button(parent, text="Refresh")
+        refreshButton = Button(parent, text="Refresh", width = 8)
         refreshButton['command'] = lambda : self.refresh(sql, table_str, attributes, self.sortattribute.get(), self.sortmethod.get())
-        refreshButton.pack(side=LEFT, padx=5, pady=5)
+        refreshButton.pack(side=LEFT, pady = 5, padx = 10)
 
-        searchButton = Button(parent, text="Search")
+        searchButton = Button(parent, text="Search", width = 8)
         searchButton['command'] = lambda : self.open_search_window(table_str, attributes, self.sortattribute.get(), self.sortmethod.get())
-        searchButton.pack(side=LEFT, padx=5, pady=5)
+        searchButton.pack(side=LEFT, pady = 5, padx = 10)
         
-        quitButton = Button(parent, text="Quit")
+        quitButton = Button(parent, text="Quit", width = 8)
         quitButton['command'] = lambda : parent.destroy()
-        quitButton.pack(side=RIGHT, padx=5, pady=5)
+        quitButton.pack(side=RIGHT, pady = 5, padx = 10)
 
         # Setup a Frame which contains all the sort widgets
-        sort_group = LabelFrame(parent)
+        sort_group = LabelFrame(parent, relief = 'flat')
         sort_group.pack(padx=10)
         
         sortList = OptionMenu(sort_group, self.sortattribute, *attributes)
         sortList['width'] = 20
         sortList['height'] = 1
-        sortList.pack(side=LEFT, padx=5, pady=5)
+        sortList.pack(side=LEFT, pady = 5, padx = 10)
 
         sortmethodList = OptionMenu(sort_group, self.sortmethod,'Ascending', 'Descending')
         sortmethodList['width'] = 20
         sortmethodList['height'] = 1
-        sortmethodList.pack(side=LEFT, padx=5, pady=5)
+        sortmethodList.pack(side=LEFT, pady = 5, padx = 10)
 
-        sortbutton = Button(sort_group, text = 'Sort', padx = 10)
+        sortbutton = Button(sort_group, text = 'Sort', width = 8)
         sortbutton['command'] = lambda : self.sort_table(sql, table_str, attributes, self.sortattribute.get(), self.sortmethod.get())
-        sortbutton.pack(side = RIGHT, padx=5, pady=5)
+        sortbutton.pack(side = RIGHT, pady = 5, padx = 10)
 
     def open_search_window(self, table_str, attributes, sortattribute, sortmethod):
         win = Toplevel()
-
+        
+        label1 = Label(win, text = 'Search')
+        label1.pack(side = 'top', pady = 20)
+        
         # Search Group
-        search_group = LabelFrame(win, text = 'Search')
-        search_group.pack(side = 'top', padx=10, pady=10)
+        search_group = LabelFrame(win, relief = 'flat')
+        search_group.pack(side = 'top', pady = 5, padx = 10)
         
         search_label = Label(search_group, text = 'Search for: ')
-        search_label.pack(side = 'left', padx=10, pady=10)
+        search_label.pack(side = 'left', pady = 5, padx = 10)
 
         search_entry = Entry(search_group, width = 50)
         search_entry['textvariable'] = self.search_input
-        search_entry.pack(side = 'left', padx=10, pady=10)
+        search_entry.pack(side = 'left', pady = 5, padx = 10)
 
 
+        label2 = Label(win, text = 'Sort By:')
+        label2.pack(side = 'top', pady = 20)
+        
         # Sort Group
-        sort_group = LabelFrame(win, text = 'Sort By')
-        sort_group.pack(side = 'top', padx=10, pady = 10)
+        sort_group = LabelFrame(win, relief = 'flat')
+        sort_group.pack(side = 'top')
         
         sortList = OptionMenu(sort_group, self.sortattribute, *attributes)
-        sortList.pack(side=LEFT, padx=5, pady=5)
+        sortList.pack(side=LEFT, pady = 5, padx = 10)
 
         sortmethodList = OptionMenu(sort_group, self.sortmethod, 'Ascending', 'Descending')
-        sortmethodList.pack(side=LEFT, padx=5, pady=5)
+        sortmethodList.pack(side=LEFT, pady = 5, padx = 10)
 
 
         # Action Buttons
-        action_group = LabelFrame(win, padx = 50)
-        action_group.pack(side = 'top', padx = 10, pady = 10)
+        action_group = LabelFrame(win, padx = 50, relief = 'flat')
+        action_group.pack(side = 'top', pady = 20)
 
         # Go
-        sortbutton = Button(action_group, text = 'GO', padx = 20, pady = 10)
+        sortbutton = Button(action_group, text = 'GO', width = 10)
         sortbutton['command'] = lambda : self.search_button_go(table_str, self.search_input.get(), self.sortattribute.get(), self.sortmethod.get(), win)
-        sortbutton.pack(side = 'left' , padx=5, pady=10)
+        sortbutton.pack(side = 'left' , pady = 5, padx = 10)
 
         # Cancel
-        cancelbutton = Button(action_group, text = 'Cancel', padx = 20, pady = 5)
+        cancelbutton = Button(action_group, text = 'Cancel', width = 10)
         cancelbutton['command'] = lambda : win.destroy()
-        cancelbutton.pack(side = 'right', padx = 5, pady = 10)
+        cancelbutton.pack(side = 'right', pady = 5, padx = 10)
 
     def search_button_go(self, table_str, search_input, sortattribute, sortmethod, window):
         sql, attributes = TLQ.search(table_str, search_input, sortattribute, sortmethod)
