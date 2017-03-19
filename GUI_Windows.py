@@ -114,33 +114,42 @@ class Login(tk.Frame):
         self.password = tk.StringVar()
 
         label = tk.Label(self, text="Login")
-        label.grid(columnspan=8, pady=10)
+        label.pack(side = 'top', pady = 20)
 
-        # username
-        user_label = tk.Label(self, text = "Username: ")
-        user_label.grid(row = 1, column = 1, pady = 5)
+        groupmain = tk.LabelFrame(self, relief = 'flat')
+        groupmain.pack(side = 'top')
+
+        grouplabel = tk.LabelFrame(groupmain, relief = 'flat')
+        grouplabel.pack(side = 'top')
+
+        groupentry = tk.LabelFrame(groupmain, relief = 'flat')
+        groupentry.pack(side = 'top')
         
-        user = tk.Entry(self)
+        # username
+        user_label = tk.Label(grouplabel, text = "Username: ", width = 10)
+        user_label.pack(side = 'left', padx = 5, pady = 10)
+        
+        user = tk.Entry(grouplabel)
         user['textvariable'] = self.username
-        user.grid(row = 1, column = 2, columnspan = 4, pady = 5)
+        user.pack(side = 'right', padx = 5, pady = 20)
 
         # password
-        pw_label = tk.Label(self, text = "Password: ")
-        pw_label.grid(row = 2, column = 1, pady = 5)
+        pw_label = tk.Label(groupentry, text = "Password: ", width = 10)
+        pw_label.pack(side = 'left', padx = 5, pady = 10)
                   
-        pw = tk.Entry(self, show = "*")
+        pw = tk.Entry(groupentry, show = "*")
         pw['textvariable'] = self.password
-        pw.grid(row = 2, column = 2, columnspan = 4, pady = 5)
+        pw.pack(side = 'right', padx = 5, pady = 10)
 
         # Button
         login_button = tk.Button(self, text = "Login")
         login_button['command'] = lambda: self.check_login()
-        login_button.grid(row = 4, column = 2, pady = 10)
+        login_button.pack(side = 'top', pady = 10)
 
         # Message
         msg = tk.Message(self, width=280)
         msg['textvariable'] = self.var_message
-        msg.grid(row=3, column=0, columnspan=3)
+        msg.pack(side = 'top', pady = 10)
 
     def check_login(self):
         """Check whether Login details are valid, in order to continute"""
