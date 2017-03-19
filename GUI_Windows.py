@@ -679,30 +679,30 @@ class RemoveOligo(tk.Frame):
         self.var_message = tk.StringVar()
         
         label = tk.Label(self, text="Remove Oligo")
-        label.pack(side = 'top', pady=10)
+        label.pack(side = 'top', pady=20)
 
         group2 = tk.LabelFrame(self, relief = 'flat')
         group2.pack(side = 'top', pady = 5, padx = 10)
         
         labeloli = tk.Label(group2, text = 'Oligo ID: ')
-        labeloli.pack(side = 'left', pady=10)
+        labeloli.pack(side = 'left', pady=5, padx=10)
 
         oligo = tk.Entry(group2)
         oligo['textvariable'] = self.oligo
-        oligo.pack(side = 'left', pady = 10)
+        oligo.pack(side = 'right', pady=5, padx=10)
+
+        # Button
+        confirm = tk.Button(self, text = "Remove", width = 15)
+        confirm['command'] = lambda: self.popup()
+        confirm.pack(side = 'top', pady=5, padx=10)
 
         # Message
         msg = tk.Message(self, width=500)
         msg['textvariable'] = self.var_message
-        msg.pack(side = 'top', pady = 10)
-
-        # Button
-        confirm = tk.Button(self, text = "Remove")
-        confirm['command'] = lambda: self.popup()
-        confirm.pack(side = 'top', pady = 10)
+        msg.pack(side = 'top', pady=5, padx=10)
 
         group3 = tk.LabelFrame(self, relief = 'flat')
-        group3.pack(side = 'top', pady = 5, padx = 10)
+        group3.pack(side = 'bottom', pady = 5, padx = 10)
         
         button2 = tk.Button(group3, text="Back to Home",
                          command=lambda:controller.show_frame("Home"))
@@ -718,10 +718,10 @@ class RemoveOligo(tk.Frame):
         self.win = tk.Toplevel()
 
         label0 = tk.Label(self.win, text = ("Are you sure you want to remove '%s' ?" % self.oligo.get()))
-        label0.pack(side = 'top', pady = 5)
+        label0.pack(side = 'top', pady=5, padx=10)
 
         buttongroup = tk.LabelFrame(self.win, relief = 'flat')
-        buttongroup.pack(side = 'top')
+        buttongroup.pack(side = 'top', pady = 20)
       
         button1 = tk.Button(buttongroup, text = 'Confirm',
                             command = lambda : self.remove())
@@ -827,30 +827,30 @@ class Project(tk.Frame):
         label.pack(side = 'top', pady=20)
 
         group1 = tk.LabelFrame(self, relief = 'flat')
-        group1.pack(side = 'top', padx = 10, pady = 5)
+        group1.pack(side = 'top', padx = 5, pady = 10)
         
         button1 = tk.Button(group1, text = 'View Projects', width = 15,
                             command = lambda : TLQ.build_query_and_table("project"))
-        button1.pack(side = 'top', pady = 5, padx = 10)
+        button1.pack(side = 'top', padx = 5, pady = 10)
         
         button2 = tk.Button(group1, text = 'Add Project', width = 15,
                             command = lambda : self.controller.show_frame("AddProject"))
-        button2.pack(side = 'top', pady = 5, padx = 10)
+        button2.pack(side = 'top', padx = 5, pady = 10)
 
         button3 = tk.Button(group1, text = 'Modify Project', width = 15,
                             command = lambda : self.controller.show_frame("ModifyProject"))
-        button3.pack(side = 'top', pady = 5, padx = 10)
+        button3.pack(side = 'top', padx = 5, pady = 10)
 
         group2 = tk.LabelFrame(self, relief = 'flat')
-        group2.pack(side = 'bottom', pady = 5, padx = 10)
+        group2.pack(side = 'bottom', padx = 5, pady = 10)
         
         button4 = tk.Button(group2, text="Back to Home",
                          command=lambda:controller.show_frame("Home"))
-        button4.pack(side = 'left', pady=5, padx=10)
+        button4.pack(side = 'left', padx = 5, pady = 10)
 
         button5 = tk.Button(group2, text="Back to Admin",
                          command=lambda:controller.show_frame("Admin"))
-        button5.pack(side = 'right', pady=5, padx=10)
+        button5.pack(side = 'right', padx = 5, pady = 10)
 
 
         
@@ -864,38 +864,38 @@ class AddProject(tk.Frame):
         self.var_message = tk.StringVar()
         
         label = tk.Label(self, text="Add Project")
-        label.pack(side = 'top', pady=10)
+        label.pack(side = 'top', pady=20)
 
         group2 = tk.LabelFrame(self, relief = 'flat')
-        group2.pack(side = 'top', pady = 5, padx = 10)
+        group2.pack(side = 'top', padx = 5, pady = 10)
         
         labelproj = tk.Label(group2, text = 'Project Name: ')
-        labelproj.pack(side = 'left', pady=10)
+        labelproj.pack(side = 'left', padx = 5, pady = 10)
 
         project = tk.Entry(group2)
         project['textvariable'] = self.project
-        project.pack(side = 'left', pady = 10)
+        project.pack(side = 'left', padx = 5, pady = 10)
+
+        # Button
+        confirm = tk.Button(self, text = "Add", width = 15)
+        confirm['command'] = lambda: self.popup()
+        confirm.pack(side = 'top', padx = 5, pady = 10)
 
         # Message
         msg = tk.Message(self, width=500)
         msg['textvariable'] = self.var_message
-        msg.pack(side = 'top', pady = 10)
-
-        # Button
-        confirm = tk.Button(self, text = "Add")
-        confirm['command'] = lambda: self.popup()
-        confirm.pack(side = 'top', pady = 10)
+        msg.pack(side = 'top', padx = 5, pady = 10)
 
         group3 = tk.LabelFrame(self, relief = 'flat')
-        group3.pack(side = 'top', pady = 5, padx = 10)
+        group3.pack(side = 'bottom', padx = 5, pady = 10)
         
         button2 = tk.Button(group3, text="Back to Home",
                          command=lambda:controller.show_frame("Home"))
-        button2.pack(side = 'left', pady=5, padx=10)
+        button2.pack(side = 'left', padx = 5, pady = 10)
 
         button3 = tk.Button(group3, text="Back to Projects",
                          command=lambda:controller.show_frame("Project"))
-        button3.pack(side = 'right', pady=5, padx=10)
+        button3.pack(side = 'right', padx = 5, pady = 10)
 
 
     def popup(self):
@@ -903,10 +903,10 @@ class AddProject(tk.Frame):
         self.win = tk.Toplevel()
 
         label0 = tk.Label(self.win, text = ("Are you sure you want to add '%s' ?" % self.project.get()))
-        label0.pack(side = 'top', pady = 5)
+        label0.pack(side = 'top', padx = 5, pady = 10)
 
         buttongroup = tk.LabelFrame(self.win, relief = 'flat')
-        buttongroup.pack(side = 'top')
+        buttongroup.pack(side = 'top', pady = 20)
       
         button1 = tk.Button(buttongroup, text = 'Confirm',
                             command = lambda : self.add())
@@ -960,48 +960,48 @@ class ModifyProject(tk.Frame):
         self.var_message = tk.StringVar()
         
         label = tk.Label(self, text="Modify Project")
-        label.pack(side = 'top', pady=10)
+        label.pack(side = 'top', pady=20)
 
         group2 = tk.LabelFrame(self, relief = 'flat')
-        group2.pack(side = 'top', pady = 5, padx = 10)
+        group2.pack(side = 'top', padx = 5, pady = 10)
         
-        labelold = tk.Label(group2, text = 'Current Name: ')
-        labelold.pack(side = 'left', pady=10)
+        labelold = tk.Label(group2, text = 'Current Name: ', anchor = 'w', width = 12)
+        labelold.pack(side = 'left', padx = 5, pady = 10)
 
         old = tk.Entry(group2)
         old['textvariable'] = self.oldname
-        old.pack(side = 'left', pady = 10)
+        old.pack(side = 'right', padx = 5, pady = 10)
         
         group1 = tk.LabelFrame(self, relief = 'flat')
-        group1.pack(side = 'top', pady = 5, padx = 10)
+        group1.pack(side = 'top', padx = 5, pady = 10)
         
-        labelnew = tk.Label(group1, text = 'New Name: ')
-        labelnew.pack(side = 'left', pady=10)
+        labelnew = tk.Label(group1, text = 'New Name: ', anchor = 'w', width = 12)
+        labelnew.pack(side = 'left', padx = 5, pady = 10)
 
         new = tk.Entry(group1)
         new['textvariable'] = self.newname
-        new.pack(side = 'left', pady = 10)
+        new.pack(side = 'right', padx = 5, pady = 10)
         
+        # Button
+        confirm = tk.Button(self, text = "Confirm", width = 15)
+        confirm['command'] = lambda: self.change()
+        confirm.pack(side = 'top', padx = 5, pady = 10)
+
         # Message
         msg = tk.Message(self, width=500)
         msg['textvariable'] = self.var_message
-        msg.pack(side = 'top', pady = 10)
-
-        # Button
-        confirm = tk.Button(self, text = "Confirm")
-        confirm['command'] = lambda: self.change()
-        confirm.pack(side = 'top', pady = 10)
+        msg.pack(side = 'top', padx = 5, pady = 10)
 
         group3 = tk.LabelFrame(self, relief = 'flat')
-        group3.pack(side = 'top', pady = 5, padx = 10)
+        group3.pack(side = 'bottom', pady = 5, padx = 10)
         
         button2 = tk.Button(group3, text="Back to Home",
                          command=lambda:controller.show_frame("Home"))
-        button2.pack(side = 'left', pady=5, padx=10)
+        button2.pack(side = 'left', padx = 5, pady = 10)
 
         button3 = tk.Button(group3, text="Back to Projects",
                          command=lambda:controller.show_frame("Project"))
-        button3.pack(side = 'right', pady=5, padx=10)
+        button3.pack(side = 'right', padx = 5, pady = 10)
 
     def change(self):
         try:
@@ -1022,34 +1022,34 @@ class Supplier(tk.Frame):
         #save a reference to controller in each page:
         self.controller = controller
         
-        label = tk.Label(self, text="Supplieres")
+        label = tk.Label(self, text="Suppliers")
         label.pack(side = 'top', pady=20)
 
         group1 = tk.LabelFrame(self, relief = 'flat')
-        group1.pack(side = 'top', padx = 10, pady = 5)
+        group1.pack(side = 'top', padx = 5, pady = 10)
         
         button1 = tk.Button(group1, text = 'View Suppliers', width = 15,
                             command = lambda : TLQ.build_query_and_table("supplier"))
-        button1.pack(side = 'top', pady = 5, padx = 10)
+        button1.pack(side = 'top', padx = 5, pady = 10)
         
         button2 = tk.Button(group1, text = 'Add Supplier', width = 15,
                             command = lambda : self.controller.show_frame("AddSupplier"))
-        button2.pack(side = 'top', pady = 5, padx = 10)
+        button2.pack(side = 'top', padx = 5, pady = 10)
 
         button3 = tk.Button(group1, text = 'Modify Supplier', width = 15,
                             command = lambda : self.controller.show_frame("ModifySupplier"))
-        button3.pack(side = 'top', pady = 5, padx = 10)
+        button3.pack(side = 'top', padx = 5, pady = 10)
 
         group2 = tk.LabelFrame(self, relief = 'flat')
-        group2.pack(side = 'bottom', pady = 5, padx = 10)
+        group2.pack(side = 'bottom', padx = 5, pady = 10)
         
         button4 = tk.Button(group2, text="Back to Home",
                          command=lambda:controller.show_frame("Home"))
-        button4.pack(side = 'left', pady=5, padx=10)
+        button4.pack(side = 'left', padx = 5, pady = 10)
 
         button5 = tk.Button(group2, text="Back to Admin",
                          command=lambda:controller.show_frame("Admin"))
-        button5.pack(side = 'right', pady=5, padx=10)
+        button5.pack(side = 'right', padx = 5, pady = 10)
 
 class ModifySupplier(tk.Frame):
     def __init__(self, parent, controller):
@@ -1062,48 +1062,48 @@ class ModifySupplier(tk.Frame):
         self.var_message = tk.StringVar()
         
         label = tk.Label(self, text="Modify Supplier")
-        label.pack(side = 'top', pady=10)
+        label.pack(side = 'top', pady=20)
 
         group2 = tk.LabelFrame(self, relief = 'flat')
-        group2.pack(side = 'top', pady = 5, padx = 10)
+        group2.pack(side = 'top', padx = 5, pady = 10)
         
-        labelold = tk.Label(group2, text = 'Current name: ')
-        labelold.pack(side = 'left', pady=10)
+        labelold = tk.Label(group2, text = 'Current name: ', anchor = 'w', width = 12)
+        labelold.pack(side = 'left', padx = 5, pady = 10)
 
         old = tk.Entry(group2)
         old['textvariable'] = self.oldname
-        old.pack(side = 'left', pady = 10)
+        old.pack(side = 'right', padx = 5, pady = 10)
         
         group1 = tk.LabelFrame(self, relief = 'flat')
-        group1.pack(side = 'top', pady = 5, padx = 10)
+        group1.pack(side = 'top', padx = 5, pady = 10)
         
-        labelnew = tk.Label(group1, text = 'New name: ')
-        labelnew.pack(side = 'left', pady=10)
+        labelnew = tk.Label(group1, text = 'New name: ', anchor = 'w', width = 12)
+        labelnew.pack(side = 'left', padx = 5, pady = 10)
 
         new = tk.Entry(group1)
         new['textvariable'] = self.newname
-        new.pack(side = 'left', pady = 10)
+        new.pack(side = 'right', padx = 5, pady = 10)
         
+        # Button
+        confirm = tk.Button(self, text = "Confirm", width = 15)
+        confirm['command'] = lambda: self.change()
+        confirm.pack(side = 'top', padx = 5, pady = 10)
+
         # Message
         msg = tk.Message(self, width=500)
         msg['textvariable'] = self.var_message
-        msg.pack(side = 'top', pady = 10)
-
-        # Button
-        confirm = tk.Button(self, text = "Confirm")
-        confirm['command'] = lambda: self.change()
-        confirm.pack(side = 'top', pady = 10)
-
+        msg.pack(side = 'top', padx = 5, pady = 10)
+        
         group3 = tk.LabelFrame(self, relief = 'flat')
-        group3.pack(side = 'top', pady = 5, padx = 10)
+        group3.pack(side = 'bottom', padx = 5, pady = 10)
         
         button2 = tk.Button(group3, text="Back to Home",
                          command=lambda:controller.show_frame("Home"))
-        button2.pack(side = 'left', pady=5, padx=10)
+        button2.pack(side = 'left', padx = 5, pady = 10)
 
         button3 = tk.Button(group3, text="Back to Suppliers",
                          command=lambda:controller.show_frame("Supplier"))
-        button3.pack(side = 'right', pady=5, padx=10)
+        button3.pack(side = 'right', padx = 5, pady = 10)
 
     def change(self):
         try:
@@ -1126,39 +1126,38 @@ class AddSupplier(tk.Frame):
         self.var_message = tk.StringVar()
         
         label = tk.Label(self, text="Add Supplier")
-        label.pack(side = 'top', pady=10)
+        label.pack(side = 'top', pady=20)
 
         group2 = tk.LabelFrame(self, relief = 'flat')
-        group2.pack(side = 'top', pady = 5, padx = 10)
+        group2.pack(side = 'top', padx = 5, pady = 10)
         
         labelsup = tk.Label(group2, text = 'Supplier: ')
-        labelsup.pack(side = 'left', pady=10)
+        labelsup.pack(side = 'left', padx = 5, pady = 10)
 
         supplier = tk.Entry(group2)
         supplier['textvariable'] = self.supplier
-        supplier.pack(side = 'left', pady = 10)
+        supplier.pack(side = 'left', padx = 5, pady = 10)
+
+        # Button
+        confirm = tk.Button(self, text = "Add", width = 15)
+        confirm['command'] = lambda: self.popup()
+        confirm.pack(side = 'top', padx = 5, pady = 10)
 
         # Message
         msg = tk.Message(self, width=500)
         msg['textvariable'] = self.var_message
-        msg.pack(side = 'top', pady = 10)
-
-        # Button
-        confirm = tk.Button(self, text = "Add")
-        confirm['command'] = lambda: self.popup()
-        confirm.pack(side = 'top', pady = 10)
-
-
+        msg.pack(side = 'top', padx = 5, pady = 10)
+        
         group3 = tk.LabelFrame(self, relief = 'flat')
-        group3.pack(side = 'top', pady = 5, padx = 10)
+        group3.pack(side = 'bottom', padx = 5, pady = 10)
         
         button2 = tk.Button(group3, text="Back to Home",
                          command=lambda:controller.show_frame("Home"))
-        button2.pack(side = 'left', pady=5, padx=10)
+        button2.pack(side = 'left', padx = 5, pady = 10)
 
         button3 = tk.Button(group3, text="Back to Suppliers",
                          command=lambda:controller.show_frame("Supplier"))
-        button3.pack(side = 'right', pady=5, padx=10)
+        button3.pack(side = 'right', padx = 5, pady = 10)
 
 
     def popup(self):
@@ -1166,10 +1165,10 @@ class AddSupplier(tk.Frame):
         self.win = tk.Toplevel()
 
         label0 = tk.Label(self.win, text = ("Are you sure you want to add '%s' ?" % self.supplier.get()))
-        label0.pack(side = 'top', pady = 5)
+        label0.pack(side = 'top', padx = 5, pady = 10)
 
-        buttongroup = tk.LabelFrame(self.win)
-        buttongroup.pack(side = 'top')
+        buttongroup = tk.LabelFrame(self.win, relief = 'flat')
+        buttongroup.pack(side = 'top', pady = 20)
       
         button1 = tk.Button(buttongroup, text = 'Confirm',
                             command = lambda : self.add())
