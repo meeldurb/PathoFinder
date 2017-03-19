@@ -138,7 +138,7 @@ class Login(tk.Frame):
         pw.pack(side = 'right', padx = 10, pady = 5)
 
         # Button
-        login_button = tk.Button(self, text = "Login")
+        login_button = tk.Button(self, text = "Login", width = 15)
         login_button['command'] = lambda: self.check_login()
         login_button.pack(side = 'top', padx = 10, pady = 5)
 
@@ -228,11 +228,11 @@ class Home(tk.Frame):
         grouplog = tk.LabelFrame(self, relief = 'flat')
         grouplog.pack(side = 'bottom')        
 
-        button8 = tk.Button(grouplog, text="Log off & Quit",  width = 15,
+        button8 = tk.Button(grouplog, text="Log off & Quit", width = 17,
                             command = controller.destroy)
         button8.pack(side = 'left', pady = 5, padx = 10)
 
-        button9 = tk.Button(grouplog, text="Log off",  width = 15,
+        button9 = tk.Button(grouplog, text="Log off", width = 17,
                             command=lambda : controller.show_frame("Login"))
         button9.pack(side = 'right', pady = 5, padx = 10)
 
@@ -251,7 +251,7 @@ class Home(tk.Frame):
         msg = tk.Message(self.win, textvariable = self.var_message, width = 280)
         msg.pack(side = 'top', pady = 5, padx = 10)
         
-        button1 = tk.Button(self.win, text = 'OK',
+        button1 = tk.Button(self.win, text = 'OK', width = 15,
                             command = lambda : self.check_admin())
         button1.pack(side = 'top', pady = 5, padx = 10)
 
@@ -332,7 +332,7 @@ class TableViews(tk.Frame):
         button6.pack(side = 'top', pady = 5, padx= 10)
 
 
-        button1 = tk.Button(self, text="Back to Home",
+        button1 = tk.Button(self, text="Back to Home",  width = 17,
                          command=lambda:controller.show_frame("Home"))
         button1.pack(side = 'bottom', pady = 5, padx= 10)
 
@@ -351,10 +351,6 @@ class Import(tk.Frame):
         label = tk.Label(self, text="Entry of New Oligos")
         label.pack(side = 'top', pady=20)
 
-        button2 = tk.Button(self, text="Back to Home",
-                         command=lambda:controller.show_frame("Home"))
-        button2.pack(side = 'bottom', pady = 5, padx= 10)
-
         # Group for the entryline
         groupentry = tk.LabelFrame(self, relief = 'flat')
         groupentry.pack(side = 'top')
@@ -372,12 +368,18 @@ class Import(tk.Frame):
                             command=lambda:self.path_var.set(askopenfilename()))
         button3.pack(side = 'left', pady = 5, padx= 10)
 
+        # Upload button on new line
         button4 = tk.Button(self, text="Upload",
                             command=lambda:IOP.import_to_queue("order_queue",
                                                            self.path_var.get()))
                             #command = Uploads the file in the path into the
                             # specified columns of the db
         button4.pack(side = 'top', pady = 5, padx= 10)
+        
+        # Navigation Button
+        button2 = tk.Button(self, text="Back to Home",  width = 17,
+                         command=lambda:controller.show_frame("Home"))
+        button2.pack(side = 'bottom', pady = 5, padx= 10)
 
 ##class Experiment(tk.Frame):
 ##    def __init__(self, parent, controller):
@@ -451,7 +453,7 @@ class ChangePassword(tk.Frame):
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', pady = 5, padx= 10)
         
-        button2 = tk.Button(self, text="Back to Home",
+        button2 = tk.Button(self, text="Back to Home",   width = 17,
                          command=lambda:controller.show_frame("Home"))
         button2.pack(side = 'bottom', pady = 5, padx= 10)
 
@@ -466,7 +468,7 @@ class ChangePassword(tk.Frame):
             # check whether entered current password is correct       
             try:
                 db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(),
-                                     self.controller.shared_data["password"].get(),
+                                     self.cpassword.get(),
                                      cfg.mysql['database']) # open connection
             except:
                 self.var_message.set("Current Password not correct")
@@ -551,12 +553,12 @@ class SearchPage(tk.Frame):
         buttonsgroup.pack(side = 'top', pady = 20, padx= 10)
         
         # Cancel
-        cancelbutton = tk.Button(buttonsgroup, text = 'Back to Home')
+        cancelbutton = tk.Button(buttonsgroup, text = 'Back to Home',   width = 17,)
         cancelbutton['command'] = lambda: self.cancelbutton()
         cancelbutton.pack(side = 'right', pady = 5, padx= 10)
         
         # Continue to open the other options
-        continuebutton = tk.Button(buttonsgroup, text = "Continue")
+        continuebutton = tk.Button(buttonsgroup, text = "Continue",   width = 17,)
         continuebutton["command"] = lambda : self.searchrestadd()
         continuebutton.pack(side = 'right', pady = 5, padx= 10)
 
@@ -664,7 +666,7 @@ class Admin(tk.Frame):
         groupnav = tk.LabelFrame(self, relief = 'flat')
         groupnav.pack(side = 'bottom', pady = 5, padx= 10)
         
-        button4 = tk.Button(groupnav, text="Back to Home",
+        button4 = tk.Button(groupnav, text="Back to Home",  width = 17,
                          command=lambda:self.controller.show_frame("Home"))
                             
         button4.pack(side = 'left', pady=5, padx=10)
@@ -704,11 +706,11 @@ class RemoveOligo(tk.Frame):
         group3 = tk.LabelFrame(self, relief = 'flat')
         group3.pack(side = 'bottom', pady = 5, padx = 10)
         
-        button2 = tk.Button(group3, text="Back to Home",
+        button2 = tk.Button(group3, text="Back to Home",  width = 17,
                          command=lambda:controller.show_frame("Home"))
         button2.pack(side = 'left', pady=5, padx=10)
 
-        button3 = tk.Button(group3, text="Back to Admin",
+        button3 = tk.Button(group3, text="Back to Admin",  width = 17,
                          command=lambda:controller.show_frame("Admin"))
         button3.pack(side = 'right', pady=5, padx=10)
 
@@ -844,11 +846,11 @@ class Project(tk.Frame):
         group2 = tk.LabelFrame(self, relief = 'flat')
         group2.pack(side = 'bottom', padx = 5, pady = 10)
         
-        button4 = tk.Button(group2, text="Back to Home",
+        button4 = tk.Button(group2, text="Back to Home",  width = 17,
                          command=lambda:controller.show_frame("Home"))
         button4.pack(side = 'left', padx = 5, pady = 10)
 
-        button5 = tk.Button(group2, text="Back to Admin",
+        button5 = tk.Button(group2, text="Back to Admin",  width = 17,
                          command=lambda:controller.show_frame("Admin"))
         button5.pack(side = 'right', padx = 5, pady = 10)
 
@@ -889,11 +891,11 @@ class AddProject(tk.Frame):
         group3 = tk.LabelFrame(self, relief = 'flat')
         group3.pack(side = 'bottom', padx = 5, pady = 10)
         
-        button2 = tk.Button(group3, text="Back to Home",
+        button2 = tk.Button(group3, text="Back to Home",  width = 17,
                          command=lambda:controller.show_frame("Home"))
         button2.pack(side = 'left', padx = 5, pady = 10)
 
-        button3 = tk.Button(group3, text="Back to Projects",
+        button3 = tk.Button(group3, text="Back to Projects",  width = 17,
                          command=lambda:controller.show_frame("Project"))
         button3.pack(side = 'right', padx = 5, pady = 10)
 
@@ -991,15 +993,16 @@ class ModifyProject(tk.Frame):
         msg = tk.Message(self, width=500)
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', padx = 5, pady = 10)
-
+        
+        # Navigation Group
         group3 = tk.LabelFrame(self, relief = 'flat')
         group3.pack(side = 'bottom', pady = 5, padx = 10)
         
-        button2 = tk.Button(group3, text="Back to Home",
+        button2 = tk.Button(group3, text="Back to Home",  width = 17,
                          command=lambda:controller.show_frame("Home"))
         button2.pack(side = 'left', padx = 5, pady = 10)
 
-        button3 = tk.Button(group3, text="Back to Projects",
+        button3 = tk.Button(group3, text="Back to Projects",  width = 17,
                          command=lambda:controller.show_frame("Project"))
         button3.pack(side = 'right', padx = 5, pady = 10)
 
@@ -1043,11 +1046,12 @@ class Supplier(tk.Frame):
         group2 = tk.LabelFrame(self, relief = 'flat')
         group2.pack(side = 'bottom', padx = 5, pady = 10)
         
-        button4 = tk.Button(group2, text="Back to Home",
+        # Navigation Group
+        button4 = tk.Button(group2, text="Back to Home",  width = 17,
                          command=lambda:controller.show_frame("Home"))
         button4.pack(side = 'left', padx = 5, pady = 10)
 
-        button5 = tk.Button(group2, text="Back to Admin",
+        button5 = tk.Button(group2, text="Back to Admin",  width = 17,
                          command=lambda:controller.show_frame("Admin"))
         button5.pack(side = 'right', padx = 5, pady = 10)
 
@@ -1093,15 +1097,16 @@ class ModifySupplier(tk.Frame):
         msg = tk.Message(self, width=500)
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', padx = 5, pady = 10)
-        
+
+        # Navigation group        
         group3 = tk.LabelFrame(self, relief = 'flat')
         group3.pack(side = 'bottom', padx = 5, pady = 10)
         
-        button2 = tk.Button(group3, text="Back to Home",
+        button2 = tk.Button(group3, text="Back to Home",  width = 17,
                          command=lambda:controller.show_frame("Home"))
         button2.pack(side = 'left', padx = 5, pady = 10)
 
-        button3 = tk.Button(group3, text="Back to Suppliers",
+        button3 = tk.Button(group3, text="Back to Suppliers",  width = 17,
                          command=lambda:controller.show_frame("Supplier"))
         button3.pack(side = 'right', padx = 5, pady = 10)
 
@@ -1148,14 +1153,15 @@ class AddSupplier(tk.Frame):
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', padx = 5, pady = 10)
         
+        # Navigation Group
         group3 = tk.LabelFrame(self, relief = 'flat')
         group3.pack(side = 'bottom', padx = 5, pady = 10)
         
-        button2 = tk.Button(group3, text="Back to Home",
+        button2 = tk.Button(group3, text="Back to Home",  width = 17,
                          command=lambda:controller.show_frame("Home"))
         button2.pack(side = 'left', padx = 5, pady = 10)
 
-        button3 = tk.Button(group3, text="Back to Suppliers",
+        button3 = tk.Button(group3, text="Back to Suppliers",  width = 17,
                          command=lambda:controller.show_frame("Supplier"))
         button3.pack(side = 'right', padx = 5, pady = 10)
 
@@ -1269,11 +1275,11 @@ class GeneralOrderStatus(tk.Frame):
         group3 = tk.LabelFrame(self, relief = 'flat')
         group3.pack(side = 'bottom', pady = 5, padx = 10)
         
-        button2 = tk.Button(group3, text="Back to Home",
+        button2 = tk.Button(group3, text="Back to Home",  width = 17,
                          command=lambda:self.controller.show_frame("Home"))
         button2.pack(side = 'left', pady = 5, padx = 10)
 
-        button3 = tk.Button(group3, text = "Back to Admin",
+        button3 = tk.Button(group3, text = "Back to Admin",  width = 17,
                             command = lambda : self.controller.show_frame("Admin"))
         button3.pack(side = 'right', pady = 5, padx = 10)
 
@@ -1331,12 +1337,12 @@ class Employees(tk.Frame):
         group1 = tk.LabelFrame(self, relief = 'flat')
         group1.pack(side = 'bottom', pady = 5, padx = 10)
         
-        button5 = tk.Button(group1, text="Back to Home",
+        button5 = tk.Button(group1, text="Back to Home",  width = 17,
                          command=lambda:self.controller.show_frame("Home"))             
         button5.pack(side = 'left', pady = 5, padx= 10)
         
 
-        button6 = tk.Button(group1, text = "Back to Admin",
+        button6 = tk.Button(group1, text = "Back to Admin",  width = 17,
                             command = lambda : self.controller.show_frame("Admin"))
         button6.pack(side = 'right', pady = 5, padx= 10)
         
@@ -1407,11 +1413,11 @@ class AddEmployee(tk.Frame):
         group4 = tk.LabelFrame(self, relief = 'flat')
         group4.pack(side = 'bottom', pady = 5, padx= 10)
 
-        button2 = tk.Button(group4, text="Back to Home",
+        button2 = tk.Button(group4, text="Back to Home",  width = 17,
                          command=lambda:controller.show_frame("Home"))
         button2.pack(side = 'left', pady = 5, padx= 10)
 
-        button3 = tk.Button(group4, text="Back to Employees",
+        button3 = tk.Button(group4, text="Back to Employees",  width = 17,
                          command=lambda:controller.show_frame("Employees"))
         button3.pack(side = 'right', pady = 5, padx= 10)
 
@@ -1504,11 +1510,11 @@ class RemoveUser(tk.Frame):
         group2 = tk.LabelFrame(self, relief = 'flat')
         group2.pack(side = 'bottom', pady = 5, padx= 10)
         
-        button2 = tk.Button(group2, text="Back to Home",
+        button2 = tk.Button(group2, text="Back to Home",  width = 17,
                          command=lambda:controller.show_frame("Home"))
         button2.pack(side = 'left', pady = 5, padx= 10)
 
-        button3 = tk.Button(group2, text="Back to Employee",
+        button3 = tk.Button(group2, text="Back to Employee",  width = 17,
                          command=lambda:controller.show_frame("Employees"))
         button3.pack(side = 'right', pady = 5, padx= 10)
 
@@ -1608,11 +1614,11 @@ class AdminRights(tk.Frame):
         group3 = tk.LabelFrame(self, relief = 'flat')
         group3.pack(side = 'bottom', pady = 5, padx= 10)
         
-        button2 = tk.Button(group3, text="Back to Home",
+        button2 = tk.Button(group3, text="Back to Home",  width = 17,
                          command=lambda:controller.show_frame("Home"))
         button2.pack(side = 'left', pady = 5, padx= 10)
 
-        button3 = tk.Button(group3, text="Back to Employee",
+        button3 = tk.Button(group3, text="Back to Employee",  width = 17,
                          command=lambda:controller.show_frame("Employees"))
         button3.pack(side = 'right', pady = 5, padx= 10)
 
@@ -1715,11 +1721,11 @@ class OrderBin(tk.Frame):
         group1 = tk.LabelFrame(self, relief = 'flat')
         group1.pack(side = 'bottom', pady = 5, padx= 10)
 
-        button4 = tk.Button(group1, text="Back to Home",
+        button4 = tk.Button(group1, text="Back to Home",  width = 17,
                          command=lambda:self.controller.show_frame("Home"))
         button4.pack(side = 'left', pady = 5, padx= 10)
 
-        button5 = tk.Button(group1, text = "Back to Admin",
+        button5 = tk.Button(group1, text = "Back to Admin",  width = 17,
                             command = lambda : self.controller.show_frame("Admin"))
         button5.pack(side = 'right', pady = 5, padx= 10)
         
@@ -1777,7 +1783,7 @@ class OrderStatus(tk.Frame):
         button3.pack(side = 'top', pady = 5, padx= 10)
 
 
-        button4 = tk.Button(self, text="Back to Home",
+        button4 = tk.Button(self, text="Back to Home",  width = 17,
                          command=lambda:self.controller.show_frame("Home"))
         button4.pack(side = 'bottom', pady = 5, padx= 10)
 
@@ -1835,12 +1841,12 @@ class OrderQueue(tk.Frame):
         groupnav = tk.LabelFrame(self, relief = 'flat')
         groupnav.pack(side = 'bottom', pady = 5, padx= 10)
         
-        button6 = tk.Button(groupnav, text="Back to Home",
+        button6 = tk.Button(groupnav, text="Back to Home", width = 17,
                          command=lambda:self.controller.show_frame("Home"))
         button6.pack(side = 'left', pady=5, padx=10)
 
 
-        button7 = tk.Button(groupnav, text="Back to Order Status",
+        button7 = tk.Button(groupnav, text="Back to Order Status", width = 17,
                          command=lambda:self.controller.show_frame("OrderStatus"))
         button7.pack(side = 'right', pady=5, padx=10)
 
@@ -1853,32 +1859,32 @@ class BinToQueue(tk.Frame):
         self.message = tk.StringVar()
 
         label = tk.Label(self, text="Move from Bin to Queue")
-        label.pack(side = 'top', pady=10)
+        label.pack(side = 'top', pady=20)
 
 
         label1 = tk.Label(self, text="Enter the bin_ID('s) : ")
-        label1.pack(side = 'top', pady=5)
+        label1.pack(side = 'top', pady=5, padx=10)
 
         self.Text = tk.Text(self, width = 30, height = 10)
-        self.Text.pack(side = 'top', pady = 5)
-
-        message = tk.Message(self, textvariable = self.message, width = 280)
-        message.pack(side = 'top')
+        self.Text.pack(side = 'top', pady=5, padx=10)
 
         button = tk.Button(self, text = 'Move oligos(s) back to order queue')
         button['command'] = lambda : self.move()
-        button.pack(side = 'top', pady = 10)
+        button.pack(side = 'top', pady=5, padx=10)
 
-        buttongroup = tk.LabelFrame(self)
-        buttongroup.pack(side = 'top')
+        message = tk.Message(self, textvariable = self.message, width = 280)
+        message.pack(side = 'top', pady=5, padx=10)
         
-        button2 = tk.Button(buttongroup, text = 'Back to Home',
+        buttongroup = tk.LabelFrame(self, relief = 'flat')
+        buttongroup.pack(side = 'bottom', pady=5, padx=10)
+        
+        button2 = tk.Button(buttongroup, text = 'Back to Home',  width = 17,
                             command = lambda : self.controller.show_frame("Home"))
-        button2.pack(side = 'left', pady=5, padx = 5)
+        button2.pack(side = 'left', pady=5, padx=10)
 
-        button3 = tk.Button(buttongroup, text = 'Back to Order Queue',
+        button3 = tk.Button(buttongroup, text = 'Back to Order Queue',  width = 17,
                              command = lambda : self.controller.show_frame("OrderQueue"))
-        button3.pack(side = 'left', pady=5, padx = 5)
+        button3.pack(side = 'right', pady=5, padx=10)
 
 
     def move(self):
@@ -1908,32 +1914,32 @@ class QueueToBin(tk.Frame):
         self.message = tk.StringVar()
 
         label = tk.Label(self, text="Move from Queue to Bin")
-        label.pack(side = 'top', pady=10)
+        label.pack(side = 'top', pady=20)
 
 
         label1 = tk.Label(self, text="Enter the queue ID('s) : ")
-        label1.pack(side = 'top', pady=5)
+        label1.pack(side = 'top', pady=5, padx=10)
 
         self.Text = tk.Text(self, width = 30, height = 10)
-        self.Text.pack(side = 'top', pady = 5)
-
-        message = tk.Message(self, textvariable = self.message, width = 280)
-        message.pack(side = 'top')
+        self.Text.pack(side = 'top', pady=5, padx=10)
 
         button = tk.Button(self, text = 'Remove oligo(s) from queue')
         button['command'] = lambda : self.move()
-        button.pack(side = 'top', pady = 10)
+        button.pack(side = 'top', pady=5, padx=10)
+        
+        message = tk.Message(self, textvariable = self.message, width = 280)
+        message.pack(side = 'top', pady=5, padx=10)
 
         buttongroup = tk.LabelFrame(self, relief = 'flat')
-        buttongroup.pack(side = 'top')
+        buttongroup.pack(side = 'bottom', pady=5, padx=10)
         
-        button2 = tk.Button(buttongroup, text = 'Back to Home',
+        button2 = tk.Button(buttongroup, text = 'Back to Home',  width = 17,
                             command = lambda : self.controller.show_frame("Home"))
-        button2.pack(side = 'left', pady=5, padx = 5)
+        button2.pack(side = 'left', pady=5, padx=10)
 
-        button3 = tk.Button(buttongroup, text = 'Back to Order Queue',
+        button3 = tk.Button(buttongroup, text = 'Back to Order Queue',  width = 17,
                              command = lambda : self.controller.show_frame("OrderQueue"))
-        button3.pack(side = 'left', pady=5, padx = 5)
+        button3.pack(side = 'right', pady=5, padx=10)
 
 
     def move(self):
@@ -1963,32 +1969,32 @@ class ProcessQueue(tk.Frame):
         self.message = tk.StringVar()
 
         label = tk.Label(self, text="Process Queue to database")
-        label.pack(side = 'top', pady=10)
+        label.pack(side = 'top', pady=20)
 
 
         label1 = tk.Label(self, text="Enter the queue ID('s) that you want to process : ")
-        label1.pack(side = 'top', pady=5)
+        label1.pack(side = 'top', pady=5, padx=10)
 
         self.Text = tk.Text(self, width = 30, height = 10)
-        self.Text.pack(side = 'top', pady = 5)
-
-        message = tk.Message(self, textvariable = self.message, width = 280)
-        message.pack(side = 'top')
+        self.Text.pack(side = 'top', pady=5, padx=10)
 
         processbutton = tk.Button(self, text = 'Process oligo(s)')
         processbutton['command'] = lambda : self.process()
-        processbutton.pack(side = 'top', pady = 10)
+        processbutton.pack(side = 'top', pady=5, padx=10)
 
-        buttongroup = tk.LabelFrame(self)
-        buttongroup.pack(side = 'top')
+        message = tk.Message(self, textvariable = self.message, width = 280)
+        message.pack(side = 'top', pady=5, padx=10)
+
+        buttongroup = tk.LabelFrame(self, relief = 'flat')
+        buttongroup.pack(side = 'bottom', pady=5, padx=10)
         
-        button2 = tk.Button(buttongroup, text = 'Back to Home',
+        button2 = tk.Button(buttongroup, text = 'Back to Home',  width = 17,
                             command = lambda : self.controller.show_frame("Home"))
-        button2.pack(side = 'left', pady=5, padx = 5)
+        button2.pack(side = 'left', pady=5, padx=10)
 
-        button3 = tk.Button(buttongroup, text = 'Back to Order Queue',
+        button3 = tk.Button(buttongroup, text = 'Back to Order Queue',  width = 17,
                              command = lambda : self.controller.show_frame("OrderQueue"))
-        button3.pack(side = 'left', pady=5, padx = 5)
+        button3.pack(side = 'right', pady=5, padx=10)
 
         # Button
         #confirm = tk.Button(self, text = "Add")
@@ -2005,15 +2011,15 @@ Do you want to import anyway? \n A new batchno will be created")
         label0.pack(side = 'top', pady = 5)
 
         buttongroup = tk.LabelFrame(self.win)
-        buttongroup.pack(side = 'top')
+        buttongroup.pack(side = 'top', pady = 20)
       
         button1 = tk.Button(buttongroup, text = 'Yes',
                             command = lambda : self.confirm("y"))
-        button1.pack(side = 'left', padx = 5, pady = 10)
+        button1.pack(side = 'left', pady=5, padx=10)
 
         button2 = tk.Button(buttongroup, text = 'No',
                             command = lambda : self.win.destroy())
-        button2.pack(side = 'left', padx = 5, pady = 10)
+        button2.pack(side = 'right', pady=5, padx=10)
 
     def confirm(self, yesorno):
         answer = yesorno
@@ -2050,41 +2056,45 @@ class Deliveries(tk.Frame):
         self.message = tk.StringVar()
 
         label = tk.Label(self, text="Enter new Delivery")
-        label.grid(row = 0, column = 2, pady=10)
+        label.pack(side = 'top', pady=20)
 
+        # Batchgroup
+        groupbatch = tk.LabelFrame(self, relief = 'flat')
+        groupbatch.pack(side = 'top', pady = 5, padx= 10)
 
-        label1 = tk.Label(self, text="Enter the Batchnumber('s) : ")
-        label1.grid(row = 1, column = 1, pady=5)
+        batchlabel = tk.Label(groupbatch, text = "Batchnumber: ", anchor = 'w', width = 18)
+        batchlabel.pack(side = 'left', pady = 5, padx= 10)
 
-        batchlabel = tk.Label(self, text = "Batchnumber: ")
-        batchlabel.grid(row = 3, column = 1, pady = 5)
+        batchentry = tk.Entry(groupbatch, textvariable = self.batch)
+        batchentry.pack(side = 'right', pady = 5, padx= 10)
 
-        batchentry = tk.Entry(self, textvariable = self.batch)
-        batchentry.grid(row = 3, column = 2, pady = 5)
+        # Synthesis group
+        groupsynth = tk.LabelFrame(self, relief = 'flat')
+        groupsynth.pack(side = 'top', pady = 5, padx= 10)
 
-        synthlabel = tk.Label(self, text = "Delivery synthesis level: ")
-        synthlabel.grid(row = 4, column = 1, pady = 5)
+        synthlabel = tk.Label(groupsynth, text = "Delivery synthesis level: ", anchor = 'w', width = 18)
+        synthlabel.pack(side = 'left', pady = 5, padx= 10)
         
-        synthentry = tk.Entry(self, textvariable = self.synth)
-        synthentry.grid(row = 4, column = 2, pady = 5)
+        synthentry = tk.Entry(groupsynth, textvariable = self.synth)
+        synthentry.pack(side = 'right', pady = 5, padx= 10)
         
-        message = tk.Message(self, textvariable = self.message, width = 280)
-        message.grid(row = 5, column = 1, columnspan = 4)
-
-        button = tk.Button(self, text = 'Confirm Delivery')
+        button = tk.Button(self, text = 'Confirm Delivery', width = 15)
         button['command'] = lambda : self.update_status()
-        button.grid(row = 6, column = 2, pady = 10)
+        button.pack(side = 'top', pady = 5, padx= 10)
 
-        buttongroup = tk.LabelFrame(self)
-        buttongroup.grid(row = 7, column = 2)
+        message = tk.Message(self, textvariable = self.message, width = 280)
+        message.pack(side = 'top', pady = 5, padx= 10)
+
+        buttongroup = tk.LabelFrame(self, relief = 'flat')
+        buttongroup.pack(side = 'top', pady = 5, padx= 10)
         
-        button2 = tk.Button(buttongroup, text = 'Back to Home',
+        button2 = tk.Button(buttongroup, text = 'Back to Home',  width = 17,
                             command = lambda : self.controller.show_frame("Home"))
-        button2.pack(side = 'left', pady=5, padx = 5)
+        button2.pack(side = 'left', pady = 5, padx= 10)
 
-        button3 = tk.Button(buttongroup, text = 'Back to Order Status',
+        button3 = tk.Button(buttongroup, text = 'Back to Order Status',  width = 17,
                              command = lambda : self.controller.show_frame("OrderStatus"))
-        button3.pack(side = 'left', pady=5, padx = 5)
+        button3.pack(side = 'right', pady = 5, padx= 10)
 
 
     def update_status(self):
@@ -2109,32 +2119,33 @@ class OutOfStock(tk.Frame):
         self.message = tk.StringVar()
 
         label = tk.Label(self, text="Set batches to be 'Out of Stock'")
-        label.pack(side = 'top', pady=10)
+        label.pack(side = 'top', pady = 20)
 
 
         label1 = tk.Label(self, text="Enter the batchnumber('s) : ")
-        label1.pack(side = 'top', pady=5)
+        label1.pack(side = 'top', pady = 5, padx= 10)
 
         self.Text = tk.Text(self, width = 30, height = 10)
-        self.Text.pack(side = 'top', pady = 5)
+        self.Text.pack(side = 'top', pady = 5, padx= 10)
+
+        button = tk.Button(self, text = 'Confirm', width = 15)
+        button['command'] = lambda : self.update_status()
+        button.pack(side = 'top', pady = 5, padx= 10)
 
         message = tk.Message(self, textvariable = self.message, width = 280)
-        message.pack(side = 'top')
-
-        button = tk.Button(self, text = 'Confirm')
-        button['command'] = lambda : self.update_status()
-        button.pack(side = 'top', pady = 10)
-
-        buttongroup = tk.LabelFrame(self)
-        buttongroup.pack(side = 'top')
+        message.pack(side = 'top', pady = 5, padx= 10)
         
-        button2 = tk.Button(buttongroup, text = 'Back to Home',
+        # Navigation group
+        buttongroup = tk.LabelFrame(self, relief = 'flat')
+        buttongroup.pack(side = 'top', pady = 5, padx= 10)
+        
+        button2 = tk.Button(buttongroup, text = 'Back to Home',  width = 17,
                             command = lambda : self.controller.show_frame("Home"))
-        button2.pack(side = 'left', pady=5, padx = 5)
+        button2.pack(side = 'left', pady = 5, padx= 10)
 
-        button3 = tk.Button(buttongroup, text = 'Back to Order Queue',
+        button3 = tk.Button(buttongroup, text = 'Back to Order Queue',  width = 17,
                              command = lambda : self.controller.show_frame("OrderQueue"))
-        button3.pack(side = 'left', pady=5, padx = 5)
+        button3.pack(side = 'right', pady = 5, padx= 10)
       
     def update_status(self):
         try:
