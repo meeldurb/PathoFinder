@@ -66,11 +66,10 @@ class OligoDatabase(tk.Tk):
             "search" : tk.StringVar()
             }
 
-        for F in (Login, Home, TableViews, OrderStatus, Import, Experiment, ChangePassword,
-                  Experiment, SearchPage, Admin, Employees, AddEmployee, OrderBin, BinToQueue,
-                  QueueToBin, ProcessQueue,
-                  OrderStatus, OrderQueue, Deliveries, OutOfStock, GeneralOrderStatus, RemoveUser,
-                  AdminRights, AddSupplier, AddProject, RemoveOligo, Project, ModifyProject, Supplier,
+        for F in (Login, Home, TableViews, OrderStatus, Import, ChangePassword, SearchPage, Admin,
+                  Employees, AddEmployee, OrderBin, BinToQueue, QueueToBin, ProcessQueue,
+                  OrderQueue, Deliveries, OutOfStock, GeneralOrderStatus, RemoveUser, AdminRights,
+                  AddSupplier, AddProject, RemoveOligo, Project, ModifyProject, Supplier,
                   ModifySupplier):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
@@ -350,46 +349,49 @@ class Import(tk.Frame):
 
         
         label = tk.Label(self, text="Entry of New Oligos")
-        label.grid(row=1, columnspan=8, pady=10)
+        label.pack(side = 'top', pady=20)
 
         button2 = tk.Button(self, text="Back to Home",
                          command=lambda:controller.show_frame("Home"))
-        button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
+        button2.pack(side = 'bottom', pady = 5, padx= 10)
 
-     
-        label2 = tk.Label(self, text="Import from file at location:")
-        label2.grid(row=8, column=1, pady=5, padx=10)
+        # Group for the entryline
+        groupentry = tk.LabelFrame(self, relief = 'flat')
+        groupentry.pack(side = 'top')
+        
+        label2 = tk.Label(groupentry, text="Import from file at location:")
+        label2.pack(side = 'left', pady = 5, padx= 10)
 
-        text_path = tk.Entry(self, bg='white', fg='black', width=50,
+        text_path = tk.Entry(groupentry, bg='white', fg='black', width=50,
                              textvariable=self.path_var, justify="left" )
                                 # add feature that it will expand upon selection
                                 # add that when upload was succesfull, path dissappears
-        text_path.grid(row=8, column=3, columnspan=4)
+        text_path.pack(side = 'left', pady = 5, padx= 10)
 
-        button3 = tk.Button(self, text="Browse",
+        button3 = tk.Button(groupentry, text="Browse",
                             command=lambda:self.path_var.set(askopenfilename()))
-        button3.grid(row=8, column=7)
+        button3.pack(side = 'left', pady = 5, padx= 10)
 
         button4 = tk.Button(self, text="Upload",
                             command=lambda:IOP.import_to_queue("order_queue",
                                                            self.path_var.get()))
                             #command = Uploads the file in the path into the
                             # specified columns of the db
-        button4.grid(row=8, column=8)
+        button4.pack(side = 'top', pady = 5, padx= 10)
 
-class Experiment(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-
-        #save a reference to controller in each page:
-        self.controller = controller
-        
-        label = tk.Label(self, text="Experiments")
-        label.grid(columnspan=8, pady=10)
-
-        button2 = tk.Button(self, text="Back to Home",
-                         command=lambda:controller.show_frame("Home"))
-        button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
+##class Experiment(tk.Frame):
+##    def __init__(self, parent, controller):
+##        tk.Frame.__init__(self, parent)
+##
+##        #save a reference to controller in each page:
+##        self.controller = controller
+##        
+##        label = tk.Label(self, text="Experiments")
+##        label.grid(columnspan=8, pady=10)
+##
+##        button2 = tk.Button(self, text="Back to Home",
+##                         command=lambda:controller.show_frame("Home"))
+##        button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
 
 
 class ChangePassword(tk.Frame):
