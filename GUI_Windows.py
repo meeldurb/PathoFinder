@@ -116,40 +116,37 @@ class Login(tk.Frame):
         label = tk.Label(self, text="Login")
         label.pack(side = 'top', pady = 20)
 
-        groupmain = tk.LabelFrame(self, relief = 'flat')
-        groupmain.pack(side = 'top')
-
-        grouplabel = tk.LabelFrame(groupmain, relief = 'flat')
-        grouplabel.pack(side = 'top')
-
-        groupentry = tk.LabelFrame(groupmain, relief = 'flat')
-        groupentry.pack(side = 'top')
-        
         # username
-        user_label = tk.Label(grouplabel, text = "Username: ", width = 10)
-        user_label.pack(side = 'left', padx = 5, pady = 10)
+        groupuser = tk.LabelFrame(self, relief = 'flat')
+        groupuser.pack(side = 'top')      
         
-        user = tk.Entry(grouplabel)
+        user_label = tk.Label(groupuser, text = "Username: ", width = 10)
+        user_label.pack(side = 'left', padx = 10, pady = 5)
+        
+        user = tk.Entry(groupuser)
         user['textvariable'] = self.username
-        user.pack(side = 'right', padx = 5, pady = 20)
+        user.pack(side = 'right', padx = 10, pady = 5)
 
         # password
-        pw_label = tk.Label(groupentry, text = "Password: ", width = 10)
-        pw_label.pack(side = 'left', padx = 5, pady = 10)
+        grouppass = tk.LabelFrame(self, relief = 'flat')
+        grouppass.pack(side = 'top')
+        
+        pw_label = tk.Label(grouppass, text = "Password: ", width = 10)
+        pw_label.pack(side = 'left', padx = 10, pady = 5)
                   
-        pw = tk.Entry(groupentry, show = "*")
+        pw = tk.Entry(grouppass, show = "*")
         pw['textvariable'] = self.password
-        pw.pack(side = 'right', padx = 5, pady = 10)
+        pw.pack(side = 'right', padx = 10, pady = 5)
 
         # Button
         login_button = tk.Button(self, text = "Login")
         login_button['command'] = lambda: self.check_login()
-        login_button.pack(side = 'top', pady = 10)
+        login_button.pack(side = 'top', padx = 10, pady = 5)
 
         # Message
         msg = tk.Message(self, width=280)
         msg['textvariable'] = self.var_message
-        msg.pack(side = 'top', pady = 10)
+        msg.pack(side = 'top', pady = 5)
 
     def check_login(self):
         """Check whether Login details are valid, in order to continute"""
@@ -181,48 +178,64 @@ class Home(tk.Frame):
         self.controller = controller
         
 
-        label = tk.Label(self, text="Home")
-        label.grid(row = 1, column = 1, columnspan=3, pady=10 )
+        label = tk.Label(self, text = "Home")
+        label.pack(side = 'top', pady = 20 )
 
-        button1 = tk.Button(self, text="Import oligos", 
-                            command=lambda:controller.show_frame("Import"))
-        button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
+        # Main ButtonsGroup
+        groupmain = tk.LabelFrame(self, relief = 'flat')
+        groupmain.pack(side = 'top')
 
-        button2 = tk.Button(self, text="View",
-                         command=lambda:controller.show_frame("TableViews"))
-        button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
-
-        button3 = tk.Button(self, text="Experiment",
-                        command=lambda:controller.show_frame("Experiment"))
-                             # go to Employees page
-        button3.grid(row=6, column=2, pady=5, padx=10, sticky="WE")
-
-        button4 = tk.Button(self, text="Order-Status",
-                        command=lambda:controller.show_frame("OrderStatus"))
-        button4.grid(row=2, column=4, pady=5, padx=10, sticky="EW")
-
-        button5 = tk.Button(self, text="Search",
-                        command=lambda:controller.show_frame("SearchPage"))
-        button5.grid(row=4, column=4, pady=5, padx=10, sticky="EW")
-
-        button6 = tk.Button(self, text="Change password",
-                        command=lambda:controller.show_frame("ChangePassword"))
-                            # go to Experiments page
-        button6.grid(row=4, column=14, pady=5, padx=10, sticky="EW")
-
-        button7 = tk.Button(self, text = "Admin",
-                            command = lambda : self.popup_password())
-        button7.grid(row=4, column=12, pady=5, padx=10, sticky="EW")
+        # Group for Buttons CentreLeft
+        groupleft = tk.LabelFrame(groupmain, relief = 'flat')
+        groupleft.pack(side = 'left', pady = 5, padx= 10)
         
+        button1 = tk.Button(groupleft, text="Import oligos", width = 15,
+                            command=lambda:controller.show_frame("Import"))
+        button1.pack(side = 'top', pady = 5, padx = 10)
 
-        button8 = tk.Button(self, text="Log off & Quit", command=controller.destroy)
-                            # Close the program
-        button8.grid(row=12, column=10, pady=5, padx=10, columnspan=2)
+        button2 = tk.Button(groupleft, text="Views", width = 15,
+                         command=lambda:controller.show_frame("TableViews"))
+        button2.pack(side = 'top', pady = 5, padx = 10)
 
-        button9 = tk.Button(self, text="Log off",
+##        button3 = tk.Button(groupleft, text="Experiment", width = 15,
+##                        command=lambda:controller.show_frame("Experiment"))
+##        button3.pack(side = 'top', pady = 5, padx = 10)
+        
+        # Group for Buttons CentreRight
+        groupright = tk.LabelFrame(groupmain, relief = 'flat')
+        groupright.pack(side = 'right', pady = 5, padx= 10)
+        
+        button4 = tk.Button(groupright, text="Order-Status", width = 15,
+                        command=lambda:controller.show_frame("OrderStatus"))
+        button4.pack(side = 'top', pady = 5, padx = 10)
+
+        button5 = tk.Button(groupright, text="Search", width = 15,
+                        command=lambda:controller.show_frame("SearchPage"))
+        button5.pack(side = 'top', pady = 5, padx = 10)
+
+        # Group for AdminButtons
+        groupmainad = tk.LabelFrame(self, relief = 'flat')
+        groupmainad.pack(side = 'top', pady = 30)
+        
+        button6 = tk.Button(groupmainad, text="Change password", width = 15,
+                        command=lambda:controller.show_frame("ChangePassword"))
+        button6.pack(side = 'top', pady = 5, padx = 10)
+
+        button7 = tk.Button(groupmainad, text = "Admin", width = 15,
+                            command = lambda : self.popup_password())
+        button7.pack(side = 'top', pady = 5, padx = 10)
+
+        # Group for Log Buttons
+        grouplog = tk.LabelFrame(self, relief = 'flat')
+        grouplog.pack(side = 'bottom')        
+
+        button8 = tk.Button(grouplog, text="Log off & Quit",  width = 15,
+                            command = controller.destroy)
+        button8.pack(side = 'left', pady = 5, padx = 10)
+
+        button9 = tk.Button(grouplog, text="Log off",  width = 15,
                             command=lambda : controller.show_frame("Login"))
-                            # Close the program
-        button9.grid(row=12, column=8, pady=5, padx=10, columnspan=2)
+        button9.pack(side = 'right', pady = 5, padx = 10)
 
     def popup_password(self):
         self.win = tk.Toplevel()
