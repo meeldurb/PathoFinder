@@ -521,41 +521,44 @@ class SearchPage(tk.Frame):
         self.table = tk.StringVar()
         self.table.set(self.tables[0])
         self.search_input = tk.StringVar()
-
+        
+        label = tk.Label(self, text="Search")
+        label.pack(side = 'top', pady=20)
+        
         # initialize check for the presence of the subFrame
         self.restsearchpresence = tk.BooleanVar()
         self.restsearchpresence.set(False)
 
         # Search Group
         search_group = tk.LabelFrame(self, relief = 'flat')
-        search_group.pack(side = 'top', padx=10, pady=10)
+        search_group.pack(side = 'top',  pady = 5, padx= 10)
         
         search_label = tk.Label(search_group, text = 'Search for: ')
-        search_label.pack(side = 'left', padx=10, pady=10)
+        search_label.pack(side = 'left',  pady = 5, padx= 10)
 
         search_entry = tk.Entry(search_group, width = 50)
         search_entry['textvariable'] = self.search_input
-        search_entry.pack(side = 'left', padx=10, pady=10)
+        search_entry.pack(side = 'left',  pady = 5, padx= 10)
 
         # tablemenu group
         tablelabel =tk.Label(self, text = 'Choose table to search in:')
-        tablelabel.pack(side = 'top', padx=10, pady=10)
+        tablelabel.pack(side = 'top', pady = 5, padx= 10)
         
         tablesmenu = tk.OptionMenu(self, self.table, *self.tables)
-        tablesmenu.pack(side = 'top', padx = 10, pady = 10)
+        tablesmenu.pack(side = 'top', pady = 5, padx= 10)
 
         buttonsgroup = tk.LabelFrame(self, relief = 'flat')
-        buttonsgroup.pack(side = 'top', padx = 10, pady = 10)
+        buttonsgroup.pack(side = 'top', pady = 20, padx= 10)
         
         # Cancel
         cancelbutton = tk.Button(buttonsgroup, text = 'Back to Home')
         cancelbutton['command'] = lambda: self.cancelbutton()
-        cancelbutton.pack(side = 'right', padx = 5, pady = 10)
+        cancelbutton.pack(side = 'right', pady = 5, padx= 10)
         
         # Continue to open the other options
         continuebutton = tk.Button(buttonsgroup, text = "Continue")
         continuebutton["command"] = lambda : self.searchrestadd()
-        continuebutton.pack(side = 'right', padx = 5, pady = 10)
+        continuebutton.pack(side = 'right', pady = 5, padx= 10)
 
     def cancelbutton(self):
         # if subFrame is present, destroy
@@ -573,7 +576,7 @@ class SearchPage(tk.Frame):
         # Set the presence to True, and add subFrame to the current Frame
         self.restsearchpresence.set(True)
         self.restframe = SearchRest(self.controller)
-        self.restframe.pack(in_ = self, side = 'bottom')
+        self.restframe.pack(in_ = self, side = 'top')
 
 class SearchRest(tk.Frame):
     def __init__(self, controller):
@@ -590,8 +593,11 @@ class SearchRest(tk.Frame):
         self.sortmethod.set("Descending")
         
         # Sort Group
-        sort_group = tk.LabelFrame(self, text = 'Sort By', relief = 'flat')
+        sort_group = tk.LabelFrame(self, relief = 'flat')
         sort_group.pack(side = 'top', padx=10, pady = 10)
+
+        label = tk.Label(sort_group, text="Sort By:")
+        label.pack(side = 'top', padx=10, pady = 10)
         
         sortList = tk.OptionMenu(sort_group, self.sortattribute, *cfg.db_tables_views[self.table])
         sortList.pack(side='left', padx=5, pady=5)
@@ -599,9 +605,8 @@ class SearchRest(tk.Frame):
         sortmethodList = tk.OptionMenu(sort_group, self.sortmethod, 'Ascending', 'Descending')
         sortmethodList.pack(side='left', padx=5, pady=5)
 
-
         # Go
-        sortbutton = tk.Button(self, text = 'GO', padx = 20, pady = 10)
+        sortbutton = tk.Button(self, text = 'GO', width = 15)
         sortbutton['command'] = lambda : self.search_button_go(self.table, self.search_input, self.sortattribute.get(), self.sortmethod.get())
         # To clarify: for some weird reason self.search_input.get()didn't work, so had to use search_entry.get() instead.
         sortbutton.pack(side = 'bottom' , padx=5, pady=10)
