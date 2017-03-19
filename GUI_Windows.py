@@ -119,7 +119,7 @@ class Login(tk.Frame):
         groupuser = tk.LabelFrame(self, relief = 'flat')
         groupuser.pack(side = 'top')      
         
-        user_label = tk.Label(groupuser, text = "Username: ", width = 10)
+        user_label = tk.Label(groupuser, text = "Username: ", width = 9, anchor = 'w')
         user_label.pack(side = 'left', padx = 10, pady = 5)
         
         user = tk.Entry(groupuser)
@@ -130,7 +130,7 @@ class Login(tk.Frame):
         grouppass = tk.LabelFrame(self, relief = 'flat')
         grouppass.pack(side = 'top')
         
-        pw_label = tk.Label(grouppass, text = "Password: ", width = 10)
+        pw_label = tk.Label(grouppass, text = "Password: ", width = 9, anchor = 'w')
         pw_label.pack(side = 'left', padx = 10, pady = 5)
                   
         pw = tk.Entry(grouppass, show = "*")
@@ -406,46 +406,54 @@ class ChangePassword(tk.Frame):
         self.var_message = tk.StringVar()
         
         label = tk.Label(self, text="Change Password")
-        label.grid(row = 1, column = 1, columnspan=8, pady=10)
+        label.pack(side = 'top', pady=20)
 
         # currrent password
-        cpwlabel = tk.Label(self, text = "Current Password: ")
-        cpwlabel.grid(row = 3, column = 2, pady=10)
+        groupcurrent = tk.LabelFrame(self, relief = 'flat')
+        groupcurrent.pack(side = 'top', pady = 5, padx= 10)
+        
+        cpwlabel = tk.Label(groupcurrent, text = "Current Password: ", width = 18, anchor = 'w')
+        cpwlabel.pack(side = 'left', pady = 5, padx= 10)
 
-        cpw = tk.Entry(self, show = "*")
+        cpw = tk.Entry(groupcurrent, show = "*")
         cpw['textvariable'] = self.cpassword
-        cpw.grid(row = 3, column = 4, columnspan = 4, pady = 10)
+        cpw.pack(side = 'right', pady = 5, padx= 10)
 
         # new password
-        npwlabel = tk.Label(self, text = "New Password: ")
-        npwlabel.grid(row = 4, column = 2, pady=10)
+        groupnew = tk.LabelFrame(self, relief = 'flat')
+        groupnew.pack(side = 'top', pady = 5, padx= 10)
+        
+        npwlabel = tk.Label(groupnew, text = "New Password: ", width = 18, anchor = 'w')
+        npwlabel.pack(side = 'left', pady = 5, padx= 10)
 
-        npw = tk.Entry(self, show = "*")
+        npw = tk.Entry(groupnew, show = "*")
         npw['textvariable'] = self.npassword
-        npw.grid(row = 4, column = 4, columnspan = 4, pady = 10)
+        npw.pack(side = 'right', pady = 5, padx= 10)
 
         # repeat password
-        rnlabel = tk.Label(self, text = "Repeat New Password: ")
-        rnlabel.grid(row = 5, column = 2, pady=10)
+        grouprepeat = tk.LabelFrame(self, relief = 'flat')
+        grouprepeat.pack(side = 'top', pady = 5, padx= 10)
+        
+        rnlabel = tk.Label(grouprepeat, text = "Repeat New Password: ", width = 18, anchor = 'w')
+        rnlabel.pack(side = 'left', pady = 5, padx= 10)
 
-        rnpw = tk.Entry(self, show = "*")
+        rnpw = tk.Entry(grouprepeat, show = "*")
         rnpw['textvariable'] = self.rnpassword
-        rnpw.grid(row = 5, column = 4, columnspan = 4, pady = 10)
-
-        # Message
-        msg = tk.Message(self, width=280)
-        msg['textvariable'] = self.var_message
-        msg.grid(row=6, column=2, columnspan=4, pady = 10)
+        rnpw.pack(side = 'right', pady = 5, padx= 10)
 
         # Button
         changpass = tk.Button(self, text = "Confirm")
         changpass['command'] = lambda: self.change_password()
-        changpass.grid(row = 7, column = 4, pady = 10)
+        changpass.pack(side = 'top', pady = 5, padx= 10)
 
-
+        # Message
+        msg = tk.Message(self, width=280)
+        msg['textvariable'] = self.var_message
+        msg.pack(side = 'top', pady = 5, padx= 10)
+        
         button2 = tk.Button(self, text="Back to Home",
                          command=lambda:controller.show_frame("Home"))
-        button2.grid(row=9, column=9, pady=5, padx=10, sticky="EW")
+        button2.pack(side = 'bottom', pady = 5, padx= 10)
 
     def change_password(self):
         """Change Password for current user"""
