@@ -1693,7 +1693,6 @@ class AdminRights(tk.Frame):
                 db.close() #disconnect from server
 
             
-
 class OrderBin(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -1701,27 +1700,28 @@ class OrderBin(tk.Frame):
         self.controller = controller
 
         label = tk.Label(self, text="Order Bin")
-        label.grid(row = 1, column = 1, columnspan=3, pady=10)
+        label.pack(side = 'top', pady=20)
 
-        button1 = tk.Button(self, text="View Order Bin", bg=mycolor,
+        button1 = tk.Button(self, text="View Order Bin", bg=mycolor, width = 15,
                             command = lambda : TLQ.build_query_and_table('order_bin'))
-        
-        button1.grid(row=2, column=2, pady=5, padx=10, sticky="WE")
+        button1.pack(side = 'top', pady = 5, padx= 10)
 
-        button2 = tk.Button(self, text="Empty Order Bin",
+
+        button2 = tk.Button(self, text="Empty Order Bin", width = 15,
                             command = lambda : self.popup())
+        button2.pack(side = 'top', pady = 5, padx= 10)
 
-        button2.grid(row=4, column=2, pady=5, padx=10, sticky="WE")
+        # Navigation group
+        group1 = tk.LabelFrame(self, relief = 'flat')
+        group1.pack(side = 'bottom', pady = 5, padx= 10)
 
-
-        button4 = tk.Button(self, text="Back to Home",
+        button4 = tk.Button(group1, text="Back to Home",
                          command=lambda:self.controller.show_frame("Home"))
-                            
-        button4.grid(row=9, column=3, pady=5, padx=10)
+        button4.pack(side = 'left', pady = 5, padx= 10)
 
-        button5 = tk.Button(self, text = "Back to Admin",
+        button5 = tk.Button(group1, text = "Back to Admin",
                             command = lambda : self.controller.show_frame("Admin"))
-        button5.grid(row=9, column=4, pady=5, padx=10)
+        button5.pack(side = 'right', pady = 5, padx= 10)
         
     
     def popup(self):
@@ -1733,16 +1733,16 @@ class OrderBin(tk.Frame):
         label0 = tk.Label(self.win, text = "Are you sure you want to remove all data from the Order-Bin?")
         label0.pack(side = 'top', pady = 5)
 
-        buttongroup = tk.LabelFrame(self.win)
-        buttongroup.pack(side = 'top')
+        buttongroup = tk.LabelFrame(self.win, relief = 'flat')
+        buttongroup.pack(side = 'top', pady = 20)
       
         button1 = tk.Button(buttongroup, text = 'Confirm',
                             command = lambda : self.empty())
-        button1.pack(side = 'left', padx = 5, pady = 10)
+        button1.pack(side = 'left', pady = 5, padx= 10)
 
         button2 = tk.Button(buttongroup, text = 'Cancel',
                             command = lambda : self.win.destroy())
-        button2.pack(side = 'left', padx = 5, pady = 10)
+        button2.pack(side = 'left', pady = 5, padx= 10)
 
     def empty(self):
         TUQ.empty_bin()
