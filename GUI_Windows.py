@@ -244,17 +244,17 @@ class Home(tk.Frame):
         self.var_message = tk.StringVar()
 
         label = tk.Label(self.win, text = 'Enter password :')
-        label.pack(side = 'top')
+        label.pack(side = 'top', pady = 5, padx = 10)
 
         entry = tk.Entry(self.win, textvariable = self.password, show = "*")
-        entry.pack(side = 'top')
+        entry.pack(side = 'top', pady = 5, padx = 10)
 
         msg = tk.Message(self.win, textvariable = self.var_message, width = 280)
-        msg.pack(side = 'top')
+        msg.pack(side = 'top', pady = 5, padx = 10)
         
         button1 = tk.Button(self.win, text = 'OK',
                             command = lambda : self.check_admin())
-        button1.pack(side = 'top')
+        button1.pack(side = 'top', pady = 5, padx = 10)
 
     def check_admin(self):
         if self.password.get() != self.controller.shared_data["password"].get():
@@ -304,39 +304,38 @@ class TableViews(tk.Frame):
 
         
         label = tk.Label(self, text="Table Views")
-        label.grid(columnspan=8, pady=10)
+        label.pack(side = 'top', pady=20)
 
 
 
-        button2 = tk.Button(self, text="Oligos with most recent Batches",
-                        command = lambda : TLQ.build_query_and_table("oligo_recent_batch"))
-                            
-        button2.grid(row=2, column=1, pady=5, padx=10, sticky="WE")
+        button2 = tk.Button(self, text="Most recent Batch of Oligos", width = 22,
+                        command = lambda : TLQ.build_query_and_table("oligo_recent_batch"))    
+        button2.pack(side = 'top', pady = 5, padx= 10)
 
-        button3 = tk.Button(self, text="Batch, Order & Supplier",
-                        command=lambda:TLQ.build_query_and_table("batches_order_supplier"))
-                          
-        button3.grid(row=3, column=1, pady=5, padx=10, sticky="WE")
 
-        button4 = tk.Button(self, text="Supplier analytics",
-                        command=lambda: TLQ.build_query_and_table('suppliers_analysis'))
-                        
-        button4.grid(row=4, column=1, pady=5, padx=10, sticky="EW")
+        button3 = tk.Button(self, text="Batch, Order & Supplier", width = 22,
+                        command=lambda:TLQ.build_query_and_table("batches_order_supplier"))               
+        button3.pack(side = 'top', pady = 5, padx= 10)
 
-        button5 = tk.Button(self, text="Projects",
+
+        button4 = tk.Button(self, text="Supplier analytics", width = 22,
+                        command=lambda: TLQ.build_query_and_table('suppliers_analysis'))               
+        button4.pack(side = 'top', pady = 5, padx= 10)
+
+
+        button5 = tk.Button(self, text="Projects", width = 22,
                         command=lambda:TLQ.build_query_and_table("oligos_from_project"))
+        button5.pack(side = 'top', pady = 5, padx= 10)
 
-        button5.grid(row=5, column=1, pady=5, padx=10, sticky="EW")
 
-        button6 = tk.Button(self, text="Everything",
+        button6 = tk.Button(self, text="Everything", width = 22,
                         command=lambda:TLQ.build_query_and_table("everything"))
+        button6.pack(side = 'top', pady = 5, padx= 10)
 
-        button6.grid(row=6, column=1, pady=5, padx=10, sticky="EW")
 
         button1 = tk.Button(self, text="Back to Home",
                          command=lambda:controller.show_frame("Home"))
-                            
-        button1.grid(row=7, column=3, pady=5, padx=10)
+        button1.pack(side = 'bottom', pady = 5, padx= 10)
 
 
 #############################________________IMPORT________________#############################
