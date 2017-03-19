@@ -209,35 +209,38 @@ def process_to_db(self, queue_ID_list):
             if sequence_duplicated[0] == True:
                 # when sequence is duplicated ask user whether sure to import
                 # into database, give new batchno but same olino as sequence
-                self.popup()
+                self.popup(sequence_duplicated, import_batch_dict, order_number, import_projoli_dict, queue_ID)
                 #import_anyway = raw_input("The sequence (with labels) is duplicated, \
                                             #  import anyway? The seq will get a new \
                                            #     batchnumber. y/n: ")
                 #print self.confirm().get()
-                if self.confirm() == "y":
-                    # do not make new oligono
-                    # get oligo_ID from check_sequence_duplicated function
-                    # at 2nd position in returned list the oliID is contained
-                    print "only importing new batch..."
-                    oli_ID = sequence_duplicated[1]
-                    import_batch_dict["oligo_ID"] = oli_ID
-                    batch_no = make_new_ID('Batch')
-                    import_batch_dict["batch_number"] = batch_no
-                    import_batch_dict["order_number"] = order_number
-                    # also import project belonging to oligo
-                    # may be a new project belonging to the oli
-                    import_projoli_dict["oligo_ID"] = oli_ID
-                    #proj_ID = get_project_ID(proj_name)
-                    #import_projoli_dict["project_ID"] = proj_ID
-
-                    TUQ.insert_row("Batch", import_batch_dict)
-                    #TUQ.insert_row("Project_Oligo", import_projoli_dict)
-
-                    TUQ.delete_row("Order_queue", {"queue_ID": queue_ID})
-
-                else:
-                    print "not importing..."
-                    TUQ.delete_row("Order_queue", {"queue_ID": queue_ID})
+        ## MELANIE, ik heb dit hele blok uitgezet, omdat het nu in GUI-windows staat. Werkt zoals het volgens mij zou moeten.
+        ##          maar de batch komt dan in status "processed" te staan, klopt dat?
+        ##          Als je hier nu wat aan wilt veranderen, is het denk ik het handigst om in de GUI-windows te werken
+##                if self.confirm() == "y":
+##                    # do not make new oligono
+##                    # get oligo_ID from check_sequence_duplicated function
+##                    # at 2nd position in returned list the oliID is contained
+##                    print "only importing new batch..."
+##                    oli_ID = sequence_duplicated[1]
+##                    import_batch_dict["oligo_ID"] = oli_ID
+##                    batch_no = make_new_ID('Batch')
+##                    import_batch_dict["batch_number"] = batch_no
+##                    import_batch_dict["order_number"] = order_number
+##                    # also import project belonging to oligo
+##                    # may be a new project belonging to the oli
+##                    import_projoli_dict["oligo_ID"] = oli_ID
+##                    #proj_ID = get_project_ID(proj_name)
+##                    #import_projoli_dict["project_ID"] = proj_ID
+##
+##                    TUQ.insert_row("Batch", import_batch_dict)
+##                    #TUQ.insert_row("Project_Oligo", import_projoli_dict)
+##
+##                    TUQ.delete_row("Order_queue", {"queue_ID": queue_ID})
+##
+##                else:
+##                    print "not importing..."
+##                    TUQ.delete_row("Order_queue", {"queue_ID": queue_ID})
 
 
             if sequence_duplicated[0] == False:
