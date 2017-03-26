@@ -2000,54 +2000,6 @@ class ProcessQueue(tk.Frame):
         #confirm = tk.Button(self, text = "Add")
         #confirm['command'] = lambda: self.popup()
         #confirm.pack(side = 'top', pady = 10)
-
-
-    def popup(self, sequence_duplicated, import_batch_dict, order_number, import_projoli_dict, queue_ID):
-        """ A popup window which asks to confirm action"""
-        self.win = tk.Toplevel()
-
-        label0 = tk.Label(self.win, text = " The sequence and labels of %s are duplicated \n \
-Do you want to import anyway? \n A new batchno will be created" % queue_ID)
-        label0.pack(side = 'top', pady = 5)
-
-        buttongroup = tk.LabelFrame(self.win, relief = 'flat')
-        buttongroup.pack(side = 'top', pady = 20)
-      
-        button1 = tk.Button(buttongroup, text = 'Yes',
-                            command = lambda : self.confirm(sequence_duplicated, import_batch_dict,
-                                                            order_number, import_projoli_dict, queue_ID))
-        button1.pack(side = 'left', pady=5, padx=10)
-
-        button2 = tk.Button(buttongroup, text = 'No',
-                            command = lambda : self.negative(queue_ID))
-        button2.pack(side = 'right', pady=5, padx=10)
-
-    def confirm(self, sequence_duplicated, import_batch_dict, order_number, import_projoli_dict, queue_ID):
-        # do not make new oligono
-        # get oligo_ID from check_sequence_duplicated function
-        # at 2nd position in returned list the oliID is contained
-        print "only importing new batch..."
-        oli_ID = sequence_duplicated[1]
-        import_batch_dict["oligo_ID"] = oli_ID
-        batch_no = IOP.make_new_ID('Batch')
-        import_batch_dict["batch_number"] = batch_no
-        import_batch_dict["order_number"] = order_number
-        # also import project belonging to oligo
-        # may be a new project belonging to the oli
-        import_projoli_dict["oligo_ID"] = oli_ID
-        #proj_ID = get_project_ID(proj_name)
-        #import_projoli_dict["project_ID"] = proj_ID
-
-        TUQ.insert_row("Batch", import_batch_dict)
-        #TUQ.insert_row("Project_Oligo", import_projoli_dict)
-
-        TUQ.delete_row("Order_queue", {"queue_ID": queue_ID})
-        self.win.destroy()
-
-    def negative(self, queue_ID):
-        print "not importing..."
-        TUQ.delete_row("Order_queue", {"queue_ID": queue_ID})
-        self.win.destroy()
         
     def process(self):
         text = self.gettext()
@@ -2191,10 +2143,67 @@ class OutOfStock(tk.Frame):
         if  text == "":
             text = None
         return text
-                    
-####################################
-        ##################
-        ############
+    
+#############################________________Process Popup________________#############################
+class ProcessPopup(tk.Frame):
+    def __init__(self, parent, sequence_duplicated, import_batch_dict, order_number, import_projoli_dict, queue_ID):
+        tk.Frame.__init__(self, parent)
+        
+        self.master.title = "Process Popup"
+        self.frame = parent
+        
+        # setting a default font for complete GUI
+        default_font = tkFont.nametofont("TkDefaultFont")
+        default_font.configure(family="Corbel", size=20)
+        self.tk_setPalette(background=mycolor, foreground="white",
+                           activeBackground="grey", activeForeground="black")
+        
+        self.pack()
+
+        label0 = tk.Label(self, text = " The sequence and labels of %s are duplicated \n \
+Do you want to import anyway? \n A new batchno will be created" % queue_ID)
+        label0.pack(side = 'top', pady = 5)
+
+        buttongroup = tk.LabelFrame(self, relief = 'flat')
+        buttongroup.pack(side = 'top', pady = 20)
+      
+        button1 = tk.Button(buttongroup, text = 'Yes', width = 10,
+                            command = lambda : self.confirm(sequence_duplicated, import_batch_dict,
+                                                            order_number, import_projoli_dict, queue_ID))
+        button1.pack(side = 'left', pady=5, padx=10)
+
+        button2 = tk.Button(buttongroup, text = 'No', width = 10,
+                            command = lambda : self.negative(queue_ID))
+        button2.pack(side = 'right', pady=5, padx=10)
+
+    def confirm(self, sequence_duplicated, import_batch_dict, order_number, import_projoli_dict, queue_ID):
+        # do not make new oligono
+        # get oligo_ID from check_sequence_duplicated function
+        # at 2nd position in returned list the oliID is contained
+        print "only importing new batch..."
+        oli_ID = sequence_duplicated[1]
+        import_batch_dict["oligo_ID"] = oli_ID
+        batch_no = IOP.make_new_ID('Batch')
+        import_batch_dict["batch_number"] = batch_no
+        import_batch_dict["order_number"] = order_number
+        # also import project belonging to oligo
+        # may be a new project belonging to the oli
+        import_projoli_dict["oligo_ID"] = oli_ID
+        #proj_ID = get_project_ID(proj_name)
+        #import_projoli_dict["project_ID"] = proj_ID
+
+        TUQ.insert_row("Batch", import_batch_dict)
+        #TUQ.insert_row("Project_Oligo", import_projoli_dict)
+
+        TUQ.delete_row("Order_queue", {"queue_ID": queue_ID})
+        self.frame.destroy()
+
+    def negative(self, queue_ID):
+        print "not importing..."
+        TUQ.delete_row("Order_queue", {"queue_ID": queue_ID})
+        self.frame.destroy()
+        
+########################################################################3    
     
 #############################________________OLD PAGES________________#############################
         
