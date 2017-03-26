@@ -2120,7 +2120,7 @@ class OutOfStock(tk.Frame):
         button2.pack(side = 'left', pady = 5, padx= 10)
 
         button3 = tk.Button(buttongroup, text = 'Back to Order Queue',  width = 17,
-                             command = lambda : self.controller.show_frame("OrderQueue"))
+                             command = lambda : self.controller.show_frame("OrderStatus"))
         button3.pack(side = 'right', pady = 5, padx= 10)
       
     def update_status(self):
