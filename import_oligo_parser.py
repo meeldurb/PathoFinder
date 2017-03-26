@@ -12,6 +12,8 @@ import re
 import config as cfg
 import Table_update_queries as TUQ
 import Table_Lookup_queries as TLQ
+import Tkinter as tk
+import GUI_Windows as GUI
 
  
 def open_importfile(filename):
@@ -209,7 +211,7 @@ def process_to_db(self, queue_ID_list):
             if sequence_duplicated[0] == True:
                 # when sequence is duplicated ask user whether sure to import
                 # into database, give new batchno but same olino as sequence
-                self.popup(sequence_duplicated, import_batch_dict, order_number, import_projoli_dict, queue_ID)
+                GUI.ProcessPopup(tk.Tk(), sequence_duplicated, import_batch_dict, order_number, import_projoli_dict, queue_ID)
                 #import_anyway = raw_input("The sequence (with labels) is duplicated, \
                                             #  import anyway? The seq will get a new \
                                            #     batchnumber. y/n: ")
@@ -277,9 +279,7 @@ def process_to_db(self, queue_ID_list):
         self.message.set('two or more suppliers provided, not able to process')
 
 
-
-
-    
+  
 def get_date_stamp():
     """Returns a string of the current date in format DD-MM-YYYY
     """
@@ -720,7 +720,6 @@ def new_emp_ID(table):
         return new_empID
 
 if __name__ == "__main__":
-
 ##    new_batch_number("batch")
 ##    get_supplier_ID("IDT")
 ##    new_batch_number("batch")
@@ -732,7 +731,7 @@ if __name__ == "__main__":
    # get_from_orderqueue([4,5,6])
 
    # process_to_db([1,2,3,4,5, 6, 7, 8, 9])
-    process_to_db([1,2,3,4,5,6])
+ #   process_to_db([1,2,3,4,5,6])
     #process_to_db([7,8,9,10])
 
     #supplierlist_check([1,2,3,4,5, 6, 7, 8, 9])
