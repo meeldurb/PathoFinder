@@ -31,8 +31,8 @@ import import_oligo_parser as IOP
 
 mycolor = '#%02x%02x%02x' % (0, 182, 195)
 LARGE_FONT = ("Corbel", 20)
-LARGE_FONT = ("Corbel", 18)
-LARGE_FONT = ("Corbel", 14)
+#LARGE_FONT = ("Corbel", 18)
+#LARGE_FONT = ("Corbel", 14)
 
 
 
@@ -344,6 +344,7 @@ class Import(tk.Frame):
         tk.Frame.__init__(self, parent)
 
         self.path_var = tk.StringVar()
+        self.var_message = tk.StringVar()
         #save a reference to controller in each page:
         self.controller = controller
 
@@ -370,16 +371,31 @@ class Import(tk.Frame):
 
         # Upload button on new line
         button4 = tk.Button(self, text="Upload",
-                            command=lambda:IOP.import_to_queue("order_queue",
-                                                           self.path_var.get()))
-                            #command = Uploads the file in the path into the
-                            # specified columns of the db
+                            command=lambda: self.upload())
+                            
         button4.pack(side = 'top', pady = 5, padx= 10)
+
+        # Message
+        msg = tk.Message(self, width=280)
+        msg['textvariable'] = self.var_message
+        msg.pack(side = 'top', pady = 5, padx= 10)
         
         # Navigation Button
         button2 = tk.Button(self, text="Back to Home",  width = 17,
                          command=lambda:controller.show_frame("Home"))
         button2.pack(side = 'bottom', pady = 5, padx= 10)
+
+    def upload(self):
+        try:
+            IOP.import_to_queue("order_queue", self.path_var.get())
+        #command = Uploads the file in the path into the
+        # specified columns of the db
+
+        # Empty the entry field
+            self.path_var.set("")
+            self.var_message.set("Upload succesful")
+        except Exception as e:
+            self.var_message.set(str(e))
 
 ##class Experiment(tk.Frame):
 ##    def __init__(self, parent, controller):
@@ -1982,7 +1998,7 @@ class ProcessQueue(tk.Frame):
         processbutton['command'] = lambda : self.process()
         processbutton.pack(side = 'top', pady=5, padx=10)
 
-        message = tk.Message(self, textvariable = self.message, width = 280)
+        message = tk.Message(self, textvariable = self.message, width = 500)
         message.pack(side = 'top', pady=5, padx=10)
 
         buttongroup = tk.LabelFrame(self, relief = 'flat')
@@ -2149,30 +2165,30 @@ class ProcessPopup(tk.Frame):
     def __init__(self, parent, sequence_duplicated, import_batch_dict, order_number, import_projoli_dict, queue_ID):
         tk.Frame.__init__(self, parent)
         
-        self.master.title = "Process Popup"
+        self.master.title("Process Popup ID %s" % queue_ID)
         self.frame = parent
         
-        # setting a default font for complete GUI
-        default_font = tkFont.nametofont("TkDefaultFont")
-        default_font.configure(family="Corbel", size=20)
+        # setting the color pallette
         self.tk_setPalette(background=mycolor, foreground="white",
                            activeBackground="grey", activeForeground="black")
         
         self.pack()
 
         label0 = tk.Label(self, text = " The sequence and labels of %s are duplicated \n \
-Do you want to import anyway? \n A new batchno will be created" % queue_ID)
+                                            Do you want to import anyway? \n \
+                                            A new batchno will be created" % queue_ID,
+                          font = LARGE_FONT)
         label0.pack(side = 'top', pady = 5)
 
         buttongroup = tk.LabelFrame(self, relief = 'flat')
         buttongroup.pack(side = 'top', pady = 20)
       
-        button1 = tk.Button(buttongroup, text = 'Yes', width = 10,
+        button1 = tk.Button(buttongroup, text = 'Yes', width = 10, font = LARGE_FONT,
                             command = lambda : self.confirm(sequence_duplicated, import_batch_dict,
                                                             order_number, import_projoli_dict, queue_ID))
         button1.pack(side = 'left', pady=5, padx=10)
 
-        button2 = tk.Button(buttongroup, text = 'No', width = 10,
+        button2 = tk.Button(buttongroup, text = 'No', width = 10, font = LARGE_FONT,
                             command = lambda : self.negative(queue_ID))
         button2.pack(side = 'right', pady=5, padx=10)
 
