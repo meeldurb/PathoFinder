@@ -31,8 +31,8 @@ import import_oligo_parser as IOP
 
 mycolor = '#%02x%02x%02x' % (0, 182, 195)
 LARGE_FONT = ("Corbel", 20)
-#LARGE_FONT = ("Corbel", 18)
-#LARGE_FONT = ("Corbel", 14)
+MIDDLE_FONT = ("Corbel", 18)
+SMALL_FONT = ("Corbel", 14)
 
 
 
@@ -143,7 +143,7 @@ class Login(tk.Frame):
         login_button.pack(side = 'top', padx = 10, pady = 5)
 
         # Message
-        msg = tk.Message(self, width=280)
+        msg = tk.Message(self, width=500, font = SMALL_FONT)
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', pady = 5)
         
@@ -248,7 +248,7 @@ class Home(tk.Frame):
         entry = tk.Entry(self.win, textvariable = self.password, show = "*")
         entry.pack(side = 'top', pady = 5, padx = 10)
 
-        msg = tk.Message(self.win, textvariable = self.var_message, width = 280)
+        msg = tk.Message(self.win, textvariable = self.var_message, width = 280, font = SMALL_FONT)
         msg.pack(side = 'top', pady = 5, padx = 10)
         
         button1 = tk.Button(self.win, text = 'OK', width = 15,
@@ -273,7 +273,7 @@ class Home(tk.Frame):
                     cursor.execute(sql)
                     match = cursor.fetchall()
                 except MySQLdb.Error,e:
-                    print e[0], e[1]
+                    self.var_message.set((e[0], e[1]))
                     db.rollback()
                 cursor.close()
                 db.close()
@@ -376,7 +376,7 @@ class Import(tk.Frame):
         button4.pack(side = 'top', pady = 5, padx= 10)
 
         # Message
-        msg = tk.Message(self, width=280)
+        msg = tk.Message(self, width=500, font = SMALL_FONT)
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', pady = 5, padx= 10)
         
@@ -396,21 +396,6 @@ class Import(tk.Frame):
             self.var_message.set("Upload succesful")
         except Exception as e:
             self.var_message.set(str(e))
-
-##class Experiment(tk.Frame):
-##    def __init__(self, parent, controller):
-##        tk.Frame.__init__(self, parent)
-##
-##        #save a reference to controller in each page:
-##        self.controller = controller
-##        
-##        label = tk.Label(self, text="Experiments")
-##        label.grid(columnspan=8, pady=10)
-##
-##        button2 = tk.Button(self, text="Back to Home",
-##                         command=lambda:controller.show_frame("Home"))
-##        button2.grid(row=10, column=9, pady=5, padx=10, sticky="EW")
-
 
 class ChangePassword(tk.Frame):
     def __init__(self, parent, controller):
@@ -465,7 +450,7 @@ class ChangePassword(tk.Frame):
         changpass.pack(side = 'top', pady = 5, padx= 10)
 
         # Message
-        msg = tk.Message(self, width=280)
+        msg = tk.Message(self, width=500, font = SMALL_FONT)
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', pady = 5, padx= 10)
         
@@ -511,7 +496,7 @@ class ChangePassword(tk.Frame):
                     self.var_message.set("Password Changed Succesfully")
                 except MySQLdb.Error,e:# Rollback in case there is any error
                     db.rollback()
-                    raise ValueError(e[0], e[1])
+                    self.var_message.set((e[0], e[1]))
                     cursor.close()
                     db.close() #disconnect from server
         # Empty the Entry fields
@@ -715,7 +700,7 @@ class RemoveOligo(tk.Frame):
         confirm.pack(side = 'top', pady=5, padx=10)
 
         # Message
-        msg = tk.Message(self, width=500)
+        msg = tk.Message(self, width=500, font = SMALL_FONT)
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', pady=5, padx=10)
 
@@ -900,7 +885,7 @@ class AddProject(tk.Frame):
         confirm.pack(side = 'top', padx = 5, pady = 10)
 
         # Message
-        msg = tk.Message(self, width=500)
+        msg = tk.Message(self, width=500, font = SMALL_FONT)
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', padx = 5, pady = 10)
 
@@ -1006,7 +991,7 @@ class ModifyProject(tk.Frame):
         confirm.pack(side = 'top', padx = 5, pady = 10)
 
         # Message
-        msg = tk.Message(self, width=500)
+        msg = tk.Message(self, width=500, font = SMALL_FONT)
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', padx = 5, pady = 10)
         
@@ -1029,8 +1014,9 @@ class ModifyProject(tk.Frame):
             # Empty the entry fields
             self.oldname.set("")
             self.newname.set("")
-        except:
-            self.var_message.set("An Error occured during processing, not executed")
+        except Exception as e:
+            self.var_message.set(str(e))
+
             
 #############################________________SUPPLIERS________________#############################
 
@@ -1110,7 +1096,7 @@ class ModifySupplier(tk.Frame):
         confirm.pack(side = 'top', padx = 5, pady = 10)
 
         # Message
-        msg = tk.Message(self, width=500)
+        msg = tk.Message(self, width=500, font = SMALL_FONT)
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', padx = 5, pady = 10)
 
@@ -1133,8 +1119,8 @@ class ModifySupplier(tk.Frame):
             # Empty the entry fields
             self.oldname.set("")
             self.newname.set("")
-        except:
-            self.var_message.set("An Error occured during processing, not executed")
+        except Exception as e:
+            self.var_message.set(str(e))
             
 class AddSupplier(tk.Frame):
     def __init__(self, parent, controller):
@@ -1165,7 +1151,7 @@ class AddSupplier(tk.Frame):
         confirm.pack(side = 'top', padx = 5, pady = 10)
 
         # Message
-        msg = tk.Message(self, width=500)
+        msg = tk.Message(self, width=500, font = SMALL_FONT)
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', padx = 5, pady = 10)
         
@@ -1261,6 +1247,12 @@ class GeneralOrderStatus(tk.Frame):
         group2 = tk.LabelFrame(self, relief = 'flat')
         group2.pack(side = 'top', pady = 5, padx = 10)
 
+        rb_ordered = tk.Radiobutton(group2, text = "Processed", activebackground = mycolor, selectcolor = 'black')
+        rb_ordered['value'] = "processed"
+        rb_ordered['variable'] = self.status
+        rb_ordered['indicatoron'] = 2
+        rb_ordered.pack(side = 'left', pady = 5, padx = 10)
+
         rb_ordered = tk.Radiobutton(group2, text = "Ordered", activebackground = mycolor, selectcolor = 'black')
         rb_ordered['value'] = "Ordered"
         rb_ordered['variable'] = self.status
@@ -1283,7 +1275,7 @@ class GeneralOrderStatus(tk.Frame):
                            command = lambda : self.update_status())
         button1.pack(side = 'top', pady = 5, padx = 10)
 
-        msg = tk.Message(self, textvariable = self.message, width = 280)
+        msg = tk.Message(self, textvariable = self.message, width = 500, font = SMALL_FONT)
         msg.pack(side = 'top', pady = 5, padx = 10)
 
 
@@ -1316,8 +1308,8 @@ class GeneralOrderStatus(tk.Frame):
                     TUQ.update_row('batch', {'order_status' : self.status.get()},
                                {'batch_number' : self.batch.get()})
                     self.message.set("Succesfull")
-            except:
-                self.message.set("An Error occured when trying to update status")
+            except Exception as e:
+                self.message.set(str(e))
                 
 #############################________________EMPLOYEES________________#############################
                 
@@ -1421,7 +1413,7 @@ class AddEmployee(tk.Frame):
         changpass.pack(side = 'top', pady = 5, padx= 10)
 
         # Message
-        msg = tk.Message(self, width=280)
+        msg = tk.Message(self, width=500, font = SMALL_FONT)
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', pady = 5, padx= 10)
 
@@ -1482,7 +1474,7 @@ class AddEmployee(tk.Frame):
                     self.var_message.set("Succesfully added %s" % self.username.get() )
                 except MySQLdb.Error,e:# Rollback in case there is any error
                     db.rollback()
-                    raise ValueError(e[0], e[1])
+                    self.var_message.set((e[0], e[1]))
                     cursor.close()
                     db.close() #disconnect from server
         # Empty entry field
@@ -1518,7 +1510,7 @@ class RemoveUser(tk.Frame):
         confirm.pack(side = 'top', pady = 5, padx= 10)
 
         # Message
-        msg = tk.Message(self, width=280)
+        msg = tk.Message(self, width=500, font = SMALL_FONT)
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', pady = 5, padx= 10)
 
@@ -1579,7 +1571,7 @@ class RemoveUser(tk.Frame):
                 self.username.set("")
             except MySQLdb.Error,e:# Rollback in case there is any error
                 db.rollback()
-                self.var_message.set(e[0], e[1])
+                self.var_message.set((e[0], e[1]))
                 cursor.close()
                 db.close() #disconnect from server
         else:
@@ -1622,7 +1614,7 @@ class AdminRights(tk.Frame):
         revoke.pack(side = 'right', pady = 5, padx= 10)
 
         # Message
-        msg = tk.Message(self, width=500)
+        msg = tk.Message(self, width=500, font = SMALL_FONT)
         msg['textvariable'] = self.var_message
         msg.pack(side = 'top', pady = 5, padx= 10)
 
@@ -1888,7 +1880,7 @@ class BinToQueue(tk.Frame):
         button['command'] = lambda : self.move()
         button.pack(side = 'top', pady=5, padx=10)
 
-        message = tk.Message(self, textvariable = self.message, width = 280)
+        message = tk.Message(self, textvariable = self.message, width = 500, font = SMALL_FONT)
         message.pack(side = 'top', pady=5, padx=10)
         
         buttongroup = tk.LabelFrame(self, relief = 'flat')
@@ -1910,8 +1902,8 @@ class BinToQueue(tk.Frame):
             for id_ in text:
                 TUQ.move_row(id_, 'order_bin', 'order_queue')
             self.message.set('Move succesfull')
-        except MySQLdb.Error,e: 
-            self.var_message.set((e[0], e[1]))
+        except Exception as e: 
+            self.var_message.set(str(e))
 
     def gettext(self):
         text = self.Text.get(1.0, tk.END)
@@ -1943,7 +1935,7 @@ class QueueToBin(tk.Frame):
         button['command'] = lambda : self.move()
         button.pack(side = 'top', pady=5, padx=10)
         
-        message = tk.Message(self, textvariable = self.message, width = 280)
+        message = tk.Message(self, textvariable = self.message, width = 500, font = SMALL_FONT)
         message.pack(side = 'top', pady=5, padx=10)
 
         buttongroup = tk.LabelFrame(self, relief = 'flat')
@@ -1965,8 +1957,8 @@ class QueueToBin(tk.Frame):
             for id_ in text:
                 TUQ.move_row(id_, 'order_queue', 'order_bin')
             self.message.set('Move succesfull')
-        except MySQLdb.Error,e: 
-            self.var_message.set('An Error occured')
+        except Exception as e: 
+            self.var_message.set(str(e))
 
     def gettext(self):
         text = self.Text.get(1.0, tk.END)
@@ -2074,7 +2066,7 @@ class Deliveries(tk.Frame):
         button['command'] = lambda : self.update_status()
         button.pack(side = 'top', pady = 5, padx= 10)
 
-        message = tk.Message(self, textvariable = self.message, width = 280)
+        message = tk.Message(self, textvariable = self.message, width = 500, font = SMALL_FONT)
         message.pack(side = 'top', pady = 5, padx= 10)
 
         buttongroup = tk.LabelFrame(self, relief = 'flat')
@@ -2097,8 +2089,8 @@ class Deliveries(tk.Frame):
                 TUQ.update_row('batch', {'synthesis_level_delivered' : self.synth.get(), 'order_status' : 'Delivered',
                                      'delivery_date' : IOP.get_date_stamp()}, {'batch_number' : self.batch.get()})
                 self.message.set("Succesfull")
-        except:
-            self.message.set("An Error occured, please try again")
+        except Exception as e:
+            self.message.set(str(e))
 
 #############################________________OUT OF STOCK________________#############################
 
@@ -2124,7 +2116,7 @@ class OutOfStock(tk.Frame):
         button['command'] = lambda : self.update_status()
         button.pack(side = 'top', pady = 5, padx= 10)
 
-        message = tk.Message(self, textvariable = self.message, width = 280)
+        message = tk.Message(self, textvariable = self.message, width = 500, font = SMALL_FONT)
         message.pack(side = 'top', pady = 5, padx= 10)
         
         # Navigation group
@@ -2149,8 +2141,8 @@ class OutOfStock(tk.Frame):
                 if batchstatus[0][0] == 'Delivered':
                     TUQ.update_row('batch', {'order_status' : 'Out of Stock'}, {'batch_number' : batch})
                     self.message.set("Succesfull")
-        except:
-            self.message.set("An Error occured, please try again")
+        except Exception as e:
+            self.message.set(str(e))
 
     def gettext(self):
         text = self.Text.get(1.0, tk.END)
