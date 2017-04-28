@@ -42,14 +42,14 @@ def get_from_db(table):
 
         
 
-def write_orderout(self.controller):
+def write_orderout():
     """ Returns a .csv file from the selected rows in the PF db
 
     Keyword arguments:
         db_rows: list of rows from the PF that have to be written
         to order-out file
     """
-    with open("OrderOut.csv", "wb") as csvfile:
+    with open(("OrderOut_%s.csv" % get_date_stamp()), "wb") as csvfile:
         writer = csv.writer(csvfile, delimiter=';')
         header = ('oligo_ID','batch_number','oligo_name','sequence',
                   'label5prime','label3prime','labelM1','labelM1position',
@@ -77,6 +77,12 @@ def change_status():
         else:
             raise ValueError("No oligo's found with order_status 'processed'")
             
+def get_date_stamp():
+    """Returns a string of the current date in format DD-MM-YYYY
+    """
+    ts = time.time()
+    date = datetime.datetime.fromtimestamp(ts).strftime('%d-%m-%Y')
+    return date
 
 if __name__ == "__main__":
     change_status()
