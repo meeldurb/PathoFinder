@@ -127,7 +127,7 @@ class Spreadsheet(Frame):
                 elif item == 'processed':
                     e=Listbox(self.spreadsheet, bg='orange',
                         fg=colDat['fg'], font=self.txtFont)
-                elif item == 'out of Stock' or item == 'disapproved':
+                elif item == 'out of stock' or item == 'disapproved':
                     e=Listbox(self.spreadsheet, bg='red',
                         fg=colDat['fg'], font=self.txtFont)
                 else:
