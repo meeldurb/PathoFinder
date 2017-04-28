@@ -1254,19 +1254,19 @@ class GeneralOrderStatus(tk.Frame):
         rb_ordered.pack(side = 'left', pady = 5, padx = 10)
 
         rb_ordered = tk.Radiobutton(group2, text = "Ordered", activebackground = mycolor, selectcolor = 'black')
-        rb_ordered['value'] = "Ordered"
+        rb_ordered['value'] = "ordered"
         rb_ordered['variable'] = self.status
         rb_ordered['indicatoron'] = 2
         rb_ordered.pack(side = 'left', pady = 5, padx = 10)
 
         rb_delivery = tk.Radiobutton(group2, text = "Delivered", activebackground = mycolor, selectcolor = 'black')
-        rb_delivery['value'] = "Delivered"
+        rb_delivery['value'] = "delivered"
         rb_delivery['variable'] = self.status
         rb_delivery['indicatoron'] = 2
         rb_delivery.pack(side = 'left', pady = 5, padx = 10)
 
         rb_stock = tk.Radiobutton(group2, text = "Out of Stock", activebackground = mycolor, selectcolor = 'black')
-        rb_stock['value'] = "Out of Stock"
+        rb_stock['value'] = "out of stock"
         rb_stock['variable'] = self.status
         rb_stock['indicatoron'] = 2
         rb_stock.pack(side = 'left', pady = 5, padx = 10)
