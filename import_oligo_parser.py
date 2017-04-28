@@ -185,9 +185,7 @@ def process_to_db(self, queue_ID_list):
             import_oli_dict["sequence"] = oli_seq
             import_oli_dict["description"] = descr
             import_oli_dict["entry_date"] = entry_date
-            # creator needs to be imported from the log-in
-            # import_oli_dict["creator"] = emp_loggedin
-            # when an update is done also needs to be imported still, not here
+            
             import_oli_dict["label5prime"] = label5
             import_oli_dict["label3prime"] = label3
             import_oli_dict["labelM1"] = labelm
@@ -195,6 +193,12 @@ def process_to_db(self, queue_ID_list):
             import_oli_dict["pathogen_name"] = path_name
             import_oli_dict["target"] = target
             import_oli_dict["notes"] = notes
+
+            # creator needs to be imported from the log-in
+            username = TLQ.search_in_single_attribute('employee', 'emp_name', self.controller.shared_data["username"].get())
+            username = username[0][0]
+            import_oli_dict["creator"] = username
+            # when an update is done also needs to be imported still, not here
 
             # batch table dictionary
       
