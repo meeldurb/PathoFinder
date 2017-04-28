@@ -118,16 +118,16 @@ class Spreadsheet(Frame):
                 row.widgets.append(item)
                 item.internal=False
             else:
-                if item == 'Delivered' or item == 'approved':
+                if item == 'delivered' or item == 'approved':
                    e=Listbox(self.spreadsheet, bg= 'green',
                         fg=colDat['fg'], font=self.txtFont)
-                elif item == 'Ordered' or item == 'neutral':
+                elif item == 'ordered' or item == 'neutral':
                     e=Listbox(self.spreadsheet, bg='yellow',
                         fg=colDat['fg'], font=self.txtFont)
-                elif item == 'Not yet Ordered':
+                elif item == 'processed':
                     e=Listbox(self.spreadsheet, bg='orange',
                         fg=colDat['fg'], font=self.txtFont)
-                elif item == 'Out of Stock' or item == 'disapproved':
+                elif item == 'out of Stock' or item == 'disapproved':
                     e=Listbox(self.spreadsheet, bg='red',
                         fg=colDat['fg'], font=self.txtFont)
                 else:
