@@ -61,5 +61,8 @@ db_tables_views = { #dictionary containing all tables and table-views and their 
                    'purification_method', 'synthesis_level_delivered',
                    'spec_sheet_location', 'order_number', 'delivery_date',
                    'order_status', 'supplier_ID', 'order_date', 'orderer',
-                    'supplier_name', 'project_ID', 'project_name']
+                    'supplier_name', 'project_ID', 'project_name'],
+    'ordered_oligos' : ['oligo_ID', 'oligo_name', 'batch_number', 'order_status', 'oligo_type',
+                        'sequence', 'description', 'entry_date', 'creator', 'update_date', 'modifier',
+                        'label5prime', 'label3prime', 'labelM1', 'labelM1position', 'pathogen_name', 'target', 'notes']
                     }                                            
