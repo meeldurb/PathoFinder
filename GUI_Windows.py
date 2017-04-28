@@ -26,6 +26,7 @@ import Table_update_queries as TUQ
 #from import_oligo_parser import import_to_queue
 #from import_oligo_parser import make_new_ID
 import import_oligo_parser as IOP
+from write_OrderOut import change_status
 
 
 
@@ -1802,6 +1803,7 @@ class OrderQueue(tk.Frame):
         tk.Frame.__init__(self, parent)
         
         self.controller = controller
+        self.message = tk.StringVar()
 
         label = tk.Label(self, text="Order Queue")
         label.pack(side = 'top', pady=20)
@@ -1827,6 +1829,10 @@ class OrderQueue(tk.Frame):
         button5 = tk.Button(groupleft, text="Process Queue", width = 15,
                             command = lambda: self.controller.show_frame('ProcessQueue'))
         button5.pack(side = 'top', pady = 5, padx= 10)
+
+        button6 = tk.Button(groupleft, text="Write OrderOut", width = 15,
+                            command = lambda: self.write_output())
+        button6.pack(side = 'top', pady = 5, padx= 10)
         
         # CentreRight Group
         groupright = tk.LabelFrame(groupmain, relief = 'flat')
@@ -1844,6 +1850,11 @@ class OrderQueue(tk.Frame):
         # Filler, needed due to unequal number of buttons on each side
         fillbutton = tk.Button(groupright, relief = 'flat', state = 'disabled')
         fillbutton.pack(side = 'top', pady = 5, padx= 10)
+        fillbutton2 = tk.Button(groupright, relief = 'flat', state = 'disabled')
+        fillbutton2.pack(side = 'top', pady = 5, padx= 10)
+
+        message = tk.Message(self, textvariable = self.message, width = 500, font = SMALL_FONT)
+        message.pack(side = 'top', pady=5, padx=10)
 
         # Navigation Group
         groupnav = tk.LabelFrame(self, relief = 'flat')
@@ -1857,6 +1868,12 @@ class OrderQueue(tk.Frame):
         button7 = tk.Button(groupnav, text="Back to Order Status", width = 17,
                          command=lambda:self.controller.show_frame("OrderStatus"))
         button7.pack(side = 'right', pady=5, padx=10)
+
+    def write_output(self):
+        try:
+            change_status()
+        except Exception as e:
+            self.message.set(str(e))
 
 class BinToQueue(tk.Frame):
     def __init__(self, parent, controller):
@@ -1990,7 +2007,7 @@ class ProcessQueue(tk.Frame):
         processbutton['command'] = lambda : self.process()
         processbutton.pack(side = 'top', pady=5, padx=10)
 
-        message = tk.Message(self, textvariable = self.message, width = 500)
+        message = tk.Message(self, textvariable = self.message, width = 500, font = SMALL_FONT)
         message.pack(side = 'top', pady=5, padx=10)
 
         buttongroup = tk.LabelFrame(self, relief = 'flat')
@@ -2012,11 +2029,11 @@ class ProcessQueue(tk.Frame):
     def process(self):
         text = self.gettext()
         text = text.split()
-        #try: 
-        IOP.process_to_db(self, text)
-            #self.message.set('suppliers are the same, starting process')
-        #except:
-          #  self.message.set('two or more suppliers provided, not able to process')
+        try: 
+            IOP.process_to_db(self, text)
+        except Exception as e:
+            self.message.set(str(e))
+
 
 
     def gettext(self):
