@@ -38,11 +38,11 @@ def get_from_db(table):
         for db_row in db_rows_tuple:
             yield db_row
     else:
-        print "No oligo's found with order_status 'processed'"
+        raise ValueError("No oligo's found with order_status 'processed'")
 
         
 
-def write_orderout():
+def write_orderout(self.controller):
     """ Returns a .csv file from the selected rows in the PF db
 
     Keyword arguments:
@@ -60,7 +60,7 @@ def write_orderout():
             if db_row:
                 writer.writerow(db_row)
             else:
-                "No file was written"
+                raise ValueError("No file was written")
 
 
 def change_status():
@@ -75,7 +75,7 @@ def change_status():
             TUQ.update_row("Batch", { "order_status":"ordered"},
                           {"batch_number": batchnumber, "order_status":"processed"})
         else:
-            print "No oligo's found with order_status 'processed'"
+            raise ValueError("No oligo's found with order_status 'processed'")
             
 
 if __name__ == "__main__":
