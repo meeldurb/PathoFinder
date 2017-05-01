@@ -2,7 +2,7 @@ mysql =  {'host': '127.0.0.1',
           'user': 'root',
           'password' : 'root',
           'database' : 'pathofinder_db',
-          'hostadress' : "'%'"} #"'%'"}
+          'hostadress' : "localhost"} #"'%'"}
 
 db_tables_views = { #dictionary containing all tables and table-views and their attributes
     'oligo' : ['oligo_ID', 'oligo_name', 'oligo_type',
@@ -64,5 +64,9 @@ db_tables_views = { #dictionary containing all tables and table-views and their 
                     'supplier_name', 'project_ID', 'project_name'],
     'ordered_oligos' : ['oligo_ID', 'oligo_name', 'batch_number', 'order_status', 'oligo_type',
                         'sequence', 'description', 'entry_date', 'creator', 'update_date', 'modifier',
-                        'label5prime', 'label3prime', 'labelM1', 'labelM1position', 'pathogen_name', 'target', 'notes']
+                        'label5prime', 'label3prime', 'labelM1', 'labelM1position', 'pathogen_name', 'target', 'notes'],
+    'processed_oligos' : ['batch_number', 'oligo_ID', 'synthesis_level_ordered',
+                   'purification_method', 'synthesis_level_delivered',
+                   'spec_sheet_location', 'order_number', 'delivery_date',
+                   'order_status']
                     }                                            
