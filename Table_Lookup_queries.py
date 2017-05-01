@@ -19,8 +19,8 @@ def execute_select_queries(query): #works
         cursor.execute(query)
         results = cursor.fetchall()
     except MySQLdb.Error,e:
-        raise ValueError((e[0], e[1]))
         db.rollback()
+        raise ValueError((e[0], e[1]))
     cursor.close()
     db.close()
     return results
