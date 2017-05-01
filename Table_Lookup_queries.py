@@ -174,4 +174,5 @@ if __name__ == "__main__":
     #build_query_and_table("oligo")
     #print all_pks_table('order_bin')
     us = search_in_single_attribute('employee', 'emp_name', 'root')
+    print execute_select_queries("SELECT * from `batch`")
 
