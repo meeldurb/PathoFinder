@@ -29,8 +29,8 @@ def get_from_db(table):
     # lookup and retrieve values
     # get a boolean here, that checks which oligos were selected for processing
     # if process = selected:
-    sql = """SELECT * FROM pathofinder_db.%s
-                WHERE order_status = "processed";"""%(table)        
+    sql = """SELECT * FROM %s.%s
+                WHERE order_status = "processed";"""%(cfg.mysql['database'],table)        
     db_rows_tuple = TLQ.execute_select_queries(sql)
     if db_rows_tuple:
         for db_row in db_rows_tuple:
