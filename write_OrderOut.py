@@ -7,8 +7,6 @@ were imported to the PF database
 
 
 import MySQLdb
-import time
-import datetime
 import re
 import config as cfg
 import Table_update_queries as TUQ 
@@ -42,14 +40,14 @@ def get_from_db(table):
 
         
 
-def write_orderout():
+def write_orderout(path):
     """ Returns a .csv file from the selected rows in the PF db
 
     Keyword arguments:
         db_rows: list of rows from the PF that have to be written
         to order-out file
     """
-    with open(("OrderOut_%s.csv" % get_date_stamp()), "wb") as csvfile:
+    with open(("%s.csv" % path), "wb") as csvfile:
         writer = csv.writer(csvfile, delimiter=';')
         header = ('oligo_ID','batch_number','oligo_name','sequence',
                   'label5prime','label3prime','labelM1','labelM1position',
@@ -63,12 +61,12 @@ def write_orderout():
                 raise ValueError("No file was written")
 
 
-def change_status():
+def change_status(path):
     """ Changed status of oligos from processed to ordered
 
     Checks if order-out file was written and then changes order status
     """
-    write_orderout()
+    write_orderout(path)
     for db_row in get_from_db("batch"):
         if db_row:
             batchnumber = db_row[0]
@@ -77,12 +75,7 @@ def change_status():
         else:
             raise ValueError("No oligo's found with order_status 'processed'")
             
-def get_date_stamp():
-    """Returns a string of the current date in format DD-MM-YYYY
-    """
-    ts = time.time()
-    date = datetime.datetime.fromtimestamp(ts).strftime('%d-%m-%Y')
-    return date
+
 
 if __name__ == "__main__":
     change_status()
