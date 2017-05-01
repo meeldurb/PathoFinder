@@ -1993,7 +1993,7 @@ class BinToQueue(tk.Frame):
         try:
             for id_ in text:
                 TUQ.move_row(id_, 'order_bin', 'order_queue')
-            self.message.set('Move succesfull')
+            self.message.set('Move successful')
         except Exception as e: 
             self.var_message.set(str(e))
 
@@ -2048,7 +2048,7 @@ class QueueToBin(tk.Frame):
         try:
             for id_ in text:
                 TUQ.move_row(id_, 'order_queue', 'order_bin')
-            self.message.set('Move succesfull')
+            self.message.set('Move successful')
         except Exception as e: 
             self.var_message.set(str(e))
 
