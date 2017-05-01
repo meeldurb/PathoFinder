@@ -1,8 +1,8 @@
-mysql =  {'host': '127.0.0.1',
+mysql =  {'host': '192.168.5.15',
           'user': 'root',
-          'password' : 'root',
-          'database' : 'pathofinder_db',
-          'hostadress' : "localhost"} #"'%'"}
+          'password' : 'Patho@2017',
+          'database' : 'Pathofinder',
+          'hostadress' : "'%'"} #"'%'"}
 
 db_tables_views = { #dictionary containing all tables and table-views and their attributes
     'oligo' : ['oligo_ID', 'oligo_name', 'oligo_type',
