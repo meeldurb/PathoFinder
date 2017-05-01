@@ -117,8 +117,7 @@ def get_from_orderqueue(queue_ID_list):
     # get a boolean here, that checks which oligos were selected for processing
     # if process = selected:
     for queue_ID in queue_ID_list:
-        sql = """SELECT * FROM pathofinder_db.order_queue
-             WHERE queue_ID = "%s";""" %(queue_ID)        
+        sql = """SELECT * FROM Pathofinder.order_queue WHERE queue_ID = "%s";""" % (queue_ID)
         orderqueue_tuple = TLQ.execute_select_queries(sql)[0]
         yield orderqueue_tuple
 
@@ -154,7 +153,6 @@ def process_to_db(self, queue_ID_list):
         # deze moet echter pas gecreerd worden na het processen van de oligos
         # make new order number
         order_number = make_new_ID("order")
-        print order_number
         import_order_dict["order_number"] = order_number
         #supplier_ID is taken from Supplier table
         import_order_dict["supplier_ID"] = supplier_ID
@@ -268,8 +266,6 @@ def process_to_db(self, queue_ID_list):
                 # order needs to be imported outside the for-loop,
                 # only for every process once
                 import2order = True
-
-                print "importing everything..."      
                     
                 # when an update is done also needs to be imported still, not here            
 
@@ -300,15 +296,15 @@ def get_supplier_ID(supplier_name): # not sure whether need to use
         supplier_ID -- string, the ID of supplier associated to supplier_name
     """
 
-    sql = """SELECT supplier_ID FROM pathofinder_db.supplier
-             WHERE supplier_name = "%s";""" %(supplier_name)
+    sql = """SELECT supplier_ID FROM `%s`.supplier
+             WHERE supplier_name = "%s";""" %(cfg.mysql['database'],supplier_name)
     supplier_tuple = TLQ.execute_select_queries(sql)
     if supplier_tuple:
         supplier_ID = supplier_tuple[0][0]
         return supplier_ID
     else:
-        print 'supplier is not in db. Please ask admin to import \
-                supplier name and ID first'
+        raise ValueError('supplier is not in db. Please ask admin to import \
+                supplier name and ID first')
 
 
 def get_project_ID(project_name):
@@ -319,15 +315,15 @@ def get_project_ID(project_name):
     Returns:
         project_ID -- string, the ID of project associated to project_name
     """
-    sql = """SELECT project_ID FROM pathofinder_db.project
-             WHERE project_name = "%s";""" %(project_name)
+    sql = """SELECT project_ID FROM `%s`.project
+             WHERE project_name = "%s";""" %(cfg.mysql['database'],project_name)
     project_tuple = TLQ.execute_select_queries(sql)
     if project_tuple:
         project_ID = project_tuple[0][0]
         return project_ID
     else:
-        print 'project is not in db. Please ask admin to import \
-                new project name and ID first'
+        raise ValueError('project is not in db. Please ask admin to import \
+                new project name and ID first')
 
 def supplierlist_check(queue_ID_list):
     """ Checks whether the list of suppliers contains all the same suppliers
@@ -373,14 +369,12 @@ def check_sequence_duplicated(seq, fiveprime='', threeprime='',
     # raise some frame
     # choose whether commit and it will get a new batchnumber but not a new olinumber
     # or choose to abort
-    sql = """SELECT sequence, oligo_ID FROM pathofinder_db.oligo WHERE
-            sequence = "%s" """ %(seq)
+    sql = """SELECT sequence, oligo_ID FROM %s.oligo WHERE
+            sequence = "%s" """ %(cfg.mysql['database'],seq)
     seq_tuples = TLQ.execute_select_queries(sql)
-    print "seq tuples is: ", seq_tuples
     if seq_tuples:
         # we loop trough all tuples, because sometimes more oli_ID's are
         # associated to same sequence
-        print "duplicate sequences found"
         # not unpacking tuple yet, checking whether something is inside
         # need to retrieve oligoID for when user wants to re-order oligo
         # the oligo gets a new batch, but keeps the oligoID
@@ -389,16 +383,13 @@ def check_sequence_duplicated(seq, fiveprime='', threeprime='',
         dupl_label, oligoID = check_labels_duplicated(seq, fiveprime,
                                                      threeprime, M1, M1pos)
         if dupl_label == True:
-            print "sequence and labels duplicated"
             duplicated = True
         else:
-            print "only sequence duplicated labels not"
             duplicated = False
     else:
         # when tuple is found empty, we can proceed importing the oligo
         duplicated = False
         oligoID = ""
-        print "sequence unique"
 
     return duplicated, oligoID
 
@@ -417,13 +408,11 @@ def check_labels_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos=''):
     """
 
     sql = """SELECT sequence, oligo_ID, label5prime, label3prime, labelM1, labelM1position
-        FROM pathofinder_db.oligo WHERE sequence = "%s" """ %(seq)
+        FROM %s.oligo WHERE sequence = "%s" """ %(cfg.mysql['database'], seq)
     
     all_tuples = TLQ.execute_select_queries(sql)
-    print (seq, fiveprime, threeprime, M1, M1pos)
-    print "all tuple for labels is: ", all_tuples
+
     for one_tuple in all_tuples:
-        print "separate tuple for labels: ", one_tuple
 
         sequence, oli_ID, labelfive, labelthree, labelM1, labelM1pos = one_tuple
     
@@ -435,10 +424,8 @@ def check_labels_duplicated(seq, fiveprime='', threeprime='', M1='', M1pos=''):
             ): 
             duplicated = True
             return duplicated, oli_ID
-            print "labels are duplicated"
         else:
             duplicated = False
-            print "unique labels"
 
 
     return duplicated, oli_ID
@@ -455,7 +442,7 @@ def get_max_ID(table):
     # when a typo occurs in table naming
     table = table.lower()
     # makes a choice between which table is selected
-    sql = """SELECT MAX(%s) FROM pathofinder_db.`%s`  """ % (cfg.db_tables_views[table][0], table)
+    sql = """SELECT MAX(%s) FROM %s.`%s`  """ % (cfg.db_tables_views[table][0], cfg.mysql['database'], table)
     # the sql query retuns a tuple, we only want to take the number
     max_ID = TLQ.execute_select_queries(sql)[0][0]
     return max_ID
@@ -658,14 +645,12 @@ def new_order_no(table): #should only create one per import
     
     """
     max_ID = get_max_ID(table)
-    print max_ID
     # retrieve only variable part
     # first 4 digits are constant per year, need to be sliced off
     string_max_ID = str(max_ID)
     # search for pattern, when found proceed
     pattern = re.compile(r'(ORDNO)([0-9][0-9][0-9][0-9])([0-9]+)')
     matcher = pattern.search(string_max_ID)
-    print matcher
     if matcher != None:
         # split 3 groups
         ordno = matcher.group(1)
@@ -689,7 +674,6 @@ def new_order_no(table): #should only create one per import
 
     elif matcher == None:
         actual_year = get_date_stamp()[6:]
-        print actual_year
         new_order_number = "ORDNO" + str(actual_year) + "0001"
 
     return new_order_number
