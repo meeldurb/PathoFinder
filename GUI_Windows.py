@@ -27,6 +27,9 @@ import Table_update_queries as TUQ
 #from import_oligo_parser import make_new_ID
 import import_oligo_parser as IOP
 from write_OrderOut import change_status
+import tkFileDialog, Tkconstants
+import time
+import datetime
 
 
 
@@ -71,7 +74,7 @@ class OligoDatabase(tk.Tk):
                   Employees, AddEmployee, OrderBin, BinToQueue, QueueToBin, ProcessQueue,
                   OrderQueue, Deliveries, OutOfStock, GeneralOrderStatus, RemoveUser, AdminRights,
                   AddSupplier, AddProject, RemoveOligo, Project, ModifyProject, Supplier,
-                  ModifySupplier):
+                  ModifySupplier, WriteOrderOut):
             page_name = F.__name__
             # the classes (.. Page) require a widget that will be parent of
             # the class and object that will serve as a controller
@@ -398,6 +401,84 @@ class Import(tk.Frame):
         except Exception as e:
             self.var_message.set(str(e))
 
+class WriteOrderOut(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        self.path_var = tk.StringVar()
+        self.var_message = tk.StringVar()
+        #save a reference to controller in each page:
+        self.controller = controller
+
+        
+        label = tk.Label(self, text="Write Order Out")
+        label.pack(side = 'top', pady=20)
+
+        # Group for the entryline
+        groupentry = tk.LabelFrame(self, relief = 'flat')
+        groupentry.pack(side = 'top')
+        
+        label2 = tk.Label(groupentry, text="Write file to location:")
+        label2.pack(side = 'left', pady = 5, padx= 10)
+
+        text_path = tk.Entry(groupentry, bg='white', fg='black', width=50,
+                             textvariable=self.path_var, justify="left" )
+                                # add feature that it will expand upon selection
+                                # add that when upload was succesfull, path dissappears
+        text_path.pack(side = 'left', pady = 5, padx= 10)
+
+        button3 = tk.Button(groupentry, text="Save As",
+                            command=lambda:self.path_var.set(self.asksaveasfilename()))
+        button3.pack(side = 'left', pady = 5, padx= 10)
+
+        # Upload button on new line
+        button4 = tk.Button(self, text="Create",
+                            command=lambda: self.write_output())
+                            
+        button4.pack(side = 'top', pady = 5, padx= 10)
+
+        # Message
+        msg = tk.Message(self, width=500, font = SMALL_FONT)
+        msg['textvariable'] = self.var_message
+        msg.pack(side = 'top', pady = 5, padx= 10)
+        
+        # Navigation Button
+        navgroup = tk.LabelFrame(self, relief = 'flat')
+        navgroup.pack(side = 'bottom', pady = 5, padx = 10)
+        
+        button2 = tk.Button(navgroup, text="Back to Home",  width = 17,
+                         command=lambda:controller.show_frame("Home"))
+        button2.pack(side = 'left', pady = 5, padx= 10)
+        
+        button3 = tk.Button(navgroup, text = 'Back to Order Queue',  width = 17,
+                             command = lambda : self.controller.show_frame("OrderQueue"))
+        button3.pack(side = 'right', pady=5, padx=10)
+
+        self.file_opt = options = {}
+        options['filetypes'] = [('comma Seperated', '.csv')]
+        options['initialfile'] = ('OrderOut_%s.csv' % self.get_date_stamp())
+
+    def asksaveasfilename(self):
+        filename = tkFileDialog.asksaveasfilename(**self.file_opt)
+
+        if filename:
+            open(filename, 'w')
+            return(filename)
+
+    def write_output(self):
+        try:
+            change_status(self.path_var.get())
+            self.var_message.set("Created file succesfully")
+        except Exception as e:
+            self.var_message.set(str(e))
+            
+    def get_date_stamp(self):
+        """Returns a string of the current date in format DD-MM-YYYY
+        """
+        ts = time.time()
+        date = datetime.datetime.fromtimestamp(ts).strftime('%d-%m-%Y')
+        return date
+            
 class ChangePassword(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -1831,7 +1912,7 @@ class OrderQueue(tk.Frame):
         button5.pack(side = 'top', pady = 5, padx= 10)
 
         button6 = tk.Button(groupleft, text="Write OrderOut", width = 15,
-                            command = lambda: self.write_output())
+                            command = lambda: self.controller.show_frame("WriteOrderOut"))
         button6.pack(side = 'top', pady = 5, padx= 10)
         
         # CentreRight Group
@@ -1868,12 +1949,6 @@ class OrderQueue(tk.Frame):
         button7 = tk.Button(groupnav, text="Back to Order Status", width = 17,
                          command=lambda:self.controller.show_frame("OrderStatus"))
         button7.pack(side = 'right', pady=5, padx=10)
-
-    def write_output(self):
-        try:
-            change_status()
-        except Exception as e:
-            self.message.set(str(e))
 
 class BinToQueue(tk.Frame):
     def __init__(self, parent, controller):
