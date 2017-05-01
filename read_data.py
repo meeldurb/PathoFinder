@@ -22,7 +22,9 @@ def read_oligolist(filename, start_OLI_ID):
             
         if start == True:
             if "OLI" in line[0]:
-                print line[0]        
+                print line[0]
+                print line
+                print len(line)
 
                 # OLIGO
                 oligodict = {}
@@ -60,59 +62,68 @@ def read_oligolist(filename, start_OLI_ID):
                 except MySQLdb.Error,e:
                     raise ValueError(e[0], e[1])
                 
-                # BATCH
-                batchdict = {}
+               
 
-                # split up notes to retrieve batchnumbers
-                notes = line[47].split('|')
+def read_batchlist(filename, start_batchnr):
+    """Import the data from a .tsv file into the database
 
-                # only continue if notes contain something
-                if len(notes) > 1:
-                
-                    # Retrieve batchnumber
-                    batch_pattern = re.compile(r'OligoBatchNr ([0-9]*)')
-                    batch_match = batch_pattern.search(notes[1])
-                    batch_nr = batch_match.group(1)
-                    # Retrieve Application number
-                    app_pattern = re.compile(r'Application ([0-9]*)')
-                    app_match = app_pattern.search(notes[2])
-                    app_nr = app_match.group(1)
+    Keyword Arguments:
+    filename        -- string, filepath to importfile. only .tsv extension!
+    start_OLI_ID    -- string, the whole OLI ID of the row to start importing from"""
+    data = open(filename, 'r')
+    start = False
+    for line in data:
+        line = line.split('\t')
+        
+        # Start from the OLI ID from input
+        if line[2] == start_batchnr:
+            start = True
+            
+        if start == True:
+        
+            print (line[1], line[2])
+            
 
-                    if batch_nr != None:
-                        batchdict[cfg.db_tables_views['batch'][0]] = batch_nr     # batch_number
-                        batchdict[cfg.db_tables_views['batch'][1]] = line[0]            # OLI ID
+            # BATCH
+            batchdict = {}
 
-                        #synthesis level does not always have a value
-                        if line[19] == '':
-                            line[19] = '00000'
-                        batchdict[cfg.db_tables_views['batch'][2]] = line[19]    # synth ord
-                        
-               #         batchdict[cfg.db_tables_views['batch'][3]] = line[0]    # purify method
-                #        batchdict[cfg.db_tables_views['batch'][4]] = line[0]    # synth del
-                 #       batchdict[cfg.db_tables_views['batch'][5]] = line[0]    # spec sheet
-                  #      batchdict[cfg.db_tables_views['batch'][6]] = line[0]    # order number
-                   #     batchdict[cfg.db_tables_views['batch'][7]] = line[0]    # del date
-                        batchdict[cfg.db_tables_views['batch'][8]] = "Delivered"    # order status
+            # only continue if notes contain something
 
+            batchdict[cfg.db_tables_views['batch'][0]] = line[2]     # batch_number
+            batchdict[cfg.db_tables_views['batch'][1]] = line[1]    # OLI ID
+            if len(line[5]) == 0:
+                line[5] = 000
+            batchdict[cfg.db_tables_views['batch'][2]] = line[5]    # synth ord
+            
+            batchdict[cfg.db_tables_views['batch'][3]] = line[7]    # purify method
+    #        batchdict[cfg.db_tables_views['batch'][4]] = line[0]    # synth del
+     #       batchdict[cfg.db_tables_views['batch'][5]] = line[0]    # spec sheet
+      #      batchdict[cfg.db_tables_views['batch'][6]] = line[0]    # order number
 
-                        # Insert into Batch
-                        try:
-                            TUQ.insert_row('batch', batchdict)
-                        except MySQLdb.Error,e:
-                            raise ValueError(e[0], e[1])
+            batchdict[cfg.db_tables_views['batch'][8]] = "delivered"    # order status
+            if len(line[22]) > 1:
+                batchdict[cfg.db_tables_views['batch'][7]] = convertdate(line[22]) # del date
+
+            # Insert into Batch
+            try:
+                TUQ.insert_row('batch', batchdict)
+            except MySQLdb.Error,e:
+                raise ValueError(e[0], e[1])
 
 def convertdate(datetimestamp):
     """Converts a String date : 22-05-2011 to 22/05/2011"""
 
-    pattern = re.compile(r'([0-9]+-[0-9]+-[0-9]+) ')
+    pattern = re.compile(r'([0-9]+-[0-9]+-[0-9]+)')
     match = pattern.search(datetimestamp)
     match = match.group(1)
     result = re.sub(r'-','/', match)
     return result
-    
+        
 if __name__ == "__main__":
-    filename  = "../PathoFinder db/2016-09-21 Oligolist PF.xlsx - Sheet1.tsv"
+    #filename  = "C:/Users/jornv/Downloads/01-05-2017 Backup Labscores.txt"
+    filename = "C:/Users/jornv/Desktop/63611274508_oligosynth.txt"
     #read_oligolist(filename, 'OLI000003')
-    read_oligolist(filename, 'OLI005119')
+    #read_oligolist(filename, 'OLI002460')
+    read_batchlist(filename, '20140869')
     
     
