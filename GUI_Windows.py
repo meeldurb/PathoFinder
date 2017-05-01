@@ -159,8 +159,8 @@ class Login(tk.Frame):
             db = MySQLdb.connect(cfg.mysql['host'], self.controller.shared_data["username"].get(), self.controller.shared_data["password"].get(), cfg.mysql['database'])
             db.close()
             self.controller.show_frame("Home")
-        except:
-            self.var_message.set("Invalid username or password")
+        except Exception as e:
+            self.var_message.set(str(e))
         # Empty the entry fields
         self.username.set("")
         self.password.set("")
@@ -1928,11 +1928,18 @@ class OrderQueue(tk.Frame):
                             command = lambda : self.controller.show_frame("BinToQueue"))
         button4.pack(side = 'top', pady = 5, padx= 10)
 
-        # Filler, needed due to unequal number of buttons on each side
-        fillbutton = tk.Button(groupright, relief = 'flat', state = 'disabled')
+        button5 = tk.Button(groupright, text = 'View Processed', width = 15,
+                            command = lambda : TLQ.build_query_and_table('processed_oligos'))
+        button5.pack(side = 'top', pady = 5, padx= 10)
+
+        fillbutton = tk.Button(groupright, text = 'View Ordered', width = 15,
+                            command = lambda : TLQ.build_query_and_table('ordered_oligos'))
         fillbutton.pack(side = 'top', pady = 5, padx= 10)
-        fillbutton2 = tk.Button(groupright, relief = 'flat', state = 'disabled')
-        fillbutton2.pack(side = 'top', pady = 5, padx= 10)
+
+        # Filler, needed due to unequal number of buttons on each side
+        #fillbutton = tk.Button(groupright, relief = 'flat', state = 'disabled')
+        #fillbutton.pack(side = 'top', pady = 5, padx= 10)
+        
 
         message = tk.Message(self, textvariable = self.message, width = 500, font = SMALL_FONT)
         message.pack(side = 'top', pady=5, padx=10)
