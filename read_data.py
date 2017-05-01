@@ -74,6 +74,7 @@ def read_batchlist(filename, start_batchnr):
     start = False
     for line in data:
         line = line.split('\t')
+        #print line[2]
         
         # Start from the OLI ID from input
         if line[2] == start_batchnr:
@@ -124,6 +125,6 @@ if __name__ == "__main__":
     filename = "C:/Users/jornv/Desktop/63611274508_oligosynth.txt"
     #read_oligolist(filename, 'OLI000003')
     #read_oligolist(filename, 'OLI002460')
-    read_batchlist(filename, '20140869')
+    read_batchlist(filename, '20170158')
     
     
