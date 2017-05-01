@@ -577,24 +577,27 @@ def new_oligo_ID(table):
     """
     # retrieve only the number part
     max_ID = get_max_ID(table)
-    # retaining the same length of the oligo_ID's (6 digits)
-    # 2 groups in pattern
-    pattern = re.compile(r'(OLI)([0-9]+)')
-    matcher = pattern.search(max_ID)
-    # if matcher is found proceed
-    if matcher != None:
-        # split the 2 groups
-        oli = matcher.group(1)
-        olino = matcher.group(2)
-        # convert oligo number and add 1
-        int_olino = int(olino)
-        new_olino = int_olino + 1
-        convert_olino = str(new_olino)
-        # fill in 0's up until 6 digits
-        complete_olino = convert_olino.zfill(6)
-        # make complete oligoID 
-        new_oligoID = oli + complete_olino
-        return new_oligoID
+    if max_ID != None:
+        # retaining the same length of the oligo_ID's (6 digits)
+        # 2 groups in pattern
+        pattern = re.compile(r'(OLI)([0-9]+)')
+        matcher = pattern.search(max_ID)
+        # if matcher is found proceed
+        if matcher != None:
+            # split the 2 groups
+            oli = matcher.group(1)
+            olino = matcher.group(2)
+            # convert oligo number and add 1
+            int_olino = int(olino)
+            new_olino = int_olino + 1
+            convert_olino = str(new_olino)
+            # fill in 0's up until 6 digits
+            complete_olino = convert_olino.zfill(6)
+            # make complete oligoID 
+            new_oligoID = oli + complete_olino
+    else:
+        new_oligoID = 'OLI000001'
+    return new_oligoID
 
 
 def new_batch_number(table):
@@ -606,32 +609,38 @@ def new_batch_number(table):
         A new oligo batch number
     """
     max_ID = get_max_ID(table)
-    # retrieve only variable part
-    # first 4 digits are constant per year, need to be sliced off
-    string_max_ID = str(max_ID)
-    pattern = re.compile(r'([0-9][0-9][0-9][0-9])([0-9]+)')
-    matcher = pattern.search(string_max_ID)
-    # search for pattern, when found proceed
-    if matcher != None:
-        # split 2 groups
-        year = matcher.group(1)
-        batchno = matcher.group(2)
-        #convert batchno and add 1
-        int_batchno = int(batchno)
-        new_batchno = int_batchno + 1
-        convert_batchno = str(new_batchno)
-        # fill in 0's up to 4 digits
-        complete_batchno = convert_batchno.zfill(4)
-        # check whether year is the same, when not start over with numbering
+    if max_ID != None:
+        # retrieve only variable part
+        # first 4 digits are constant per year, need to be sliced off
+        string_max_ID = str(max_ID)
+        pattern = re.compile(r'([0-9][0-9][0-9][0-9])([0-9]+)')
+        matcher = pattern.search(string_max_ID)
+        # search for pattern, when found proceed
+        if matcher != None:
+            # split 2 groups
+            year = matcher.group(1)
+            batchno = matcher.group(2)
+            #convert batchno and add 1
+            int_batchno = int(batchno)
+            new_batchno = int_batchno + 1
+            convert_batchno = str(new_batchno)
+            # fill in 0's up to 4 digits
+            complete_batchno = convert_batchno.zfill(4)
+            # check whether year is the same, when not start over with numbering
+            actual_year = get_date_stamp()[6:]
+            if actual_year != year:
+                # start at 0001 when a new year is found
+                newyear_batchno = actual_year + "0001"
+                new_batch_number = int(newyear_batchno)
+            else:
+                thisyear_batchno = year + complete_batchno
+                new_batch_number = int(thisyear_batchno)
+    else:
         actual_year = get_date_stamp()[6:]
-        if actual_year != year:
-            # start at 0001 when a new year is found
-            newyear_batchno = actual_year + "0001"
-            new_batch_number = int(newyear_batchno)
-        else:
-            thisyear_batchno = year + complete_batchno
-            new_batch_number = int(thisyear_batchno)
-        return new_batch_number
+        # start at 0001 when a new year is found
+        newyear_batchno = actual_year + "0001"
+        new_batch_number = int(newyear_batchno)
+    return new_batch_number
         
 def new_order_no(table): #should only create one per import
     # optional function is to make it work per supplier
@@ -645,34 +654,36 @@ def new_order_no(table): #should only create one per import
     
     """
     max_ID = get_max_ID(table)
-    # retrieve only variable part
-    # first 4 digits are constant per year, need to be sliced off
-    string_max_ID = str(max_ID)
-    # search for pattern, when found proceed
-    pattern = re.compile(r'(ORDNO)([0-9][0-9][0-9][0-9])([0-9]+)')
-    matcher = pattern.search(string_max_ID)
-    if matcher != None:
-        # split 3 groups
-        ordno = matcher.group(1)
-        year = matcher.group(2)
-        orderno = matcher.group(3)
-        #convert batchno and add 1
-        int_orderno = int(orderno)
-        new_orderno = int_orderno + 1
-        convert_orderno = str(new_orderno)
-        # fill in 0's up to 3 digits
-        complete_orderno = convert_orderno.zfill(4)
-        # check whether year is the same, when not start over with numbering
-        actual_year = get_date_stamp()[6:]
-        if actual_year != year:
-            # start at 0001 when a new year is found
-            new_order_number = ordno + actual_year + "0001"
-        else:
-            new_order_number = ordno + year + complete_orderno
-        #print new_order_number
-        #return new_order_number
+    if max_ID != None:
+        # retrieve only variable part
+        # first 4 digits are constant per year, need to be sliced off
+        string_max_ID = str(max_ID)
+        # search for pattern, when found proceed
+        pattern = re.compile(r'(ORDNO)([0-9][0-9][0-9][0-9])([0-9]+)')
+        matcher = pattern.search(string_max_ID)
+        if matcher != None:
+            # split 3 groups
+            ordno = matcher.group(1)
+            year = matcher.group(2)
+            orderno = matcher.group(3)
+            #convert batchno and add 1
+            int_orderno = int(orderno)
+            new_orderno = int_orderno + 1
+            convert_orderno = str(new_orderno)
+            # fill in 0's up to 3 digits
+            complete_orderno = convert_orderno.zfill(4)
+            # check whether year is the same, when not start over with numbering
+            actual_year = get_date_stamp()[6:]
+            if actual_year != year:
+                # start at 0001 when a new year is found
+                new_order_number = ordno + actual_year + "0001"
+            else:
+                new_order_number = ordno + year + complete_orderno
+            #print new_order_number
+            #return new_order_number
+        
 
-    elif matcher == None:
+    else:
         actual_year = get_date_stamp()[6:]
         new_order_number = "ORDNO" + str(actual_year) + "0001"
 
@@ -719,7 +730,8 @@ if __name__ == "__main__":
    # get_from_orderqueue([4,5,6])
 
    # process_to_db([1,2,3,4,5, 6, 7, 8, 9])
-    process_to_db([1,2,3,4,5,6])
+   print get_max_ID('oligo')
+    #process_to_db([1,2,3,4,5,6])
     #process_to_db([7,8,9,10])
 
     #supplierlist_check([1,2,3,4,5, 6, 7, 8, 9])
